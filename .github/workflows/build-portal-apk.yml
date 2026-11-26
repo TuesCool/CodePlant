@@ -1,0 +1,62 @@
+name: Build CodePlant Phone Agent (APK + Pi Server Check)
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "phone-agent/**"
+      - ".github/workflows/build-portal-apk.yml"
+  workflow_dispatch:
+
+jobs:
+  build-portal-apk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: phone-agent/android-portal
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.11.1"
+
+      - name: Build Debug APK
+        run: gradle assembleDebug --no-daemon --stacktrace
+
+      - name: Upload Portal APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: codeplant-portal-debug-apk
+          path: phone-agent/android-portal/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
+
+  check-pi-server:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: phone-agent/pi-server
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install & Typecheck pi-server
+        run: |
+          npm install
+          npm run typecheck

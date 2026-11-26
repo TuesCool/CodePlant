@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CodePlant Phone Agent 控制台</title>
+  <style>
+    :root {
+      --bg: #0b0e14; --card: #131822; --border: #232b3a; --text: #e6edf3;
+      --muted: #8b949e; --accent: #4f8cff; --ok: #2ea043; --warn: #d29922; --err: #f85149;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); }
+    header { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; background: var(--card); }
+    .pill { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 12px; border: 1px solid var(--border); }
+    .ok { color: #3fb950; border-color: #2ea04355; }
+    .bad { color: #ff7b72; border-color: #f8514955; }
+    main { max-width: 1120px; margin: 0 auto; padding: 14px; display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; }
+    @media (max-width: 860px) { main { grid-template-columns: 1fr; } }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 14px; }
+    h3 { margin: 0 0 10px; font-size: 15px; }
+    input, select, textarea, button {
+      background: #0d1117; color: var(--text); border: 1px solid var(--border);
+      border-radius: 7px; padding: 8px 10px; font-size: 13px;
+    }
+    button { background: var(--accent); border-color: var(--accent); color: #fff; cursor: pointer; font-weight: 600; }
+    button.ghost { background: transparent; color: var(--text); border-color: var(--border); }
+    button.danger { background: var(--err); border-color: var(--err); }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+    .row > * { flex: 1; min-width: 110px; }
+    #chatLog { height: 340px; overflow-y: auto; background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 10px; font-size: 13px; line-height: 1.55; white-space: pre-wrap; margin-bottom: 10px; }
+    .muted { color: var(--muted); font-size: 12px; }
+    .list-item { padding: 7px 9px; border: 1px solid var(--border); border-radius: 7px; margin-bottom: 6px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <strong>📱 CodePlant Phone Agent (MI14 · 路线 A)</strong>
+      <span class="muted" id="ctxUsage">上下文: --</span>
+    </div>
+    <div id="statusPills"></div>
+  </header>
+
+  <main>
+    <section>
+      <div class="card">
+        <h3>💬 对话与手机控制指令台</h3>
+        <div id="chatLog">准备就绪。可在右侧配置模型或登录 ChatGPT 后发送指令。\n例如：“用虫部落搜索嵌入式 Rust 资料并整理”、“帮我制定今日待办计划”、“查看微信最新通知”。</div>
+        <div class="row">
+          <textarea id="chatInput" rows="2" placeholder="输入指令..."></textarea>
+        </div>
+        <div class="row">
+          <button onclick="sendChat()">发送执行</button>
+          <button class="ghost" onclick="compactNow()">滚动压缩上下文</button>
+          <button class="danger" onclick="abortChat()">紧急中止</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>🛡️ 待二次确认高敏操作（如微信打视频）</h3>
+        <div id="confirmList" class="muted">暂无挂起操作</div>
+      </div>
+
+      <div class="card">
+        <h3>🔍 虫部落快捷检索（优先后台抓取）</h3>
+        <div class="row">
+          <input id="cblQuery" placeholder="输入搜索关键词..." />
+          <button onclick="searchChongbuluo()" style="flex:0 0 110px;">后台抓取</button>
+        </div>
+        <pre id="cblOut" class="muted" style="white-space:pre-wrap;max-height:180px;overflow:auto;"></pre>
+      </div>
+    </section>
+
+    <section>
+      <div class="card">
+        <h3>🧠 模型配置与自动发现</h3>
+        <div class="row">
+          <input id="baseUrl" placeholder="Base URL (如 https://api.openai.com)" />
+          <input id="apiKey" type="password" placeholder="API Key (sk-...)" />
+        </div>
+        <div class="row">
+          <select id="apiDialect">
+            <option value="openai-completions">openai-completions</option>
+            <option value="openai-responses">openai-responses</option>
+            <option value="anthropic-messages">anthropic-messages</option>
+          </select>
+          <button onclick="discoverModels()">自动找模型</button>
+        </div>
+        <div class="row">
+          <select id="modelSelect" onchange="switchModel()"></select>
+        </div>
+        <div class="row">
+          <button class="ghost" onclick="startChatGptOAuth('browser')">ChatGPT OAuth 登录</button>
+          <button class="ghost" onclick="startChatGptOAuth('device')">Device Code 登录</button>
+        </div>
+        <div id="oauthBox" class="muted"></div>
+      </div>
+
+      <div class="card">
+        <h3>📅 待办 · 日计划督促 · 周复盘</h3>
+        <div class="row">
+          <input id="todoTitle" placeholder="新增待办内容..." />
+          <select id="todoPriority" style="flex:0 0 80px;">
+            <option value="P0">P0</option>
+            <option value="P1" selected>P1</option>
+            <option value="P2">P2</option>
+          </select>
+          <button onclick="addTodo()" style="flex:0 0 75px;">添加</button>
+        </div>
+        <div class="row">
+          <button class="ghost" onclick="genPlan()">生成今日计划</button>
+          <button class="ghost" onclick="genReview(true)">周复盘并迭代规则</button>
+        </div>
+        <div id="butlerView" class="muted"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const chatLog = document.getElementById("chatLog");
+    const appendLog = (txt) => {
+      chatLog.textContent += "\n" + txt;
+      chatLog.scrollTop = chatLog.scrollHeight;
+    };
+
+    const es = new EventSource("/api/events");
+    es.addEventListener("step", (e) => appendLog("⚙️ " + JSON.parse(e.data).label));
+    es.addEventListener("delta", (e) => { chatLog.textContent += JSON.parse(e.data).delta; chatLog.scrollTop = chatLog.scrollHeight; });
+    es.addEventListener("compacted", (e) => { appendLog("\n🗜️ 已自动触发上下文滚动压缩"); refreshStatus(); });
+    es.addEventListener("wechat_notification", (e) => {
+      const d = JSON.parse(e.data);
+      appendLog(`\n📩 微信通知 [${d.title}]: ${d.text} (${d.whitelisted ? "白名单" : "普通"})`);
+    });
+
+    async function api(path, body) {
+      const r = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {});
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || r.statusText);
+      return j;
+    }
+
+    async function refreshStatus() {
+      const s = await api("/api/status");
+      const p = s.portal;
+      document.getElementById("statusPills").innerHTML = [
+        `<span class="pill ${p.ok ? 'ok' : 'bad'}">Portal ${p.ok ? '在线' : '离线'}</span>`,
+        `<span class="pill ${p.accessibilityConnected ? 'ok' : 'bad'}">无障碍 ${p.accessibilityConnected ? '就绪' : '未连'}</span>`,
+        `<span class="pill ${p.shizukuReady ? 'ok' : 'bad'}">Shizuku ${p.shizukuReady ? '就绪' : '未连'}</span>`,
+        `<span class="pill ${p.notificationListenerConnected ? 'ok' : 'bad'}">通知监听 ${p.notificationListenerConnected ? '就绪' : '未连'}</span>`,
+      ].join(" ");
+
+      if (s.contextUsage) {
+        document.getElementById("ctxUsage").textContent =
+          `上下文: ${s.contextUsage.percent}% (${s.contextUsage.estimatedTokens}/${s.contextUsage.contextWindow}) · 压缩 ${s.contextUsage.compactionCount} 次`;
+      }
+
+      const sel = document.getElementById("modelSelect");
+      const cur = `${s.models.routing.primaryProvider}::${s.models.routing.primaryModel}`;
+      sel.innerHTML = "";
+      for (const prov of s.models.providers) {
+        for (const m of prov.models) {
+          const opt = document.createElement("option");
+          opt.value = `${prov.id}::${m.id}`;
+          opt.textContent = `${prov.name} / ${m.id}${m.images ? " [看图]" : ""}`;
+          if (opt.value === cur) opt.selected = true;
+          sel.appendChild(opt);
+        }
+      }
+
+      document.getElementById("oauthBox").textContent = (s.models.oauthLogs || []).join(" | ");
+
+      const cBox = document.getElementById("confirmList");
+      cBox.innerHTML = s.pendingConfirmations.length
+        ? s.pendingConfirmations.map((c) => `
+          <div class="list-item">
+            <strong>${c.title}</strong><br>${c.detail}
+            <div class="row" style="margin-top:6px;">
+              <button onclick="resolveConfirm('${c.id}', true)">允许</button>
+              <button class="danger" onclick="resolveConfirm('${c.id}', false)">拒绝</button>
+            </div>
+          </div>`).join("")
+        : "暂无挂起操作";
+
+      const b = s.butler;
+      const todosHtml = b.todos.slice(0, 6).map((t) =>
+        `<div class="list-item">[${t.priority}] ${t.title} (${t.status})</div>`
+      ).join("");
+      const planHtml = b.todayPlan
+        ? `<div class="list-item"><strong>今日计划 (${b.todayPlan.date})</strong><br>` +
+          b.todayPlan.slots.map((sl) => `${sl.timeRange} ${sl.title} ${sl.reminded ? "✅已督促" : "⏳待提醒"}`).join("<br>") + `</div>`
+        : "";
+      document.getElementById("butlerView").innerHTML = planHtml + todosHtml;
+    }
+
+    async function discoverModels() {
+      try {
+        const res = await api("/api/models/discover", {
+          baseUrl: document.getElementById("baseUrl").value,
+          apiKey: document.getElementById("apiKey").value,
+          api: document.getElementById("apiDialect").value,
+        });
+        appendLog(`✅ 自动发现 ${res.models.length} 个模型 (${res.endpointUsed})`);
+        await refreshStatus();
+      } catch (e) { appendLog("❌ " + e.message); }
+    }
+
+    async function switchModel() {
+      const [primaryProvider, primaryModel] = document.getElementById("modelSelect").value.split("::");
+      await api("/api/models/routing", { primaryProvider, primaryModel });
+      refreshStatus();
+    }
+
+    async function startChatGptOAuth(method) {
+      await api("/api/oauth/chatgpt/start", { method });
+      setTimeout(refreshStatus, 1000);
+    }
+
+    async function sendChat() {
+      const msg = document.getElementById("chatInput").value.trim();
+      if (!msg) return;
+      document.getElementById("chatInput").value = "";
+      appendLog(`\n🧑 你: ${msg}\n🤖 Agent: `);
+      try {
+        await api("/api/chat", { message: msg });
+        refreshStatus();
+      } catch (e) { appendLog("\n❌ " + e.message); }
+    }
+
+    async function abortChat() { await api("/api/chat/abort", {}); appendLog("\n🛑 已发送中止信号"); }
+    async function compactNow() { await api("/api/compact", {}); refreshStatus(); }
+    async function resolveConfirm(id, allow) { await api("/api/confirmations/resolve", { id, allow }); refreshStatus(); }
+    async function searchChongbuluo() {
+      const res = await api("/api/chongbuluo/search", { query: document.getElementById("cblQuery").value });
+      document.getElementById("cblOut").textContent = res.markdownSummary;
+    }
+    async function addTodo() {
+      await api("/api/butler/todos", {
+        title: document.getElementById("todoTitle").value,
+        priority: document.getElementById("todoPriority").value,
+      });
+      document.getElementById("todoTitle").value = "";
+      refreshStatus();
+    }
+    async function genPlan() { await api("/api/butler/plan/generate", {}); refreshStatus(); }
+    async function genReview(apply) {
+      const res = await api("/api/butler/review/weekly", { applyOptimization: apply });
+      appendLog("\n" + res.review.markdownReport);
+      refreshStatus();
+    }
+
+    refreshStatus();
+    setInterval(refreshStatus, 8000);
+  </script>
+</body>
+</html>

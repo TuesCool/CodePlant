@@ -1,0 +1,2 @@
+-keep class com.codeplant.portal.shell.** { *; }
+-keep class rikka.shizuku.** { *; }

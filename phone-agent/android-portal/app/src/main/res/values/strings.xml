@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">CodePlant Portal</string>
+    <string name="accessibility_service_label">CodePlant 手机控制服务</string>
+    <string name="accessibility_service_description">供本地 Termux Pi Agent 读取精简控件树、执行点击滑动与中文输入（无需安全调试开关）。</string>
+    <string name="notification_listener_label">CodePlant 通知监听</string>
+</resources>

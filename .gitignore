@@ -1,0 +1,22 @@
+# Node / Termux runtime
+node_modules/
+.env
+phone-agent/pi-server/data/*.json
+phone-agent/pi-server/data/archives/
+phone-agent/pi-server/data/chongbuluo/
+
+# Android / Gradle
+.gradle/
+build/
+**/build/
+local.properties
+*.iml
+.idea/
+*.apk
+*.aab
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+*.tmp
+~$*.docx
