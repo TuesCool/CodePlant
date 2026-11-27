@@ -105,6 +105,10 @@ export class ButlerStore {
     return fs.readFileSync(this.preferencesPath, "utf-8");
   }
 
+  savePreferences(content: string) {
+    fs.writeFileSync(this.preferencesPath, content, "utf-8");
+  }
+
   appendPreferenceOptimization(ruleText: string) {
     const line = `\n- [${todayStr()} 周复盘迭代] ${ruleText.trim()}`;
     fs.appendFileSync(this.preferencesPath, line, "utf-8");
@@ -117,15 +121,23 @@ export class ButlerStore {
     dueDate?: string;
     notes?: string;
   }): TodoItem {
+    const cleanTitle = String(input.title ?? "").trim();
+    if (!cleanTitle) {
+      throw new Error("待办标题不能为空");
+    }
+    const prio = input.priority === "P0" || input.priority === "P1" || input.priority === "P2"
+      ? input.priority
+      : "P1";
+    const mins = Number(input.estMinutes ?? 30);
     const item: TodoItem = {
       id: crypto.randomUUID().slice(0, 8),
-      title: input.title.trim(),
-      priority: input.priority ?? "P1",
-      estMinutes: Math.max(10, Math.min(240, input.estMinutes ?? 30)),
+      title: cleanTitle,
+      priority: prio,
+      estMinutes: Number.isFinite(mins) ? Math.max(10, Math.min(240, Math.round(mins))) : 30,
       status: "todo",
       dueDate: input.dueDate,
       createdAt: new Date().toISOString(),
-      notes: input.notes,
+      notes: input.notes?.trim() || undefined,
     };
     this.state.todos.unshift(item);
     this.save();
@@ -136,23 +148,40 @@ export class ButlerStore {
     const target = this.state.todos.find((t) => t.id === id);
     if (!target) return null;
     target.status = status;
-    if (status === "done") target.completedAt = new Date().toISOString();
+    if (status === "done") {
+      target.completedAt = new Date().toISOString();
+    } else {
+      delete target.completedAt;
+    }
     this.save();
     return target;
   }
 
+  deleteTodo(id: string): boolean {
+    const before = this.state.todos.length;
+    this.state.todos = this.state.todos.filter((t) => t.id !== id);
+    if (this.state.todos.length === before) return false;
+    this.save();
+    return true;
+  }
+
   /**
    * Generates today's time-blocked schedule from open todos ordered by priority (P0 > P1 > P2).
+   * Supports starting from current clock time (`fromNow = true`) so evening planning works naturally.
    */
-  generateDailyPlan(startHour = 9): DailyPlan {
+  generateDailyPlan(startHour = 9, fromNow = false): DailyPlan {
     const date = todayStr();
     const order = { P0: 0, P1: 1, P2: 2 };
     const open = this.state.todos
       .filter((t) => t.status === "todo" || t.status === "doing")
       .sort((a, b) => order[a.priority] - order[b.priority])
-      .slice(0, 6);
+      .slice(0, 8);
 
-    let cursorMinutes = startHour * 60;
+    const now = new Date();
+    let cursorMinutes = fromNow
+      ? now.getHours() * 60 + now.getMinutes() + 5
+      : Math.max(0, Math.min(23, Math.round(startHour))) * 60;
+
     const fmt = (mins: number) =>
       `${String(Math.floor(mins / 60) % 24).padStart(2, "0")}:${String(mins % 60).padStart(2, "0")}`;
 
@@ -179,6 +208,19 @@ export class ButlerStore {
     this.state.plans[date] = plan;
     this.save();
     return plan;
+  }
+
+  togglePlanSlotDone(slotId: string, done: boolean): DailyPlanSlot | null {
+    const plan = this.state.plans[todayStr()];
+    if (!plan) return null;
+    const slot = plan.slots.find((s) => s.id === slotId);
+    if (!slot) return null;
+    slot.done = done;
+    if (slot.todoId) {
+      this.updateTodoStatus(slot.todoId, done ? "done" : "todo");
+    }
+    this.save();
+    return slot;
   }
 
   generateWeeklyReview(applyAutoOptimization = false): WeeklyReview {

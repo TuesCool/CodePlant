@@ -102,6 +102,10 @@ async function runAgentTurn(userText: string) {
     onStepLog: (label) => broadcastEvent("step", { label, ts: Date.now() }),
   });
 
+  if (activeAgent) {
+    throw new Error("当前已有指令正在执行中，请等待完成或先点击中止。");
+  }
+
   const agent = new Agent({
     initialState: {
       messages: sessionMessages,
@@ -120,6 +124,9 @@ async function runAgentTurn(userText: string) {
         };
       }
       broadcastEvent("tool_start", { tool: ctx.toolCall.name, args: ctx.args });
+      if (ctx.toolCall.name.startsWith("butler_")) {
+        setTimeout(() => broadcastEvent("butler_updated", {}), 200);
+      }
       return undefined;
     },
     transformContext: async (messages) => {
@@ -315,18 +322,53 @@ const server = http.createServer(async (req, res) => {
     if (method === "POST" && url.pathname === "/api/butler/todos") {
       const body = await readJsonBody(req);
       if (body.action === "status") {
-        const updated = butler.updateTodoStatus(String(body.id), body.status);
+        const updated = butler.updateTodoStatus(String(body.id || ""), body.status);
+        broadcastEvent("butler_updated", {});
         return sendJson(res, 200, { ok: Boolean(updated), todo: updated });
       }
+      if (body.action === "delete") {
+        const deleted = butler.deleteTodo(String(body.id || ""));
+        broadcastEvent("butler_updated", {});
+        return sendJson(res, 200, { ok: deleted });
+      }
       const created = butler.addTodo(body);
+      broadcastEvent("butler_updated", {});
       sendJson(res, 200, { ok: true, todo: created });
       return;
     }
 
     if (method === "POST" && url.pathname === "/api/butler/plan/generate") {
       const body = await readJsonBody(req);
-      const plan = butler.generateDailyPlan(Number(body.startHour || 9));
+      const plan = butler.generateDailyPlan(Number(body.startHour ?? 9), Boolean(body.fromNow));
+      broadcastEvent("butler_updated", {});
       sendJson(res, 200, { ok: true, plan });
+      return;
+    }
+
+    if (method === "POST" && url.pathname === "/api/butler/plan/slot") {
+      const body = await readJsonBody(req);
+      const slot = butler.togglePlanSlotDone(String(body.slotId || ""), Boolean(body.done));
+      broadcastEvent("butler_updated", {});
+      sendJson(res, 200, { ok: Boolean(slot), slot });
+      return;
+    }
+
+    if (method === "POST" && url.pathname === "/api/butler/notify-test") {
+      await portal.notify({
+        id: `test-${Date.now()}`,
+        title: "🔔 CodePlant 督促通道测试",
+        body: "MI14 原生通知链路已连通！后续每日计划到点将通过此通道提醒你。",
+        level: "reminder",
+      });
+      sendJson(res, 200, { ok: true });
+      return;
+    }
+
+    if (method === "POST" && url.pathname === "/api/butler/preferences") {
+      const body = await readJsonBody(req);
+      butler.savePreferences(String(body.content ?? ""));
+      broadcastEvent("butler_updated", {});
+      sendJson(res, 200, { ok: true });
       return;
     }
 

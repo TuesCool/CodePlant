@@ -2,195 +2,1020 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CodePlant Phone Agent 控制台</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>CODEPLANT // MI14 个人管家与控屏台</title>
   <style>
     :root {
-      --bg: #0b0e14; --card: #131822; --border: #232b3a; --text: #e6edf3;
-      --muted: #8b949e; --accent: #4f8cff; --ok: #2ea043; --warn: #d29922; --err: #f85149;
+      --bg: #0e0f12;
+      --bg-grid: rgba(255, 255, 255, 0.03);
+      --surface: #16181d;
+      --surface-2: #1d2027;
+      --border: #272b34;
+      --border-strong: #383e4b;
+      --ink: #f2efe9;
+      --muted: #8b919d;
+      --accent: #ff5a26;
+      --accent-soft: rgba(255, 90, 38, 0.14);
+      --mint: #2ee59d;
+      --mint-soft: rgba(46, 229, 157, 0.12);
+      --amber: #f5a623;
+      --amber-soft: rgba(245, 166, 35, 0.14);
+      --danger: #ff4d4f;
+      --mono: "JetBrains Mono", "SFMono-Regular", Consolas, ui-monospace, monospace;
+      --sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
     }
-    * { box-sizing: border-box; }
-    body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); }
-    header { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; background: var(--card); }
-    .pill { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 12px; border: 1px solid var(--border); }
-    .ok { color: #3fb950; border-color: #2ea04355; }
-    .bad { color: #ff7b72; border-color: #f8514955; }
-    main { max-width: 1120px; margin: 0 auto; padding: 14px; display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; }
-    @media (max-width: 860px) { main { grid-template-columns: 1fr; } }
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 14px; }
-    h3 { margin: 0 0 10px; font-size: 15px; }
-    input, select, textarea, button {
-      background: #0d1117; color: var(--text); border: 1px solid var(--border);
-      border-radius: 7px; padding: 8px 10px; font-size: 13px;
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--ink);
+      background-color: var(--bg);
+      background-image: radial-gradient(var(--bg-grid) 1px, transparent 1px);
+      background-size: 18px 18px;
+      min-height: 100vh;
+      padding-bottom: 190px;
     }
-    button { background: var(--accent); border-color: var(--accent); color: #fff; cursor: pointer; font-weight: 600; }
-    button.ghost { background: transparent; color: var(--text); border-color: var(--border); }
-    button.danger { background: var(--err); border-color: var(--err); }
-    .row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
-    .row > * { flex: 1; min-width: 110px; }
-    #chatLog { height: 340px; overflow-y: auto; background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 10px; font-size: 13px; line-height: 1.55; white-space: pre-wrap; margin-bottom: 10px; }
-    .muted { color: var(--muted); font-size: 12px; }
-    .list-item { padding: 7px 9px; border: 1px solid var(--border); border-radius: 7px; margin-bottom: 6px; font-size: 12px; }
+
+    /* Top Telemetry Header */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(14, 15, 18, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 14px 0;
+    }
+    .topbar-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .brand-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-mark {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent);
+    }
+    .brand-title {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+    .brand-sub {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .led-strip {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .led {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 8px;
+      font-family: var(--mono);
+      font-size: 11px;
+      border-radius: 4px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .led::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+    .led.on { color: var(--mint); border-color: rgba(46, 229, 157, 0.35); }
+    .led.on::before { background: var(--mint); box-shadow: 0 0 6px var(--mint); }
+    .led.off { color: #ff7b72; border-color: rgba(255, 77, 79, 0.3); }
+    .led.off::before { background: var(--danger); }
+
+    /* Navigation Tabs */
+    .nav-tabs {
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .nav-tabs::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--muted);
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn.active {
+      color: var(--ink);
+      border-bottom-color: var(--accent);
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 16px 14px;
+    }
+    .view { display: none; animation: fadeIn 0.18s ease-out; }
+    .view.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+    @media (max-width: 860px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    /* Tactical Cards */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .panel-title {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .tag-mono {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* Hero KPI Strip */
+    .kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    @media (max-width: 640px) { .kpi-strip { grid-template-columns: repeat(2, 1fr); } }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+    .kpi-label { font-family: var(--mono); font-size: 11px; color: var(--muted); text-transform: uppercase; }
+    .kpi-value { font-family: var(--mono); font-size: 24px; font-weight: 700; margin-top: 4px; }
+    .kpi-bar {
+      height: 4px;
+      background: var(--surface-2);
+      border-radius: 99px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    .kpi-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--mint));
+      transition: width 0.3s ease;
+    }
+
+    /* Form Controls */
+    input, select, textarea {
+      width: 100%;
+      background: var(--bg);
+      color: var(--ink);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 9px 11px;
+      font-size: 13px;
+      font-family: var(--sans);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 13px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border-strong);
+      background: var(--surface-2);
+      color: var(--ink);
+      white-space: nowrap;
+      transition: transform 0.08s, background 0.15s;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn.mint { background: var(--mint-soft); border-color: rgba(46, 229, 157, 0.4); color: var(--mint); }
+    .btn.danger { background: rgba(255, 77, 79, 0.14); border-color: rgba(255, 77, 79, 0.4); color: #ff7b72; }
+    .btn.sm { padding: 5px 9px; font-size: 12px; }
+
+    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .row + .row { margin-top: 8px; }
+
+    /* Todo Items */
+    .filter-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .pill-btn {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .pill-btn.active { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+
+    .todo-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      transition: border-color 0.15s;
+    }
+    .todo-item:hover { border-color: var(--border-strong); }
+    .todo-item.done { opacity: 0.58; }
+    .todo-check {
+      width: 20px;
+      height: 20px;
+      margin-top: 2px;
+      border-radius: 5px;
+      border: 1.5px solid var(--border-strong);
+      background: transparent;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      color: #0e0f12;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .todo-item.done .todo-check { background: var(--mint); border-color: var(--mint); }
+    .todo-body { flex: 1; min-width: 0; }
+    .todo-title { font-size: 14px; font-weight: 500; word-break: break-word; }
+    .todo-item.done .todo-title { text-decoration: line-through; }
+    .todo-meta { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 5px; }
+    .badge {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .badge.P0 { background: var(--accent-soft); color: var(--accent); border: 1px solid rgba(255,90,38,0.35); }
+    .badge.P1 { background: var(--amber-soft); color: var(--amber); border: 1px solid rgba(245,166,35,0.35); }
+    .badge.P2 { background: var(--surface-2); color: var(--muted); border: 1px solid var(--border); }
+    .badge.state { background: var(--surface-2); color: var(--ink); cursor: pointer; }
+
+    /* Timeline Slots */
+    .slot-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 11px;
+      border-left: 3px solid var(--accent);
+      background: var(--bg);
+      border-radius: 0 8px 8px 0;
+      border-top: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 8px;
+    }
+    .slot-item.done { border-left-color: var(--mint); opacity: 0.6; }
+    .slot-time { font-family: var(--mono); font-size: 12px; color: var(--amber); min-width: 88px; }
+
+    /* Chat & Log Stream */
+    .stream-box {
+      height: 360px;
+      overflow-y: auto;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 13px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .report-pre {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 12px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      max-height: 220px;
+      overflow-y: auto;
+      margin: 8px 0 0;
+    }
+
+    /* FIXED BOTTOM CHAT DOCK */
+    .chat-dock {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 60;
+      background: rgba(16, 17, 21, 0.96);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border-strong);
+      padding: 8px 12px calc(10px + env(safe-area-inset-bottom));
+      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.55);
+    }
+    .chat-dock-inner { max-width: 1100px; margin: 0 auto; }
+    .dock-live-bar {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 6px 10px;
+      margin-bottom: 7px;
+      background: var(--surface-2);
+      border: 1px solid var(--border-strong);
+      border-radius: 7px;
+      font-size: 12px;
+    }
+    .dock-live-bar.show { display: flex; }
+    .dock-live-text {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-family: var(--mono);
+      color: var(--ink);
+    }
+    .quick-chips {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      margin-bottom: 8px;
+    }
+    .quick-chips::-webkit-scrollbar { display: none; }
+    .chip {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 11.5px;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .chip:hover { color: var(--ink); border-color: var(--accent); }
+
+    .composer-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
+    .composer-row textarea {
+      flex: 1;
+      min-height: 42px;
+      max-height: 110px;
+      resize: none;
+      padding: 10px 12px;
+      line-height: 1.4;
+    }
+    .composer-send {
+      height: 42px;
+      padding: 0 18px;
+      font-size: 13px;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 64px;
+      right: 16px;
+      z-index: 80;
+      padding: 9px 14px;
+      border-radius: 8px;
+      background: var(--surface-2);
+      border: 1px solid var(--border-strong);
+      color: var(--ink);
+      font-size: 12.5px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-6px);
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
   </style>
 </head>
 <body>
-  <header>
-    <div>
-      <strong>📱 CodePlant Phone Agent (MI14 · 路线 A)</strong>
-      <span class="muted" id="ctxUsage">上下文: --</span>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand-row">
+        <div class="brand">
+          <span class="brand-mark"></span>
+          <div>
+            <div class="brand-title">CODEPLANT // MI14 COMMANDER</div>
+            <div class="brand-sub" id="ctxUsage">CTX --% · 等待配置模型</div>
+          </div>
+        </div>
+        <div class="led-strip" id="statusPills"></div>
+      </div>
+      <nav class="nav-tabs">
+        <button class="tab-btn active" data-tab="butler" onclick="switchTab('butler')">01 · 待办与日程</button>
+        <button class="tab-btn" data-tab="agent" onclick="switchTab('agent')">02 · 执行流与虫部落/微信</button>
+        <button class="tab-btn" data-tab="models" onclick="switchTab('models')">03 · 模型路由与 OAuth</button>
+      </nav>
     </div>
-    <div id="statusPills"></div>
   </header>
 
-  <main>
-    <section>
-      <div class="card">
-        <h3>💬 对话与手机控制指令台</h3>
-        <div id="chatLog">准备就绪。可在右侧配置模型或登录 ChatGPT 后发送指令。\n例如：“用虫部落搜索嵌入式 Rust 资料并整理”、“帮我制定今日待办计划”、“查看微信最新通知”。</div>
-        <div class="row">
-          <textarea id="chatInput" rows="2" placeholder="输入指令..."></textarea>
+  <div class="toast" id="toast"></div>
+
+  <main class="container">
+    <!-- TAB 1: BUTLER / TODO / SCHEDULE / WEEKLY REVIEW -->
+    <section id="view-butler" class="view active">
+      <div class="kpi-strip">
+        <div class="kpi-card">
+          <div class="kpi-label">待办总数</div>
+          <div class="kpi-value" id="kpiTotal">0</div>
         </div>
-        <div class="row">
-          <button onclick="sendChat()">发送执行</button>
-          <button class="ghost" onclick="compactNow()">滚动压缩上下文</button>
-          <button class="danger" onclick="abortChat()">紧急中止</button>
+        <div class="kpi-card">
+          <div class="kpi-label">未完成</div>
+          <div class="kpi-value" style="color:var(--accent)" id="kpiOpen">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">已完成</div>
+          <div class="kpi-value" style="color:var(--mint)" id="kpiDone">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">完成率</div>
+          <div class="kpi-value" id="kpiRate">0%</div>
+          <div class="kpi-bar"><div class="kpi-bar-fill" id="kpiRateBar" style="width:0%"></div></div>
         </div>
       </div>
 
-      <div class="card">
-        <h3>🛡️ 待二次确认高敏操作（如微信打视频）</h3>
-        <div id="confirmList" class="muted">暂无挂起操作</div>
-      </div>
+      <div class="grid-2">
+        <!-- Left: Todos -->
+        <div>
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">📋 待办事项清单</div>
+              <span class="tag-mono" id="todayLabel">--</span>
+            </div>
+            <div class="row">
+              <input id="todoTitle" placeholder="输入待办（按回车直接添加）..." onkeydown="if(event.key==='Enter') addTodo()" style="flex:1;min-width:160px;" />
+            </div>
+            <div class="row">
+              <select id="todoPriority" style="width:92px;">
+                <option value="P0">P0 紧急</option>
+                <option value="P1" selected>P1 重要</option>
+                <option value="P2">P2 常规</option>
+              </select>
+              <select id="todoMinutes" style="width:98px;">
+                <option value="15">15 分钟</option>
+                <option value="30" selected>30 分钟</option>
+                <option value="45">45 分钟</option>
+                <option value="60">60 分钟</option>
+                <option value="90">90 分钟</option>
+              </select>
+              <button class="btn primary" onclick="addTodo()" style="flex:1;">+ 添加待办</button>
+            </div>
 
-      <div class="card">
-        <h3>🔍 虫部落快捷检索（优先后台抓取）</h3>
-        <div class="row">
-          <input id="cblQuery" placeholder="输入搜索关键词..." />
-          <button onclick="searchChongbuluo()" style="flex:0 0 110px;">后台抓取</button>
+            <div class="filter-pills" style="margin-top:12px;">
+              <button class="pill-btn active" onclick="setTodoFilter('all', this)">全部</button>
+              <button class="pill-btn" onclick="setTodoFilter('open', this)">未完成</button>
+              <button class="pill-btn" onclick="setTodoFilter('doing', this)">进行中</button>
+              <button class="pill-btn" onclick="setTodoFilter('done', this)">已完成</button>
+            </div>
+
+            <div id="todoList"></div>
+          </div>
         </div>
-        <pre id="cblOut" class="muted" style="white-space:pre-wrap;max-height:180px;overflow:auto;"></pre>
+
+        <!-- Right: Daily Plan & Weekly Review -->
+        <div>
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">⏰ 今日排期与原生督促</div>
+              <button class="btn sm mint" onclick="testNotify()">🔔 测试督促通知</button>
+            </div>
+            <div class="row" style="margin-bottom:10px;">
+              <select id="planStartMode" style="flex:1;min-width:130px;">
+                <option value="now" selected>从现在顺延 (+5m)</option>
+                <option value="9">从早上 09:00 开始</option>
+                <option value="14">从下午 14:00 开始</option>
+              </select>
+              <button class="btn primary" onclick="genPlan()">⚡ 一键生成排期</button>
+            </div>
+            <div id="planSlots"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">📈 周复盘与规则自迭代</div>
+              <span class="tag-mono">preferences.md</span>
+            </div>
+            <div class="row">
+              <button class="btn" onclick="genReview(false)" style="flex:1;">生成复盘草稿</button>
+              <button class="btn primary" onclick="genReview(true)" style="flex:1;">复盘并迭代偏好</button>
+            </div>
+            <pre class="report-pre" id="reviewPreview">点击上方按钮统计本周待办完成率并生成改进建议。</pre>
+            <div class="row" style="margin-top:10px;">
+              <textarea id="prefsEditor" rows="4" placeholder="个人偏好与复盘迭代规则..."></textarea>
+            </div>
+            <div class="row" style="margin-top:6px;">
+              <button class="btn sm" onclick="savePreferences()">💾 保存偏好规则</button>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section>
-      <div class="card">
-        <h3>🧠 模型配置与自动发现</h3>
-        <div class="row">
-          <input id="baseUrl" placeholder="Base URL (如 https://api.openai.com)" />
-          <input id="apiKey" type="password" placeholder="API Key (sk-...)" />
-        </div>
-        <div class="row">
-          <select id="apiDialect">
-            <option value="openai-completions">openai-completions</option>
-            <option value="openai-responses">openai-responses</option>
-            <option value="anthropic-messages">anthropic-messages</option>
-          </select>
-          <button onclick="discoverModels()">自动找模型</button>
-        </div>
-        <div class="row">
-          <select id="modelSelect" onchange="switchModel()"></select>
-        </div>
-        <div class="row">
-          <button class="ghost" onclick="startChatGptOAuth('browser')">ChatGPT OAuth 登录</button>
-          <button class="ghost" onclick="startChatGptOAuth('device')">Device Code 登录</button>
-        </div>
-        <div id="oauthBox" class="muted"></div>
-      </div>
+    <!-- TAB 2: AGENT STREAM / CHONGBULUO / WECHAT -->
+    <section id="view-agent" class="view">
+      <div class="grid-2">
+        <div>
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">🖥️ Agent 实时执行日志</div>
+              <div class="row">
+                <button class="btn sm" onclick="compactNow()">🗜️ 压缩上下文</button>
+                <button class="btn sm" onclick="clearStream()">清空</button>
+              </div>
+            </div>
+            <div id="chatLog" class="stream-box">系统就绪。直接在页面最下方聊天框输入指令即可执行手机控制、虫部落检索或待办排期。</div>
+          </div>
 
-      <div class="card">
-        <h3>📅 待办 · 日计划督促 · 周复盘</h3>
-        <div class="row">
-          <input id="todoTitle" placeholder="新增待办内容..." />
-          <select id="todoPriority" style="flex:0 0 80px;">
-            <option value="P0">P0</option>
-            <option value="P1" selected>P1</option>
-            <option value="P2">P2</option>
-          </select>
-          <button onclick="addTodo()" style="flex:0 0 75px;">添加</button>
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">🛡️ 高敏动作二次确认（如微信打视频）</div>
+            </div>
+            <div id="confirmList" class="tag-mono">暂无挂起操作</div>
+          </div>
         </div>
-        <div class="row">
-          <button class="ghost" onclick="genPlan()">生成今日计划</button>
-          <button class="ghost" onclick="genReview(true)">周复盘并迭代规则</button>
+
+        <div>
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">🔍 虫部落检索（优先后台抓取）</div>
+            </div>
+            <div class="row">
+              <input id="cblQuery" placeholder="输入关键词，例如：嵌入式 Rust STM32..." onkeydown="if(event.key==='Enter') searchChongbuluo()" style="flex:1;" />
+              <button class="btn primary" onclick="searchChongbuluo()">抓取整理</button>
+            </div>
+            <pre class="report-pre" id="cblOut">点击「抓取整理」优先走 Termux 后台抓取，若遇登录/动态页将提示改走控屏。</pre>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">💬 微信通知监听与白名单</div>
+              <button class="btn sm" onclick="saveWeChatPolicy()">保存白名单</button>
+            </div>
+            <div class="row">
+              <input id="wxWhitelist" placeholder="回复白名单联系人（逗号分隔，如：文件传输助手,张三）" />
+            </div>
+            <div id="wxEvents" style="margin-top:10px;" class="tag-mono">暂无捕获的微信通知</div>
+          </div>
         </div>
-        <div id="butlerView" class="muted"></div>
+      </div>
+    </section>
+
+    <!-- TAB 3: MODELS & CHATGPT OAUTH -->
+    <section id="view-models" class="view">
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">🔑 接口密钥与自动找模型</div>
+          </div>
+          <div class="row">
+            <input id="baseUrl" placeholder="Base URL（如 https://api.openai.com 或中转站地址）" />
+          </div>
+          <div class="row">
+            <input id="apiKey" type="password" placeholder="API Key（sk-...）" />
+          </div>
+          <div class="row">
+            <select id="apiDialect" style="flex:1;">
+              <option value="openai-completions">openai-completions（标准兼容）</option>
+              <option value="openai-responses">openai-responses</option>
+              <option value="anthropic-messages">anthropic-messages（Claude 兼容）</option>
+            </select>
+            <button class="btn primary" onclick="discoverModels()">🔎 自动发现模型</button>
+          </div>
+          <div class="row" style="margin-top:10px;">
+            <select id="modelSelect" onchange="switchModel()"></select>
+          </div>
+          <div class="tag-mono" style="margin-top:8px;">切换下拉框立即生效，当前选中模型即为底部聊天框的主控引擎。</div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">🟢 ChatGPT 订阅账号 OAuth 登录</div>
+          </div>
+          <div class="row">
+            <button class="btn" onclick="startChatGptOAuth('browser')" style="flex:1;">浏览器回调登录</button>
+            <button class="btn" onclick="startChatGptOAuth('device')" style="flex:1;">Device Code 登录</button>
+          </div>
+          <div id="oauthPromptBox" style="display:none;margin-top:10px;">
+            <div id="oauthPromptLabel" class="tag-mono" style="margin-bottom:6px;color:var(--amber);"></div>
+            <div class="row">
+              <input id="oauthAnswer" placeholder="粘贴回调 URL 或验证码..." style="flex:1;" />
+              <button class="btn primary" onclick="submitOAuthAnswer()">提交</button>
+            </div>
+          </div>
+          <pre class="report-pre" id="oauthBox">未启动登录流程</pre>
+        </div>
       </div>
     </section>
   </main>
 
+  <!-- FIXED BOTTOM CHAT DOCK -->
+  <div class="chat-dock">
+    <div class="chat-dock-inner">
+      <div class="dock-live-bar" id="dockLiveBar">
+        <div class="dock-live-text" id="dockLiveText">准备执行...</div>
+        <button class="btn sm" onclick="switchTab('agent')">详情</button>
+        <button class="btn sm danger" id="dockAbortBtn" onclick="abortChat()" style="display:none;">中止</button>
+      </div>
+      <div class="quick-chips">
+        <button class="chip" onclick="useQuickPrompt('请帮我把今天要做的 3 件重要事情整理成待办，并按现在时间生成今日计划')">📋 需求转待办+排期</button>
+        <button class="chip" onclick="useQuickPrompt('用虫部落搜索并整理：')">🔍 虫部落搜索</button>
+        <button class="chip" onclick="useQuickPrompt('读取当前手机屏幕，告诉我现在界面上有什么')">📱 看当前屏幕</button>
+        <button class="chip" onclick="useQuickPrompt('查看最近微信通知并给出回复建议')">💬 查微信通知</button>
+        <button class="chip" onclick="useQuickPrompt('帮我生成本周复盘并提出优化建议')">📈 本周复盘</button>
+      </div>
+      <div class="composer-row">
+        <textarea id="chatInput" rows="1" placeholder="在这里输入任何指令控制手机、查虫部落或管理待办（Enter 发送，Shift+Enter 换行）..."></textarea>
+        <button class="btn primary composer-send" id="sendBtn" onclick="sendChat()">▶ 执行</button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    let todoFilter = "all";
+    let latestState = null;
+    let isRunningChat = false;
+
     const chatLog = document.getElementById("chatLog");
-    const appendLog = (txt) => {
+    const chatInput = document.getElementById("chatInput");
+
+    function showToast(msg, isErr = false) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.style.borderColor = isErr ? "var(--danger)" : "var(--mint)";
+      el.classList.add("show");
+      clearTimeout(el._t);
+      el._t = setTimeout(() => el.classList.remove("show"), 2800);
+    }
+
+    function switchTab(name) {
+      document.querySelectorAll(".tab-btn").forEach((b) => {
+        b.classList.toggle("active", b.dataset.tab === name);
+      });
+      document.querySelectorAll(".view").forEach((v) => {
+        v.classList.toggle("active", v.id === `view-${name}`);
+      });
+    }
+
+    function appendLog(txt) {
       chatLog.textContent += "\n" + txt;
       chatLog.scrollTop = chatLog.scrollHeight;
-    };
+    }
 
-    const es = new EventSource("/api/events");
-    es.addEventListener("step", (e) => appendLog("⚙️ " + JSON.parse(e.data).label));
-    es.addEventListener("delta", (e) => { chatLog.textContent += JSON.parse(e.data).delta; chatLog.scrollTop = chatLog.scrollHeight; });
-    es.addEventListener("compacted", (e) => { appendLog("\n🗜️ 已自动触发上下文滚动压缩"); refreshStatus(); });
-    es.addEventListener("wechat_notification", (e) => {
-      const d = JSON.parse(e.data);
-      appendLog(`\n📩 微信通知 [${d.title}]: ${d.text} (${d.whitelisted ? "白名单" : "普通"})`);
-    });
+    function clearStream() {
+      chatLog.textContent = "日志已清空。";
+    }
+
+    function setLiveBar(text, running = false) {
+      const bar = document.getElementById("dockLiveBar");
+      const label = document.getElementById("dockLiveText");
+      const abortBtn = document.getElementById("dockAbortBtn");
+      bar.classList.add("show");
+      label.textContent = text;
+      abortBtn.style.display = running ? "inline-flex" : "none";
+    }
 
     async function api(path, body) {
-      const r = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {});
+      const r = await fetch(path, body !== undefined
+        ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }
+        : {});
       const j = await r.json();
       if (!r.ok) throw new Error(j.error || r.statusText);
       return j;
     }
 
-    async function refreshStatus() {
-      const s = await api("/api/status");
-      const p = s.portal;
-      document.getElementById("statusPills").innerHTML = [
-        `<span class="pill ${p.ok ? 'ok' : 'bad'}">Portal ${p.ok ? '在线' : '离线'}</span>`,
-        `<span class="pill ${p.accessibilityConnected ? 'ok' : 'bad'}">无障碍 ${p.accessibilityConnected ? '就绪' : '未连'}</span>`,
-        `<span class="pill ${p.shizukuReady ? 'ok' : 'bad'}">Shizuku ${p.shizukuReady ? '就绪' : '未连'}</span>`,
-        `<span class="pill ${p.notificationListenerConnected ? 'ok' : 'bad'}">通知监听 ${p.notificationListenerConnected ? '就绪' : '未连'}</span>`,
-      ].join(" ");
+    // SSE real-time stream
+    const es = new EventSource("/api/events");
+    es.addEventListener("step", (e) => {
+      const msg = "⚙️ " + JSON.parse(e.data).label;
+      appendLog(msg);
+      setLiveBar(msg, true);
+    });
+    es.addEventListener("tool_start", (e) => {
+      const d = JSON.parse(e.data);
+      setLiveBar(`🔧 调用工具: ${d.tool}`, true);
+    });
+    es.addEventListener("delta", (e) => {
+      const delta = JSON.parse(e.data).delta;
+      chatLog.textContent += delta;
+      chatLog.scrollTop = chatLog.scrollHeight;
+    });
+    es.addEventListener("done", (e) => {
+      const d = JSON.parse(e.data);
+      const preview = (d.text || "执行完成").replace(/\s+/g, " ").slice(0, 90);
+      setLiveBar(`✅ ${preview}`, false);
+      refreshStatus();
+    });
+    es.addEventListener("butler_updated", () => refreshStatus());
+    es.addEventListener("compacted", () => {
+      appendLog("\n🗜️ 已自动触发上下文滚动压缩");
+      showToast("已自动滚动压缩上下文");
+      refreshStatus();
+    });
+    es.addEventListener("wechat_notification", (e) => {
+      const d = JSON.parse(e.data);
+      appendLog(`\n📩 微信通知 [${d.title}]: ${d.text}`);
+      showToast(`微信新消息: ${d.title}`);
+      refreshStatus();
+    });
 
-      if (s.contextUsage) {
-        document.getElementById("ctxUsage").textContent =
-          `上下文: ${s.contextUsage.percent}% (${s.contextUsage.estimatedTokens}/${s.contextUsage.contextWindow}) · 压缩 ${s.contextUsage.compactionCount} 次`;
+    function setTodoFilter(f, btn) {
+      todoFilter = f;
+      document.querySelectorAll(".pill-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      if (latestState) renderTodos(latestState.butler.todos);
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function renderTodos(todos) {
+      const total = todos.length;
+      const doneCount = todos.filter((t) => t.status === "done").length;
+      const openCount = total - doneCount;
+      const rate = total === 0 ? 0 : Math.round((doneCount / total) * 100);
+      document.getElementById("kpiTotal").textContent = total;
+      document.getElementById("kpiOpen").textContent = openCount;
+      document.getElementById("kpiDone").textContent = doneCount;
+      document.getElementById("kpiRate").textContent = `${rate}%`;
+      document.getElementById("kpiRateBar").style.width = `${rate}%`;
+
+      const filtered = todos.filter((t) => {
+        if (todoFilter === "open") return t.status !== "done";
+        if (todoFilter === "doing") return t.status === "doing";
+        if (todoFilter === "done") return t.status === "done";
+        return true;
+      });
+
+      const box = document.getElementById("todoList");
+      if (!filtered.length) {
+        box.innerHTML = `<div class="tag-mono" style="padding:14px 0;">当前筛选下暂无待办，可在上方添加或在底部聊天框直接口述需求。</div>`;
+        return;
       }
 
-      const sel = document.getElementById("modelSelect");
-      const cur = `${s.models.routing.primaryProvider}::${s.models.routing.primaryModel}`;
-      sel.innerHTML = "";
-      for (const prov of s.models.providers) {
-        for (const m of prov.models) {
-          const opt = document.createElement("option");
-          opt.value = `${prov.id}::${m.id}`;
-          opt.textContent = `${prov.name} / ${m.id}${m.images ? " [看图]" : ""}`;
-          if (opt.value === cur) opt.selected = true;
-          sel.appendChild(opt);
-        }
-      }
-
-      document.getElementById("oauthBox").textContent = (s.models.oauthLogs || []).join(" | ");
-
-      const cBox = document.getElementById("confirmList");
-      cBox.innerHTML = s.pendingConfirmations.length
-        ? s.pendingConfirmations.map((c) => `
-          <div class="list-item">
-            <strong>${c.title}</strong><br>${c.detail}
-            <div class="row" style="margin-top:6px;">
-              <button onclick="resolveConfirm('${c.id}', true)">允许</button>
-              <button class="danger" onclick="resolveConfirm('${c.id}', false)">拒绝</button>
+      const statusLabel = { todo: "待办", doing: "进行中", done: "已完成", deferred: "延后" };
+      box.innerHTML = filtered.map((t) => {
+        const isDone = t.status === "done";
+        const nextStatus = isDone ? "todo" : "done";
+        const cycleStatus = t.status === "todo" ? "doing" : t.status === "doing" ? "done" : "todo";
+        return `
+          <div class="todo-item ${isDone ? "done" : ""}">
+            <button class="todo-check" onclick="setTodoStatus('${t.id}', '${nextStatus}')" title="标记完成/恢复">${isDone ? "✓" : ""}</button>
+            <div class="todo-body">
+              <div class="todo-title">${escapeHtml(t.title)}</div>
+              <div class="todo-meta">
+                <span class="badge ${t.priority}">${t.priority}</span>
+                <span class="tag-mono">${t.estMinutes}m</span>
+                <span class="badge state" onclick="setTodoStatus('${t.id}', '${cycleStatus}')" title="点击切换状态">${statusLabel[t.status] || t.status}</span>
+              </div>
             </div>
-          </div>`).join("")
-        : "暂无挂起操作";
+            <div class="row" style="gap:4px;">
+              <button class="btn sm" onclick="executeTodoInChat('${escapeHtml(t.title)}')" title="让 Agent 执行这项待办">▶ 执行</button>
+              <button class="btn sm danger" onclick="deleteTodo('${t.id}')" title="删除">×</button>
+            </div>
+          </div>`;
+      }).join("");
+    }
 
-      const b = s.butler;
-      const todosHtml = b.todos.slice(0, 6).map((t) =>
-        `<div class="list-item">[${t.priority}] ${t.title} (${t.status})</div>`
-      ).join("");
-      const planHtml = b.todayPlan
-        ? `<div class="list-item"><strong>今日计划 (${b.todayPlan.date})</strong><br>` +
-          b.todayPlan.slots.map((sl) => `${sl.timeRange} ${sl.title} ${sl.reminded ? "✅已督促" : "⏳待提醒"}`).join("<br>") + `</div>`
-        : "";
-      document.getElementById("butlerView").innerHTML = planHtml + todosHtml;
+    function renderPlan(plan) {
+      const box = document.getElementById("planSlots");
+      if (!plan || !plan.slots.length) {
+        box.innerHTML = `<div class="tag-mono">今日尚未排期。添加未完成待办后点击「一键生成排期」。</div>`;
+        return;
+      }
+      box.innerHTML = plan.slots.map((sl) => `
+        <div class="slot-item ${sl.done ? "done" : ""}">
+          <input type="checkbox" ${sl.done ? "checked" : ""} onchange="toggleSlot('${sl.id}', this.checked)" style="width:18px;height:18px;flex-shrink:0;" />
+          <div class="slot-time">${escapeHtml(sl.timeRange)}</div>
+          <div style="flex:1;font-size:13px;">${escapeHtml(sl.title)}</div>
+          <span class="tag-mono">${sl.reminded ? "🔔 已督促" : "⏳ " + sl.remindAt}</span>
+        </div>`).join("");
+    }
+
+    async function refreshStatus() {
+      try {
+        const s = await api("/api/status");
+        latestState = s;
+        const p = s.portal;
+        document.getElementById("statusPills").innerHTML = [
+          `<span class="led ${p.ok ? "on" : "off"}">Portal</span>`,
+          `<span class="led ${p.accessibilityConnected ? "on" : "off"}">无障碍</span>`,
+          `<span class="led ${p.notificationListenerConnected ? "on" : "off"}">通知监听</span>`,
+          `<span class="led ${p.shizukuReady ? "on" : ""}">Shizuku</span>`,
+        ].join("");
+
+        if (s.contextUsage) {
+          document.getElementById("ctxUsage").textContent =
+            `CTX ${s.contextUsage.percent}% (${s.contextUsage.estimatedTokens}/${s.contextUsage.contextWindow}) · 压缩 ${s.contextUsage.compactionCount} 次`;
+        }
+
+        document.getElementById("todayLabel").textContent = s.butler.today;
+        renderTodos(s.butler.todos || []);
+        renderPlan(s.butler.todayPlan);
+
+        if (s.butler.latestReview) {
+          document.getElementById("reviewPreview").textContent = s.butler.latestReview.markdownReport;
+        }
+        const prefsEl = document.getElementById("prefsEditor");
+        if (document.activeElement !== prefsEl) {
+          prefsEl.value = s.butler.preferences || "";
+        }
+
+        // Models
+        const sel = document.getElementById("modelSelect");
+        const cur = `${s.models.routing.primaryProvider}::${s.models.routing.primaryModel}`;
+        sel.innerHTML = "";
+        for (const prov of s.models.providers) {
+          for (const m of prov.models) {
+            const opt = document.createElement("option");
+            opt.value = `${prov.id}::${m.id}`;
+            opt.textContent = `${prov.name} / ${m.id}${m.images ? " [看图]" : ""}`;
+            if (opt.value === cur) opt.selected = true;
+            sel.appendChild(opt);
+          }
+        }
+
+        document.getElementById("oauthBox").textContent =
+          (s.models.oauthLogs && s.models.oauthLogs.length) ? s.models.oauthLogs.join("\n") : "未启动登录流程";
+        const promptBox = document.getElementById("oauthPromptBox");
+        if (s.models.oauthPendingPrompt) {
+          promptBox.style.display = "block";
+          document.getElementById("oauthPromptLabel").textContent =
+            s.models.oauthPendingPrompt.message || "请输入授权回调信息：";
+        } else {
+          promptBox.style.display = "none";
+        }
+
+        // Safety & WeChat
+        const wlEl = document.getElementById("wxWhitelist");
+        if (document.activeElement !== wlEl && s.safety?.wechat?.replyWhitelist) {
+          wlEl.value = s.safety.wechat.replyWhitelist.join(", ");
+        }
+        const wxEvents = s.butler.recentWeChatEvents || [];
+        document.getElementById("wxEvents").innerHTML = wxEvents.length
+          ? wxEvents.slice().reverse().map((ev) =>
+              `<div style="padding:6px 0;border-bottom:1px solid var(--border)"><strong>${escapeHtml(ev.contact)}</strong>: ${escapeHtml(ev.text)} <span style="color:var(--mint)">[${escapeHtml(ev.actionTaken)}]</span></div>`
+            ).join("")
+          : "暂无捕获的微信通知";
+
+        const cBox = document.getElementById("confirmList");
+        cBox.innerHTML = s.pendingConfirmations.length
+          ? s.pendingConfirmations.map((c) => `
+            <div class="todo-item">
+              <div class="todo-body">
+                <strong>${escapeHtml(c.title)}</strong><br>
+                <span class="tag-mono">${escapeHtml(c.detail)}</span>
+              </div>
+              <div class="row">
+                <button class="btn sm mint" onclick="resolveConfirm('${c.id}', true)">允许</button>
+                <button class="btn sm danger" onclick="resolveConfirm('${c.id}', false)">拒绝</button>
+              </div>
+            </div>`).join("")
+          : "暂无挂起操作";
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function addTodo() {
+      const input = document.getElementById("todoTitle");
+      const title = input.value.trim();
+      if (!title) {
+        showToast("请先输入待办内容", true);
+        input.focus();
+        return;
+      }
+      try {
+        await api("/api/butler/todos", {
+          title,
+          priority: document.getElementById("todoPriority").value,
+          estMinutes: Number(document.getElementById("todoMinutes").value),
+        });
+        input.value = "";
+        showToast("✅ 已添加待办");
+        await refreshStatus();
+      } catch (e) { showToast(e.message, true); }
+    }
+
+    async function setTodoStatus(id, status) {
+      try {
+        await api("/api/butler/todos", { action: "status", id, status });
+        await refreshStatus();
+      } catch (e) { showToast(e.message, true); }
+    }
+
+    async function deleteTodo(id) {
+      try {
+        await api("/api/butler/todos", { action: "delete", id });
+        showToast("已删除待办");
+        await refreshStatus();
+      } catch (e) { showToast(e.message, true); }
+    }
+
+    async function genPlan() {
+      try {
+        const mode = document.getElementById("planStartMode").value;
+        const payload = mode === "now" ? { fromNow: true } : { startHour: Number(mode), fromNow: false };
+        const res = await api("/api/butler/plan/generate", payload);
+        showToast(`✅ 已排期 ${res.plan.slots.length} 个时段`);
+        await refreshStatus();
+      } catch (e) { showToast(e.message, true); }
+    }
+
+    async function toggleSlot(slotId, done) {
+      try {
+        await api("/api/butler/plan/slot", { slotId, done });
+        await refreshStatus();
+      } catch (e) { showToast(e.message, true); }
+    }
+
+    async function testNotify() {
+      try {
+        await api("/api/butler/notify-test", {});
+        showToast("🔔 已向 MI14 发送测试提醒通知");
+      } catch (e) { showToast("通知发送失败（请检查 Portal 是否在线）: " + e.message, true); }
+    }
+
+    async function genReview(apply) {
+      try {
+        await api("/api/butler/review/weekly", { applyOptimization: apply });
+        showToast(apply ? "✅ 已生成周复盘并写入偏好" : "✅ 已生成周复盘草稿");
+        await refreshStatus();
+      } catch (e) { showToast(e.message, true); }
+    }
+
+    async function savePreferences() {
+      try {
+        await api("/api/butler/preferences", { content: document.getElementById("prefsEditor").value });
+        showToast("✅ 偏好规则已保存");
+      } catch (e) { showToast(e.message, true); }
     }
 
     async function discoverModels() {
@@ -200,52 +1025,110 @@
           apiKey: document.getElementById("apiKey").value,
           api: document.getElementById("apiDialect").value,
         });
-        appendLog(`✅ 自动发现 ${res.models.length} 个模型 (${res.endpointUsed})`);
+        showToast(`✅ 自动发现 ${res.models.length} 个模型`);
         await refreshStatus();
-      } catch (e) { appendLog("❌ " + e.message); }
+      } catch (e) { showToast(e.message, true); }
     }
 
     async function switchModel() {
       const [primaryProvider, primaryModel] = document.getElementById("modelSelect").value.split("::");
       await api("/api/models/routing", { primaryProvider, primaryModel });
+      showToast(`已切换模型: ${primaryModel}`);
       refreshStatus();
     }
 
     async function startChatGptOAuth(method) {
       await api("/api/oauth/chatgpt/start", { method });
-      setTimeout(refreshStatus, 1000);
+      showToast("已发起 ChatGPT OAuth 登录");
+      setTimeout(refreshStatus, 800);
     }
 
-    async function sendChat() {
-      const msg = document.getElementById("chatInput").value.trim();
-      if (!msg) return;
-      document.getElementById("chatInput").value = "";
-      appendLog(`\n🧑 你: ${msg}\n🤖 Agent: `);
-      try {
-        await api("/api/chat", { message: msg });
-        refreshStatus();
-      } catch (e) { appendLog("\n❌ " + e.message); }
-    }
-
-    async function abortChat() { await api("/api/chat/abort", {}); appendLog("\n🛑 已发送中止信号"); }
-    async function compactNow() { await api("/api/compact", {}); refreshStatus(); }
-    async function resolveConfirm(id, allow) { await api("/api/confirmations/resolve", { id, allow }); refreshStatus(); }
-    async function searchChongbuluo() {
-      const res = await api("/api/chongbuluo/search", { query: document.getElementById("cblQuery").value });
-      document.getElementById("cblOut").textContent = res.markdownSummary;
-    }
-    async function addTodo() {
-      await api("/api/butler/todos", {
-        title: document.getElementById("todoTitle").value,
-        priority: document.getElementById("todoPriority").value,
-      });
-      document.getElementById("todoTitle").value = "";
+    async function submitOAuthAnswer() {
+      await api("/api/oauth/chatgpt/answer", { value: document.getElementById("oauthAnswer").value });
+      document.getElementById("oauthAnswer").value = "";
       refreshStatus();
     }
-    async function genPlan() { await api("/api/butler/plan/generate", {}); refreshStatus(); }
-    async function genReview(apply) {
-      const res = await api("/api/butler/review/weekly", { applyOptimization: apply });
-      appendLog("\n" + res.review.markdownReport);
+
+    async function saveWeChatPolicy() {
+      const raw = document.getElementById("wxWhitelist").value;
+      const list = raw.split(/[,，]/).map((s) => s.trim()).filter(Boolean);
+      await api("/api/safety", { wechat: { replyWhitelist: list } });
+      showToast("✅ 微信白名单已更新");
+    }
+
+    async function searchChongbuluo() {
+      const q = document.getElementById("cblQuery").value.trim();
+      if (!q) return showToast("请输入搜索词", true);
+      try {
+        const res = await api("/api/chongbuluo/search", { query: q });
+        document.getElementById("cblOut").textContent = res.markdownSummary;
+        showToast(res.mode === "needs_phone_control" ? "后台受限，可转底部聊天框控屏" : "✅ 虫部落抓取完成");
+      } catch (e) { showToast(e.message, true); }
+    }
+
+    function useQuickPrompt(text) {
+      chatInput.value = text;
+      chatInput.focus();
+      autoResizeInput();
+    }
+
+    function executeTodoInChat(title) {
+      chatInput.value = `请帮我执行这项待办：${title}`;
+      sendChat();
+    }
+
+    function autoResizeInput() {
+      chatInput.style.height = "auto";
+      chatInput.style.height = Math.min(110, chatInput.scrollHeight) + "px";
+    }
+    chatInput.addEventListener("input", autoResizeInput);
+    chatInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendChat();
+      }
+    });
+
+    async function sendChat() {
+      const msg = chatInput.value.trim();
+      if (!msg) return;
+      if (isRunningChat) return showToast("当前指令正在执行中", true);
+      chatInput.value = "";
+      autoResizeInput();
+      isRunningChat = true;
+      document.getElementById("sendBtn").disabled = true;
+      setLiveBar(`🤖 正在执行: ${msg.slice(0, 40)}...`, true);
+      appendLog(`\n🧑 你: ${msg}\n🤖 Agent: `);
+      try {
+        const res = await api("/api/chat", { message: msg });
+        const preview = (res.text || "完成").replace(/\s+/g, " ").slice(0, 90);
+        setLiveBar(`✅ ${preview}`, false);
+        await refreshStatus();
+      } catch (e) {
+        appendLog(`\n❌ ${e.message}`);
+        setLiveBar(`❌ ${e.message}`, false);
+        showToast(e.message, true);
+      } finally {
+        isRunningChat = false;
+        document.getElementById("sendBtn").disabled = false;
+      }
+    }
+
+    async function abortChat() {
+      await api("/api/chat/abort", {});
+      setLiveBar("🛑 已发送中止信号", false);
+    }
+
+    async function compactNow() {
+      try {
+        await api("/api/compact", {});
+        showToast("🗜️ 上下文已滚动压缩");
+        refreshStatus();
+      } catch (e) { showToast(e.message, true); }
+    }
+
+    async function resolveConfirm(id, allow) {
+      await api("/api/confirmations/resolve", { id, allow });
       refreshStatus();
     }
 
