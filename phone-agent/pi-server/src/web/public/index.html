@@ -6,7 +6,9 @@
   <title>CODEPLANT // MI14 个人管家与控屏台</title>
   <style>
     :root {
+      --app-top: 0px;
       --app-height: 100dvh;
+      --blind-lift: 0px;
       --bg: #0e0f12;
       --bg-grid: rgba(255, 255, 255, 0.03);
       --surface: #16181d;
@@ -41,12 +43,15 @@
       background-size: 18px 18px;
     }
 
-    /* Full-height Flex App Shell: prevents fixed-bottom IME overlap on mobile */
+    /* Pin app-shell directly to Visual Viewport box so IME never covers bottom dock */
     .app-shell {
+      position: fixed;
+      left: 0;
+      right: 0;
+      top: var(--app-top, 0px);
+      height: var(--app-height, 100dvh);
       display: flex;
       flex-direction: column;
-      width: 100%;
-      height: var(--app-height);
       overflow: hidden;
     }
 
@@ -344,13 +349,25 @@
     }
     .app-shell.ime-open .chat-dock {
       padding-top: 6px;
-      padding-bottom: 6px;
+      padding-bottom: calc(6px + var(--blind-lift, 0px));
     }
     .app-shell.ime-open .quick-chips {
       display: none;
     }
     .app-shell.ime-open .kpi-strip {
       display: none;
+    }
+    .ime-lift-btn {
+      display: none;
+    }
+    .app-shell.ime-open .ime-lift-btn {
+      display: inline-flex;
+    }
+    .app-shell.ime-body-input .chat-dock {
+      display: none;
+    }
+    .app-shell.ime-body-input .main-scroll {
+      padding-bottom: var(--blind-lift, 0px);
     }
     .chat-dock-inner { max-width: 1100px; margin: 0 auto; }
 
@@ -669,6 +686,7 @@
         </div>
         <div class="composer-row">
           <textarea id="chatInput" rows="1" enterkeyhint="send" placeholder="输入指令控制手机、查虫部落或管理待办..."></textarea>
+          <button class="btn sm ime-lift-btn" id="liftToggleBtn" onmousedown="event.preventDefault()" onclick="toggleManualLift()" title="若输入法仍遮挡可点此抬高/恢复">↕ 避让</button>
           <button class="btn primary composer-send" id="sendBtn" onclick="sendChat()">▶ 执行</button>
         </div>
       </div>
@@ -685,24 +703,58 @@
     const chatLog = document.getElementById("chatLog");
     const chatInput = document.getElementById("chatInput");
 
-    // 1. VisualViewport adaptive lock: keeps bottom dock riding cleanly above mobile soft keyboard
-    let baseViewportHeight = window.innerHeight;
+    // 1. VisualViewport exact pinning + Blind-IME fallback for OEM browsers (e.g. Xiaomi Browser)
+    let baseViewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    let manualLiftOverride = null; // null = auto, true = force lift, false = force bottom
+    let imeProbeTimer = null;
+
+    function isMobileTouchEnv() {
+      return window.matchMedia("(pointer: coarse)").matches || window.innerWidth <= 900;
+    }
+
+    function applyLiftPixels(px) {
+      document.documentElement.style.setProperty("--blind-lift", `${Math.max(0, Math.round(px))}px`);
+    }
+
+    function toggleManualLift() {
+      const current = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--blind-lift") || "0", 10);
+      manualLiftOverride = current > 20 ? false : true;
+      applyLiftPixels(manualLiftOverride ? Math.round(baseViewportHeight * 0.42) : 0);
+      chatInput.focus();
+    }
+
     function syncViewportHeight() {
       const vv = window.visualViewport;
       const vh = vv ? vv.height : window.innerHeight;
+      const vTop = vv ? vv.offsetTop : 0;
       if (vh > baseViewportHeight) baseViewportHeight = vh;
+
+      document.documentElement.style.setProperty("--app-top", `${Math.max(0, Math.round(vTop))}px`);
       document.documentElement.style.setProperty("--app-height", `${Math.round(vh)}px`);
-      const keyboardLikelyOpen = (baseViewportHeight - vh) > 130;
-      const dockFocused = document.activeElement === chatInput;
-      appShell.classList.toggle("ime-open", keyboardLikelyOpen || dockFocused);
-      if (vv && vv.offsetTop > 0) {
-        window.scrollTo(0, 0);
+
+      const vvShrunk = (baseViewportHeight - vh) > 110;
+      const active = document.activeElement;
+      const isDockInput = active === chatInput;
+      const isBodyInput = Boolean(active && active !== chatInput && mainScroll.contains(active) &&
+        (active.tagName === "INPUT" || active.tagName === "TEXTAREA"));
+
+      appShell.classList.toggle("ime-open", vvShrunk || isDockInput || isBodyInput);
+      appShell.classList.toggle("ime-body-input", isBodyInput);
+
+      if (vvShrunk && manualLiftOverride !== true) {
+        applyLiftPixels(0);
+      } else if (!isDockInput && !isBodyInput) {
+        applyLiftPixels(0);
+        manualLiftOverride = null;
       }
     }
 
     if (window.visualViewport) {
       window.visualViewport.addEventListener("resize", syncViewportHeight);
       window.visualViewport.addEventListener("scroll", syncViewportHeight);
+    }
+    if (navigator.virtualKeyboard && "overlaysContent" in navigator.virtualKeyboard) {
+      try { navigator.virtualKeyboard.overlaysContent = false; } catch {}
     }
     window.addEventListener("resize", syncViewportHeight);
     syncViewportHeight();
@@ -711,17 +763,28 @@
       const target = e.target;
       if (!(target instanceof HTMLElement)) return;
       if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT") {
-        setTimeout(() => {
+        clearTimeout(imeProbeTimer);
+        syncViewportHeight();
+        imeProbeTimer = setTimeout(() => {
           syncViewportHeight();
-          if (target !== chatInput && mainScroll.contains(target)) {
-            target.scrollIntoView({ block: "center", behavior: "smooth" });
+          const vv = window.visualViewport;
+          const vh = vv ? vv.height : window.innerHeight;
+          const vvShrunk = (baseViewportHeight - vh) > 110;
+
+          if (!vvShrunk && isMobileTouchEnv() && manualLiftOverride !== false) {
+            // OEM browser ignored resize & visualViewport; lift bottom dock above standard ~42% IME area
+            applyLiftPixels(Math.round(baseViewportHeight * 0.42));
           }
-        }, 220);
+          if (target !== chatInput && mainScroll.contains(target)) {
+            target.scrollIntoView({ block: "start", behavior: "smooth" });
+          }
+        }, 320);
       }
     });
 
     document.addEventListener("focusout", () => {
-      setTimeout(syncViewportHeight, 120);
+      clearTimeout(imeProbeTimer);
+      setTimeout(syncViewportHeight, 160);
     });
 
     function showToast(msg, isErr = false) {
