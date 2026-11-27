@@ -6,9 +6,6 @@
   <title>CODEPLANT // MI14 个人管家与控屏台</title>
   <style>
     :root {
-      --app-top: 0px;
-      --app-height: 100dvh;
-      --blind-lift: 0px;
       --bg: #0e0f12;
       --bg-grid: rgba(255, 255, 255, 0.03);
       --surface: #16181d;
@@ -34,30 +31,19 @@
       margin: 0;
       padding: 0;
       width: 100%;
-      height: 100%;
-      overflow: hidden;
+      min-height: 100%;
       font-family: var(--sans);
       color: var(--ink);
       background-color: var(--bg);
       background-image: radial-gradient(var(--bg-grid) 1px, transparent 1px);
       background-size: 18px 18px;
+      scroll-behavior: smooth;
     }
 
-    /* Pin app-shell directly to Visual Viewport box so IME never covers bottom dock */
-    .app-shell {
-      position: fixed;
-      left: 0;
-      right: 0;
-      top: var(--app-top, 0px);
-      height: var(--app-height, 100dvh);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    /* Top Telemetry Header */
+    /* Sticky Top Telemetry Header (normal document scroll stays enabled!) */
     .topbar {
-      flex: 0 0 auto;
+      position: sticky;
+      top: 0;
       z-index: 40;
       background: rgba(14, 15, 18, 0.94);
       backdrop-filter: blur(12px);
@@ -83,12 +69,7 @@
       box-shadow: 0 0 10px var(--accent);
       flex-shrink: 0;
     }
-    .brand-title {
-      font-family: var(--mono);
-      font-size: 12.5px;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-    }
+    .brand-title { font-family: var(--mono); font-size: 12.5px; font-weight: 700; letter-spacing: 0.06em; }
     .brand-sub {
       font-family: var(--mono);
       font-size: 11px;
@@ -134,15 +115,8 @@
     }
     .tab-btn.active { color: var(--ink); border-bottom-color: var(--accent); }
 
-    /* Middle Scrollable Area */
-    .main-scroll {
-      flex: 1 1 0%;
-      min-height: 0;
-      overflow-y: auto;
-      overscroll-behavior: contain;
-      -webkit-overflow-scrolling: touch;
-    }
-    .container { max-width: 1100px; margin: 0 auto; padding: 12px 14px 20px; }
+    /* Main Content Flow */
+    .container { max-width: 1100px; margin: 0 auto; padding: 14px 14px 16px; }
     .view { display: none; animation: fadeIn 0.16s ease-out; }
     .view.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
@@ -314,7 +288,7 @@
 
     /* Stream & Pre */
     .stream-box {
-      height: 300px;
+      height: 290px;
       overflow-y: auto;
       background: var(--bg);
       border: 1px solid var(--border);
@@ -338,46 +312,23 @@
       margin: 8px 0 0;
     }
 
-    /* ADAPTIVE BOTTOM CHAT DOCK (flex child, never occluded by IME) */
+    /* NORMAL-FLOW BOTTOM CHAT PANEL:
+       Appears naturally when scrolling down; never fixed-trapped behind mobile keyboard! */
     .chat-dock {
-      flex: 0 0 auto;
-      z-index: 60;
-      background: rgba(18, 20, 25, 0.98);
-      border-top: 1px solid var(--border-strong);
-      padding: 8px 12px calc(10px + env(safe-area-inset-bottom));
-      box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.45);
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 4px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
     }
-    .app-shell.ime-open .chat-dock {
-      padding-top: 6px;
-      padding-bottom: calc(6px + var(--blind-lift, 0px));
-    }
-    .app-shell.ime-open .quick-chips {
-      display: none;
-    }
-    .app-shell.ime-open .kpi-strip {
-      display: none;
-    }
-    .ime-lift-btn {
-      display: none;
-    }
-    .app-shell.ime-open .ime-lift-btn {
-      display: inline-flex;
-    }
-    .app-shell.ime-body-input .chat-dock {
-      display: none;
-    }
-    .app-shell.ime-body-input .main-scroll {
-      padding-bottom: var(--blind-lift, 0px);
-    }
-    .chat-dock-inner { max-width: 1100px; margin: 0 auto; }
-
     .dock-live-bar {
       display: none;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      padding: 5px 9px;
-      margin-bottom: 6px;
+      padding: 6px 10px;
+      margin-bottom: 9px;
       background: var(--surface-2);
       border: 1px solid var(--border-strong);
       border-radius: 7px;
@@ -398,16 +349,16 @@
       gap: 6px;
       overflow-x: auto;
       scrollbar-width: none;
-      margin-bottom: 7px;
+      margin-bottom: 9px;
     }
     .quick-chips::-webkit-scrollbar { display: none; }
     .chip {
-      padding: 4px 10px;
+      padding: 5px 10px;
       border-radius: 999px;
-      background: var(--surface);
+      background: var(--bg);
       border: 1px solid var(--border);
       color: var(--muted);
-      font-size: 11.5px;
+      font-size: 12px;
       white-space: nowrap;
       cursor: pointer;
     }
@@ -416,13 +367,49 @@
     .composer-row { display: flex; gap: 8px; align-items: flex-end; }
     .composer-row textarea {
       flex: 1;
-      min-height: 40px;
-      max-height: 104px;
+      min-width: 0;
+      min-height: 44px;
+      max-height: 130px;
       resize: none;
-      padding: 9px 11px;
-      line-height: 1.38;
+      padding: 10px 12px;
+      line-height: 1.4;
     }
-    .composer-send { height: 40px; padding: 0 16px; font-size: 13px; flex-shrink: 0; }
+    .composer-send { height: 44px; padding: 0 18px; font-size: 13.5px; flex-shrink: 0; }
+
+    /* Dynamic IME scroll cushion below the page when any input is focused on mobile */
+    .ime-cushion {
+      height: calc(20px + env(safe-area-inset-bottom));
+      transition: height 0.18s ease;
+    }
+    body.ime-active .ime-cushion {
+      height: 54vh;
+    }
+
+    /* Subtle corner jump pill: only visible when scrolled away from bottom chat-dock */
+    .jump-chat-fab {
+      position: fixed;
+      right: 14px;
+      bottom: calc(16px + env(safe-area-inset-bottom));
+      z-index: 50;
+      padding: 9px 14px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      font-size: 12.5px;
+      font-weight: 700;
+      box-shadow: 0 6px 20px rgba(255, 90, 38, 0.4);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .jump-chat-fab.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px);
+    }
 
     /* Toast */
     .toast {
@@ -446,346 +433,339 @@
   </style>
 </head>
 <body>
-  <div class="app-shell" id="appShell">
-    <header class="topbar">
-      <div class="topbar-inner">
-        <div class="brand-row">
-          <div class="brand">
-            <span class="brand-mark"></span>
-            <div>
-              <div class="brand-title">CODEPLANT // MI14 COMMANDER</div>
-              <div class="brand-sub" id="ctxUsage">CTX --% · 等待配置模型</div>
-            </div>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand-row">
+        <div class="brand">
+          <span class="brand-mark"></span>
+          <div>
+            <div class="brand-title">CODEPLANT // MI14 COMMANDER</div>
+            <div class="brand-sub" id="ctxUsage">CTX --% · 等待配置模型</div>
           </div>
-          <div class="led-strip" id="statusPills"></div>
         </div>
-        <nav class="nav-tabs">
-          <button class="tab-btn active" data-tab="butler" onclick="switchTab('butler')">01 · 待办与日程</button>
-          <button class="tab-btn" data-tab="agent" onclick="switchTab('agent')">02 · 执行流与虫部落/微信</button>
-          <button class="tab-btn" data-tab="models" onclick="switchTab('models')">03 · 模型路由与 OAuth</button>
-        </nav>
+        <div class="led-strip" id="statusPills"></div>
       </div>
-    </header>
+      <nav class="nav-tabs">
+        <button class="tab-btn active" data-tab="butler" onclick="switchTab('butler')">01 · 待办与日程</button>
+        <button class="tab-btn" data-tab="agent" onclick="switchTab('agent')">02 · 执行流与虫部落/微信</button>
+        <button class="tab-btn" data-tab="models" onclick="switchTab('models')">03 · 模型路由与 OAuth</button>
+      </nav>
+    </div>
+  </header>
 
-    <div class="toast" id="toast"></div>
+  <div class="toast" id="toast"></div>
 
-    <main class="main-scroll" id="mainScroll">
-      <div class="container">
-        <!-- TAB 1: BUTLER / TODO / SCHEDULE / WEEKLY REVIEW -->
-        <section id="view-butler" class="view active">
-          <div class="kpi-strip">
-            <div class="kpi-card">
-              <div class="kpi-label">待办</div>
-              <div class="kpi-value" id="kpiTotal">0</div>
-            </div>
-            <div class="kpi-card">
-              <div class="kpi-label">未完</div>
-              <div class="kpi-value" style="color:var(--accent)" id="kpiOpen">0</div>
-            </div>
-            <div class="kpi-card">
-              <div class="kpi-label">已完</div>
-              <div class="kpi-value" style="color:var(--mint)" id="kpiDone">0</div>
-            </div>
-            <div class="kpi-card">
-              <div class="kpi-label">达成</div>
-              <div class="kpi-value" id="kpiRate">0%</div>
-              <div class="kpi-bar"><div class="kpi-bar-fill" id="kpiRateBar" style="width:0%"></div></div>
-            </div>
-          </div>
-
-          <div class="grid-2">
-            <!-- Left: Todos -->
-            <div>
-              <div class="panel">
-                <div class="panel-head">
-                  <div class="panel-title">📋 待办事项清单</div>
-                  <span class="tag-mono" id="todayLabel">--</span>
-                </div>
-                <div class="row">
-                  <input id="todoTitle" placeholder="输入待办（按回车直接添加）..." onkeydown="if(event.key==='Enter') addTodo()" style="flex:1;min-width:160px;" />
-                </div>
-                <div class="row">
-                  <select id="todoPriority" style="width:96px;">
-                    <option value="P0">P0 紧急</option>
-                    <option value="P1" selected>P1 重要</option>
-                    <option value="P2">P2 常规</option>
-                  </select>
-                  <select id="todoMinutes" style="width:100px;">
-                    <option value="15">15 分钟</option>
-                    <option value="30" selected>30 分钟</option>
-                    <option value="45">45 分钟</option>
-                    <option value="60">60 分钟</option>
-                    <option value="90">90 分钟</option>
-                  </select>
-                  <button class="btn primary" onclick="addTodo()" style="flex:1;">+ 添加</button>
-                </div>
-
-                <div class="filter-pills">
-                  <button class="pill-btn active" onclick="setTodoFilter('all', this)">全部</button>
-                  <button class="pill-btn" onclick="setTodoFilter('open', this)">未完成</button>
-                  <button class="pill-btn" onclick="setTodoFilter('doing', this)">进行中</button>
-                  <button class="pill-btn" onclick="setTodoFilter('done', this)">已完成</button>
-                </div>
-
-                <div id="todoList"></div>
-              </div>
-            </div>
-
-            <!-- Right: Daily Plan & Weekly Review -->
-            <div>
-              <div class="panel">
-                <div class="panel-head">
-                  <div class="panel-title">⏰ 今日排期与督促</div>
-                  <button class="btn sm mint" onclick="testNotify()">🔔 测试提醒</button>
-                </div>
-                <div class="row" style="margin-bottom:10px;">
-                  <select id="planStartMode" style="flex:1;min-width:130px;">
-                    <option value="now" selected>从现在顺延 (+5m)</option>
-                    <option value="9">从早上 09:00 开始</option>
-                    <option value="14">从下午 14:00 开始</option>
-                  </select>
-                  <button class="btn primary" onclick="genPlan()">⚡ 一键排期</button>
-                </div>
-                <div id="planSlots"></div>
-              </div>
-
-              <div class="panel">
-                <div class="panel-head">
-                  <div class="panel-title">📈 周复盘与偏好迭代</div>
-                  <span class="tag-mono">preferences.md</span>
-                </div>
-                <div class="row">
-                  <button class="btn" onclick="genReview(false)" style="flex:1;">复盘草稿</button>
-                  <button class="btn primary" onclick="genReview(true)" style="flex:1;">复盘并迭代偏好</button>
-                </div>
-                <pre class="report-pre" id="reviewPreview">点击上方按钮统计本周待办完成率并生成改进建议。</pre>
-                <details class="panel-details" style="margin-top:10px;">
-                  <summary>展开 / 编辑个人偏好规则 (preferences.md)</summary>
-                  <textarea id="prefsEditor" rows="4" placeholder="个人偏好与复盘迭代规则..."></textarea>
-                  <div class="row" style="margin-top:6px;">
-                    <button class="btn sm" onclick="savePreferences()">💾 保存偏好规则</button>
-                  </div>
-                </details>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- TAB 2: AGENT STREAM / CHONGBULUO / WECHAT -->
-        <section id="view-agent" class="view">
-          <div class="grid-2">
-            <div>
-              <div class="panel">
-                <div class="panel-head">
-                  <div class="panel-title">🖥️ Agent 实时执行日志</div>
-                  <div class="row">
-                    <button class="btn sm" onclick="compactNow()">🗜️ 压缩</button>
-                    <button class="btn sm" onclick="clearStream()">清空</button>
-                  </div>
-                </div>
-                <div id="chatLog" class="stream-box">系统就绪。直接在底部聊天框输入指令即可执行手机控制、虫部落检索或待办排期。</div>
-              </div>
-
-              <div class="panel">
-                <div class="panel-head">
-                  <div class="panel-title">🛡️ 高敏动作二次确认（如微信打视频）</div>
-                </div>
-                <div id="confirmList" class="tag-mono">暂无挂起操作</div>
-              </div>
-            </div>
-
-            <div>
-              <div class="panel">
-                <div class="panel-head">
-                  <div class="panel-title">🔍 虫部落检索（优先后台抓取）</div>
-                </div>
-                <div class="row">
-                  <input id="cblQuery" placeholder="输入关键词，例如：嵌入式 Rust STM32..." onkeydown="if(event.key==='Enter') searchChongbuluo()" style="flex:1;" />
-                  <button class="btn primary" onclick="searchChongbuluo()">抓取整理</button>
-                </div>
-                <pre class="report-pre" id="cblOut">点击「抓取整理」优先走 Termux 后台抓取，若遇登录/动态页将提示改走控屏。</pre>
-              </div>
-
-              <div class="panel">
-                <div class="panel-head">
-                  <div class="panel-title">💬 微信通知监听与白名单</div>
-                  <button class="btn sm" onclick="saveWeChatPolicy()">保存</button>
-                </div>
-                <div class="row">
-                  <input id="wxWhitelist" placeholder="回复白名单（逗号分隔，如：文件传输助手,张三）" />
-                </div>
-                <div id="wxEvents" style="margin-top:10px;" class="tag-mono">暂无捕获的微信通知</div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- TAB 3: MODELS & CHATGPT OAUTH -->
-        <section id="view-models" class="view">
-          <div class="grid-2">
-            <div class="panel">
-              <div class="panel-head">
-                <div class="panel-title">🔑 接口密钥与自动找模型</div>
-              </div>
-              <div class="row">
-                <input id="baseUrl" placeholder="Base URL（如 https://api.openai.com 或中转站）" />
-              </div>
-              <div class="row">
-                <input id="apiKey" type="password" placeholder="API Key（sk-...）" />
-              </div>
-              <div class="row">
-                <select id="apiDialect" style="flex:1;">
-                  <option value="openai-completions">openai-completions（标准兼容）</option>
-                  <option value="openai-responses">openai-responses</option>
-                  <option value="anthropic-messages">anthropic-messages（Claude 兼容）</option>
-                </select>
-                <button class="btn primary" onclick="discoverModels()">🔎 自动发现</button>
-              </div>
-              <div class="row" style="margin-top:10px;">
-                <select id="modelSelect" onchange="switchModel()"></select>
-              </div>
-              <div class="tag-mono" style="margin-top:8px;">切换下拉框立即生效，当前选中模型即为底部聊天框的主控引擎。</div>
-            </div>
-
-            <div class="panel">
-              <div class="panel-head">
-                <div class="panel-title">🟢 ChatGPT 订阅账号 OAuth 登录</div>
-              </div>
-              <div class="row">
-                <button class="btn" onclick="startChatGptOAuth('browser')" style="flex:1;">浏览器回调登录</button>
-                <button class="btn" onclick="startChatGptOAuth('device')" style="flex:1;">Device Code 登录</button>
-              </div>
-              <div id="oauthPromptBox" style="display:none;margin-top:10px;">
-                <div id="oauthPromptLabel" class="tag-mono" style="margin-bottom:6px;color:var(--amber);"></div>
-                <div class="row">
-                  <input id="oauthAnswer" placeholder="粘贴回调 URL 或验证码..." style="flex:1;" />
-                  <button class="btn primary" onclick="submitOAuthAnswer()">提交</button>
-                </div>
-              </div>
-              <pre class="report-pre" id="oauthBox">未启动登录流程</pre>
-            </div>
-          </div>
-        </section>
-      </div>
-    </main>
-
-    <!-- ADAPTIVE BOTTOM CHAT COMPOSER DOCK -->
-    <footer class="chat-dock" id="chatDock">
-      <div class="chat-dock-inner">
-        <div class="dock-live-bar" id="dockLiveBar">
-          <div class="dock-live-text" id="dockLiveText">准备执行...</div>
-          <button class="btn sm" onclick="switchTab('agent')">详情</button>
-          <button class="btn sm danger" id="dockAbortBtn" onclick="abortChat()" style="display:none;">中止</button>
+  <main class="container">
+    <!-- TAB 1: BUTLER / TODO / SCHEDULE / WEEKLY REVIEW -->
+    <section id="view-butler" class="view active">
+      <div class="kpi-strip">
+        <div class="kpi-card">
+          <div class="kpi-label">待办</div>
+          <div class="kpi-value" id="kpiTotal">0</div>
         </div>
-        <div class="quick-chips" id="quickChips">
-          <button class="chip" onclick="useQuickPrompt('请帮我把今天要做的 3 件重要事情整理成待办，并按现在时间生成今日计划')">📋 需求转待办</button>
-          <button class="chip" onclick="useQuickPrompt('用虫部落搜索并整理：')">🔍 虫部落搜索</button>
-          <button class="chip" onclick="useQuickPrompt('读取当前手机屏幕，告诉我现在界面上有什么')">📱 看当前屏幕</button>
-          <button class="chip" onclick="useQuickPrompt('查看最近微信通知并给出回复建议')">💬 查微信通知</button>
-          <button class="chip" onclick="useQuickPrompt('帮我生成本周复盘并提出优化建议')">📈 本周复盘</button>
+        <div class="kpi-card">
+          <div class="kpi-label">未完</div>
+          <div class="kpi-value" style="color:var(--accent)" id="kpiOpen">0</div>
         </div>
-        <div class="composer-row">
-          <textarea id="chatInput" rows="1" enterkeyhint="send" placeholder="输入指令控制手机、查虫部落或管理待办..."></textarea>
-          <button class="btn sm ime-lift-btn" id="liftToggleBtn" onmousedown="event.preventDefault()" onclick="toggleManualLift()" title="若输入法仍遮挡可点此抬高/恢复">↕ 避让</button>
-          <button class="btn primary composer-send" id="sendBtn" onclick="sendChat()">▶ 执行</button>
+        <div class="kpi-card">
+          <div class="kpi-label">已完</div>
+          <div class="kpi-value" style="color:var(--mint)" id="kpiDone">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">达成</div>
+          <div class="kpi-value" id="kpiRate">0%</div>
+          <div class="kpi-bar"><div class="kpi-bar-fill" id="kpiRateBar" style="width:0%"></div></div>
         </div>
       </div>
-    </footer>
-  </div>
+
+      <div class="grid-2">
+        <!-- Left: Todos -->
+        <div>
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">📋 待办事项清单</div>
+              <span class="tag-mono" id="todayLabel">--</span>
+            </div>
+            <div class="row">
+              <input id="todoTitle" placeholder="输入待办（按回车直接添加）..." onkeydown="if(event.key==='Enter') addTodo()" style="flex:1;min-width:160px;" />
+            </div>
+            <div class="row">
+              <select id="todoPriority" style="width:96px;">
+                <option value="P0">P0 紧急</option>
+                <option value="P1" selected>P1 重要</option>
+                <option value="P2">P2 常规</option>
+              </select>
+              <select id="todoMinutes" style="width:100px;">
+                <option value="15">15 分钟</option>
+                <option value="30" selected>30 分钟</option>
+                <option value="45">45 分钟</option>
+                <option value="60">60 分钟</option>
+                <option value="90">90 分钟</option>
+              </select>
+              <button class="btn primary" onclick="addTodo()" style="flex:1;">+ 添加</button>
+            </div>
+
+            <div class="filter-pills">
+              <button class="pill-btn active" onclick="setTodoFilter('all', this)">全部</button>
+              <button class="pill-btn" onclick="setTodoFilter('open', this)">未完成</button>
+              <button class="pill-btn" onclick="setTodoFilter('doing', this)">进行中</button>
+              <button class="pill-btn" onclick="setTodoFilter('done', this)">已完成</button>
+            </div>
+
+            <div id="todoList"></div>
+          </div>
+        </div>
+
+        <!-- Right: Daily Plan & Weekly Review -->
+        <div>
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">⏰ 今日排期与督促</div>
+              <button class="btn sm mint" onclick="testNotify()">🔔 测试提醒</button>
+            </div>
+            <div class="row" style="margin-bottom:10px;">
+              <select id="planStartMode" style="flex:1;min-width:130px;">
+                <option value="now" selected>从现在顺延 (+5m)</option>
+                <option value="9">从早上 09:00 开始</option>
+                <option value="14">从下午 14:00 开始</option>
+              </select>
+              <button class="btn primary" onclick="genPlan()">⚡ 一键排期</button>
+            </div>
+            <div id="planSlots"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">📈 周复盘与偏好迭代</div>
+              <span class="tag-mono">preferences.md</span>
+            </div>
+            <div class="row">
+              <button class="btn" onclick="genReview(false)" style="flex:1;">复盘草稿</button>
+              <button class="btn primary" onclick="genReview(true)" style="flex:1;">复盘并迭代偏好</button>
+            </div>
+            <pre class="report-pre" id="reviewPreview">点击上方按钮统计本周待办完成率并生成改进建议。</pre>
+            <details class="panel-details" style="margin-top:10px;">
+              <summary>展开 / 编辑个人偏好规则 (preferences.md)</summary>
+              <textarea id="prefsEditor" rows="4" placeholder="个人偏好与复盘迭代规则..."></textarea>
+              <div class="row" style="margin-top:6px;">
+                <button class="btn sm" onclick="savePreferences()">💾 保存偏好规则</button>
+              </div>
+            </details>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: AGENT STREAM / CHONGBULUO / WECHAT -->
+    <section id="view-agent" class="view">
+      <div class="grid-2">
+        <div>
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">🖥️ Agent 实时执行日志</div>
+              <div class="row">
+                <button class="btn sm" onclick="compactNow()">🗜️ 压缩</button>
+                <button class="btn sm" onclick="clearStream()">清空</button>
+              </div>
+            </div>
+            <div id="chatLog" class="stream-box">系统就绪。在下方指令执行栏输入指令即可控屏、查虫部落或管理待办。</div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">🛡️ 高敏动作二次确认（如微信打视频）</div>
+            </div>
+            <div id="confirmList" class="tag-mono">暂无挂起操作</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">🔍 虫部落检索（优先后台抓取）</div>
+            </div>
+            <div class="row">
+              <input id="cblQuery" placeholder="输入关键词，例如：嵌入式 Rust STM32..." onkeydown="if(event.key==='Enter') searchChongbuluo()" style="flex:1;" />
+              <button class="btn primary" onclick="searchChongbuluo()">抓取整理</button>
+            </div>
+            <pre class="report-pre" id="cblOut">点击「抓取整理」优先走 Termux 后台抓取，若遇登录/动态页将提示改走控屏。</pre>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">💬 微信通知监听与白名单</div>
+              <button class="btn sm" onclick="saveWeChatPolicy()">保存</button>
+            </div>
+            <div class="row">
+              <input id="wxWhitelist" placeholder="回复白名单（逗号分隔，如：文件传输助手,张三）" />
+            </div>
+            <div id="wxEvents" style="margin-top:10px;" class="tag-mono">暂无捕获的微信通知</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: MODELS & CHATGPT OAUTH -->
+    <section id="view-models" class="view">
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">🔑 接口密钥与自动找模型</div>
+          </div>
+          <div class="row">
+            <input id="baseUrl" placeholder="Base URL（如 https://api.openai.com 或中转站）" />
+          </div>
+          <div class="row">
+            <input id="apiKey" type="password" placeholder="API Key（sk-...）" />
+          </div>
+          <div class="row">
+            <select id="apiDialect" style="flex:1;">
+              <option value="openai-completions">openai-completions（标准兼容）</option>
+              <option value="openai-responses">openai-responses</option>
+              <option value="anthropic-messages">anthropic-messages（Claude 兼容）</option>
+            </select>
+            <button class="btn primary" onclick="discoverModels()">🔎 自动发现</button>
+          </div>
+          <div class="row" style="margin-top:10px;">
+            <select id="modelSelect" onchange="switchModel()"></select>
+          </div>
+          <div class="tag-mono" style="margin-top:8px;">切换下拉框立即生效，当前选中模型即为下方聊天命令框的主控引擎。</div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">🟢 ChatGPT 订阅账号 OAuth 登录</div>
+          </div>
+          <div class="row">
+            <button class="btn" onclick="startChatGptOAuth('browser')" style="flex:1;">浏览器回调登录</button>
+            <button class="btn" onclick="startChatGptOAuth('device')" style="flex:1;">Device Code 登录</button>
+          </div>
+          <div id="oauthPromptBox" style="display:none;margin-top:10px;">
+            <div id="oauthPromptLabel" class="tag-mono" style="margin-bottom:6px;color:var(--amber);"></div>
+            <div class="row">
+              <input id="oauthAnswer" placeholder="粘贴回调 URL 或验证码..." style="flex:1;" />
+              <button class="btn primary" onclick="submitOAuthAnswer()">提交</button>
+            </div>
+          </div>
+          <pre class="report-pre" id="oauthBox">未启动登录流程</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- NORMAL-FLOW BOTTOM CHAT COMMAND SECTION (appears on scroll down, scrolls above IME on focus) -->
+    <section class="chat-dock" id="chatDock">
+      <div class="panel-head" style="margin-bottom:8px;">
+        <div class="panel-title">💬 聊天命令执行栏</div>
+        <span class="tag-mono">下拉即达 · 输入自动避让键盘</span>
+      </div>
+      <div class="dock-live-bar" id="dockLiveBar">
+        <div class="dock-live-text" id="dockLiveText">准备执行...</div>
+        <button class="btn sm" onclick="switchTab('agent')">详情</button>
+        <button class="btn sm danger" id="dockAbortBtn" onclick="abortChat()" style="display:none;">中止</button>
+      </div>
+      <div class="quick-chips" id="quickChips">
+        <button class="chip" onclick="useQuickPrompt('请帮我把今天要做的 3 件重要事情整理成待办，并按现在时间生成今日计划')">📋 需求转待办</button>
+        <button class="chip" onclick="useQuickPrompt('用虫部落搜索并整理：')">🔍 虫部落搜索</button>
+        <button class="chip" onclick="useQuickPrompt('读取当前手机屏幕，告诉我现在界面上有什么')">📱 看当前屏幕</button>
+        <button class="chip" onclick="useQuickPrompt('查看最近微信通知并给出回复建议')">💬 查微信通知</button>
+        <button class="chip" onclick="useQuickPrompt('帮我生成本周复盘并提出优化建议')">📈 本周复盘</button>
+      </div>
+      <div class="composer-row">
+        <textarea id="chatInput" rows="1" enterkeyhint="send" placeholder="输入指令控制手机、查虫部落或管理待办..."></textarea>
+        <button class="btn primary composer-send" id="sendBtn" onclick="sendChat()">▶ 执行</button>
+      </div>
+    </section>
+
+    <div class="ime-cushion" aria-hidden="true"></div>
+  </main>
+
+  <button class="jump-chat-fab" id="jumpChatFab" onclick="jumpToComposer()">💬 指令栏</button>
 
   <script>
     let todoFilter = "all";
     let latestState = null;
     let isRunningChat = false;
 
-    const appShell = document.getElementById("appShell");
-    const mainScroll = document.getElementById("mainScroll");
     const chatLog = document.getElementById("chatLog");
     const chatInput = document.getElementById("chatInput");
+    const chatDock = document.getElementById("chatDock");
+    const jumpChatFab = document.getElementById("jumpChatFab");
 
-    // 1. VisualViewport exact pinning + Blind-IME fallback for OEM browsers (e.g. Xiaomi Browser)
-    let baseViewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-    let manualLiftOverride = null; // null = auto, true = force lift, false = force bottom
-    let imeProbeTimer = null;
+    let baseWindowHeight = window.innerHeight;
+    let imeScrollTimer = null;
+    let dockInView = false;
 
-    function isMobileTouchEnv() {
-      return window.matchMedia("(pointer: coarse)").matches || window.innerWidth <= 900;
+    function updateFabVisibility() {
+      const keyboardOpen = document.body.classList.contains("ime-active");
+      jumpChatFab.classList.toggle("hidden", dockInView || keyboardOpen);
     }
 
-    function applyLiftPixels(px) {
-      document.documentElement.style.setProperty("--blind-lift", `${Math.max(0, Math.round(px))}px`);
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          dockInView = entries.some((entry) => entry.isIntersecting);
+          updateFabVisibility();
+        },
+        { threshold: 0.25 },
+      );
+      io.observe(chatDock);
     }
 
-    function toggleManualLift() {
-      const current = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--blind-lift") || "0", 10);
-      manualLiftOverride = current > 20 ? false : true;
-      applyLiftPixels(manualLiftOverride ? Math.round(baseViewportHeight * 0.42) : 0);
-      chatInput.focus();
-    }
-
-    function syncViewportHeight() {
+    function scrollElementSafelyAboveKeyboard(el) {
       const vv = window.visualViewport;
-      const vh = vv ? vv.height : window.innerHeight;
-      const vTop = vv ? vv.offsetTop : 0;
-      if (vh > baseViewportHeight) baseViewportHeight = vh;
-
-      document.documentElement.style.setProperty("--app-top", `${Math.max(0, Math.round(vTop))}px`);
-      document.documentElement.style.setProperty("--app-height", `${Math.round(vh)}px`);
-
-      const vvShrunk = (baseViewportHeight - vh) > 110;
-      const active = document.activeElement;
-      const isDockInput = active === chatInput;
-      const isBodyInput = Boolean(active && active !== chatInput && mainScroll.contains(active) &&
-        (active.tagName === "INPUT" || active.tagName === "TEXTAREA"));
-
-      appShell.classList.toggle("ime-open", vvShrunk || isDockInput || isBodyInput);
-      appShell.classList.toggle("ime-body-input", isBodyInput);
-
-      if (vvShrunk && manualLiftOverride !== true) {
-        applyLiftPixels(0);
-      } else if (!isDockInput && !isBodyInput) {
-        applyLiftPixels(0);
-        manualLiftOverride = null;
+      const vvH = vv ? vv.height : window.innerHeight;
+      if (vvH > baseWindowHeight) baseWindowHeight = vvH;
+      const vvShrunk = (baseWindowHeight - vvH) > 100;
+      const safeBottom = vvShrunk ? vvH : Math.round(window.innerHeight * 0.50);
+      const rect = el.getBoundingClientRect();
+      const targetTop = Math.max(66, Math.round(safeBottom * 0.42));
+      if (rect.bottom > safeBottom - 10 || rect.top < 56) {
+        window.scrollBy({ top: rect.top - targetTop, behavior: "smooth" });
       }
     }
-
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener("resize", syncViewportHeight);
-      window.visualViewport.addEventListener("scroll", syncViewportHeight);
-    }
-    if (navigator.virtualKeyboard && "overlaysContent" in navigator.virtualKeyboard) {
-      try { navigator.virtualKeyboard.overlaysContent = false; } catch {}
-    }
-    window.addEventListener("resize", syncViewportHeight);
-    syncViewportHeight();
 
     document.addEventListener("focusin", (e) => {
       const target = e.target;
       if (!(target instanceof HTMLElement)) return;
-      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT") {
-        clearTimeout(imeProbeTimer);
-        syncViewportHeight();
-        imeProbeTimer = setTimeout(() => {
-          syncViewportHeight();
-          const vv = window.visualViewport;
-          const vh = vv ? vv.height : window.innerHeight;
-          const vvShrunk = (baseViewportHeight - vh) > 110;
-
-          if (!vvShrunk && isMobileTouchEnv() && manualLiftOverride !== false) {
-            // OEM browser ignored resize & visualViewport; lift bottom dock above standard ~42% IME area
-            applyLiftPixels(Math.round(baseViewportHeight * 0.42));
-          }
-          if (target !== chatInput && mainScroll.contains(target)) {
-            target.scrollIntoView({ block: "start", behavior: "smooth" });
-          }
-        }, 320);
+      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") {
+        document.body.classList.add("ime-active");
+        updateFabVisibility();
+        clearTimeout(imeScrollTimer);
+        imeScrollTimer = setTimeout(() => {
+          scrollElementSafelyAboveKeyboard(target === chatInput ? chatDock : target);
+        }, 280);
       }
     });
 
     document.addEventListener("focusout", () => {
-      clearTimeout(imeProbeTimer);
-      setTimeout(syncViewportHeight, 160);
+      clearTimeout(imeScrollTimer);
+      setTimeout(() => {
+        const active = document.activeElement;
+        const stillEditing = active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA");
+        if (!stillEditing) {
+          document.body.classList.remove("ime-active");
+          updateFabVisibility();
+        }
+      }, 180);
     });
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", () => {
+        const active = document.activeElement;
+        if (active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA")) {
+          scrollElementSafelyAboveKeyboard(active === chatInput ? chatDock : active);
+        }
+      });
+    }
+
+    function jumpToComposer() {
+      document.body.classList.add("ime-active");
+      updateFabVisibility();
+      chatDock.scrollIntoView({ block: "center", behavior: "smooth" });
+      setTimeout(() => {
+        chatInput.focus();
+      }, 220);
+    }
 
     function showToast(msg, isErr = false) {
       const el = document.getElementById("toast");
@@ -803,7 +783,7 @@
       document.querySelectorAll(".view").forEach((v) => {
         v.classList.toggle("active", v.id === `view-${name}`);
       });
-      mainScroll.scrollTop = 0;
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     function appendLog(txt) {
@@ -903,7 +883,7 @@
 
       const box = document.getElementById("todoList");
       if (!filtered.length) {
-        box.innerHTML = `<div class="tag-mono" style="padding:10px 0;">当前筛选下暂无待办，可在上方添加或在底部聊天框直接口述需求。</div>`;
+        box.innerHTML = `<div class="tag-mono" style="padding:10px 0;">当前筛选下暂无待办，可在上方添加或在页面最下方聊天栏口述需求。</div>`;
         return;
       }
 
@@ -1147,13 +1127,13 @@
       try {
         const res = await api("/api/chongbuluo/search", { query: q });
         document.getElementById("cblOut").textContent = res.markdownSummary;
-        showToast(res.mode === "needs_phone_control" ? "后台受限，可转底部聊天框控屏" : "✅ 虫部落抓取完成");
+        showToast(res.mode === "needs_phone_control" ? "后台受限，可转下方命令栏控屏" : "✅ 虫部落抓取完成");
       } catch (e) { showToast(e.message, true); }
     }
 
     function useQuickPrompt(text) {
       chatInput.value = text;
-      chatInput.focus();
+      jumpToComposer();
       autoResizeInput();
     }
 
@@ -1164,7 +1144,7 @@
 
     function autoResizeInput() {
       chatInput.style.height = "auto";
-      chatInput.style.height = Math.min(104, chatInput.scrollHeight) + "px";
+      chatInput.style.height = Math.min(130, chatInput.scrollHeight) + "px";
     }
     chatInput.addEventListener("input", autoResizeInput);
     chatInput.addEventListener("keydown", (e) => {
@@ -1176,13 +1156,18 @@
 
     async function sendChat() {
       const msg = chatInput.value.trim();
-      if (!msg) return;
+      if (!msg) {
+        showToast("请先输入指令", true);
+        chatInput.focus();
+        return;
+      }
       if (isRunningChat) return showToast("当前指令正在执行中", true);
       chatInput.value = "";
       autoResizeInput();
       isRunningChat = true;
       document.getElementById("sendBtn").disabled = true;
       setLiveBar(`🤖 正在执行: ${msg.slice(0, 40)}...`, true);
+      showToast("🤖 已下发指令执行");
       appendLog(`\n🧑 你: ${msg}\n🤖 Agent: `);
       try {
         const res = await api("/api/chat", { message: msg });
