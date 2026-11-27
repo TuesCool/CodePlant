@@ -144,13 +144,15 @@ export class RollingCompactor {
     summaryModel: Model<any>,
     models?: Models,
     force = false,
+    keepRecentOverride?: number,
   ): Promise<{ messages: AgentMessage[]; compacted: boolean; status: CompactionStatus }> {
+    const keepRecent = Math.max(2, keepRecentOverride ?? this.keepRecentMessages);
     const status = this.estimateStatus(messages, systemPrompt, summaryModel.contextWindow);
-    if (!force && (status.percent < this.thresholdPercent || messages.length <= this.keepRecentMessages + 2)) {
+    if (!force && (status.percent < this.thresholdPercent || messages.length <= keepRecent + 2)) {
       return { messages: pruneOldPhonePerceptions(messages), compacted: false, status };
     }
 
-    const splitIdx = Math.max(0, messages.length - this.keepRecentMessages);
+    const splitIdx = Math.max(0, messages.length - keepRecent);
     const head = pruneOldPhonePerceptions(messages.slice(0, splitIdx), 0, 0);
     const tail = pruneOldPhonePerceptions(messages.slice(splitIdx), 2, 1);
 

@@ -82,10 +82,15 @@ class PortalAccessibilityService : AccessibilityService() {
         return rootPkg?.takeIf { it.isNotBlank() } ?: lastForegroundPackage
     }
 
+    @Volatile
+    var lastNodes: List<PrunedUiNode> = emptyList()
+        private set
+
     fun capturePrunedTree(screenWidth: Int, screenHeight: Int): Pair<List<PrunedUiNode>, String> {
         val root = rootInActiveWindow ?: return emptyList<PrunedUiNode>() to "(无法读取当前窗口节点)"
         val out = mutableListOf<PrunedUiNode>()
         collectNodes(root, screenWidth, screenHeight, out, 0)
+        lastNodes = out.toList()
         val formatted = if (out.isEmpty()) {
             "(当前界面无可见可交互节点，建议附带 screenshot)"
         } else {
@@ -93,6 +98,8 @@ class PortalAccessibilityService : AccessibilityService() {
         }
         return out to formatted
     }
+
+    fun findCachedNode(index: Int): PrunedUiNode? = lastNodes.firstOrNull { it.index == index }
 
     private fun collectNodes(
         node: AccessibilityNodeInfo?,
@@ -169,9 +176,23 @@ class PortalAccessibilityService : AccessibilityService() {
         return withTimeoutOrNull(4_000L) { deferred.await() } ?: false
     }
 
-    fun inputText(text: String): Boolean {
+    suspend fun inputText(text: String, targetX: Float? = null, targetY: Float? = null): Boolean {
+        if (targetX != null && targetY != null) {
+            tap(targetX, targetY, 55L)
+            kotlinx.coroutines.delay(220L)
+        }
         val root = rootInActiveWindow ?: return false
-        val focused = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT) ?: findFirstEditable(root)
+        var focused = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT)
+        if (focused == null && targetX != null && targetY != null) {
+            focused = findNodeAt(root, targetX.toInt(), targetY.toInt())
+            focused?.performAction(AccessibilityNodeInfo.ACTION_FOCUS)
+            focused?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+            kotlinx.coroutines.delay(140L)
+        }
+        if (focused == null) {
+            focused = findFirstEditable(root)
+            focused?.performAction(AccessibilityNodeInfo.ACTION_FOCUS)
+        }
         if (focused != null) {
             val args = Bundle().apply {
                 putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text)
@@ -179,7 +200,6 @@ class PortalAccessibilityService : AccessibilityService() {
             if (focused.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args)) {
                 return true
             }
-            // Fallback: clipboard + ACTION_PASTE for custom WebView/WeChat inputs
             val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             cm.setPrimaryClip(ClipData.newPlainText("codeplant", text))
             if (focused.performAction(AccessibilityNodeInfo.ACTION_PASTE)) {
@@ -187,6 +207,19 @@ class PortalAccessibilityService : AccessibilityService() {
             }
         }
         return false
+    }
+
+    private fun findNodeAt(node: AccessibilityNodeInfo, x: Int, y: Int): AccessibilityNodeInfo? {
+        if (!node.isVisibleToUser) return null
+        val rect = Rect()
+        node.getBoundsInScreen(rect)
+        if (!rect.contains(x, y)) return null
+        for (i in 0 until node.childCount) {
+            val child = node.getChild(i) ?: continue
+            val hit = findNodeAt(child, x, y)
+            if (hit != null) return hit
+        }
+        return if (node.isEditable || node.isFocusable) node else null
     }
 
     private fun findFirstEditable(node: AccessibilityNodeInfo): AccessibilityNodeInfo? {

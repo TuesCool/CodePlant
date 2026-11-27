@@ -21,7 +21,9 @@
       --mint: #2ee59d;
       --mint-soft: rgba(46, 229, 157, 0.13);
       --amber: #f5a623;
-      --amber-soft: rgba(245, 166, 35, 0.15);
+      --amber-soft: rgba(245, 166, 35, 0.14);
+      --sky: #58a6ff;
+      --sky-soft: rgba(88, 166, 255, 0.14);
       --danger: #ff4d4f;
       --mono: "JetBrains Mono", "SFMono-Regular", Consolas, ui-monospace, monospace;
       --sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
@@ -53,7 +55,7 @@
       border-bottom: 1px solid var(--border);
       padding: calc(8px + env(safe-area-inset-top)) 12px 0;
     }
-    .topbar-inner { max-width: 1100px; margin: 0 auto; }
+    .topbar-inner { max-width: 1120px; margin: 0 auto; }
 
     .brand-row {
       display: flex;
@@ -72,7 +74,7 @@
       box-shadow: 0 0 10px var(--accent);
       flex-shrink: 0;
     }
-    .brand-title { font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 0.05em; }
+    .brand-title { font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 0.04em; }
     .brand-sub { font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
 
     .led-strip { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
@@ -94,19 +96,19 @@
     .led.off { color: #ff7b72; border-color: rgba(255, 77, 79, 0.3); }
     .led.off::before { background: var(--danger); }
 
-    /* Compact 3-column Tabs: fits 100% on narrow phones without clipping */
+    /* 4 equal-width Tabs: crisp on narrow MI14 screens */
     .nav-tabs {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 4px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
     }
     .tab-btn {
       background: transparent;
       border: none;
       border-bottom: 2px solid transparent;
       color: var(--muted);
-      padding: 8px 4px;
-      font-size: 12.5px;
+      padding: 8px 2px;
+      font-size: 12px;
       font-weight: 600;
       cursor: pointer;
       text-align: center;
@@ -117,15 +119,14 @@
     }
     .tab-btn.active { color: var(--ink); border-bottom-color: var(--accent); }
 
-    /* Main Content Flow */
-    .container { max-width: 1100px; margin: 0 auto; padding: 12px 12px 20px; }
+    .container { max-width: 1120px; margin: 0 auto; padding: 12px 12px 24px; }
     .view { display: none; animation: fadeIn 0.16s ease-out; }
     .view.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
 
     .grid-2 {
       display: grid;
-      grid-template-columns: 1.2fr 1fr;
+      grid-template-columns: 1.15fr 1fr;
       gap: 12px;
       align-items: start;
     }
@@ -134,14 +135,14 @@
     /* KPI Strip */
     .kpi-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
     .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 9px 10px; }
-    .kpi-label { font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
-    .kpi-value { font-family: var(--mono); font-size: 18px; font-weight: 700; margin-top: 2px; }
+    .kpi-label { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+    .kpi-value { font-family: var(--mono); font-size: 17px; font-weight: 700; margin-top: 2px; }
     .kpi-bar { height: 3px; background: var(--surface-2); border-radius: 99px; margin-top: 5px; overflow: hidden; }
     .kpi-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--mint)); transition: width 0.3s ease; }
 
     /* Panels */
     .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 13px; margin-bottom: 12px; }
-    .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
     .panel-title { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 7px; }
     .tag-mono { font-family: var(--mono); font-size: 11px; color: var(--muted); }
 
@@ -153,7 +154,7 @@
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 9px 11px;
-      font-size: 15px;
+      font-size: 14.5px;
       font-family: var(--sans);
       outline: none;
       transition: border-color 0.15s;
@@ -175,17 +176,20 @@
       color: var(--ink);
       white-space: nowrap;
       transition: transform 0.08s;
+      text-decoration: none;
     }
     .btn:active { transform: scale(0.98); }
     .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
     .btn.mint { background: var(--mint-soft); border-color: rgba(46, 229, 157, 0.4); color: var(--mint); }
+    .btn.sky { background: var(--sky-soft); border-color: rgba(88, 166, 255, 0.4); color: var(--sky); }
+    .btn.amber { background: var(--amber-soft); border-color: rgba(245, 166, 35, 0.4); color: var(--amber); }
     .btn.danger { background: rgba(255, 77, 79, 0.14); border-color: rgba(255, 77, 79, 0.4); color: #ff7b72; }
     .btn.sm { padding: 5px 9px; font-size: 12px; }
 
     .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     .row + .row { margin-top: 8px; }
 
-    /* Custom Dark Segmented Controls (replaces ugly bright-white Android <select> popups!) */
+    /* Dark Segmented Controls (zero native white <select>) */
     .seg-group {
       display: flex;
       gap: 4px;
@@ -198,52 +202,84 @@
     .seg-btn {
       flex: 1;
       min-width: 52px;
-      background: transparent;
-      border: 1px solid transparent;
-      color: var(--muted);
-      border-radius: 6px;
       padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
       text-align: center;
       white-space: nowrap;
-      transition: background 0.14s, color 0.14s, border-color 0.14s;
     }
     .seg-btn.active {
       background: var(--surface-2);
       border-color: var(--accent);
       color: var(--ink);
     }
-    .seg-btn.active.p0 { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
-    .seg-btn.active.p1 { background: var(--amber-soft); border-color: var(--amber); color: var(--amber); }
-    .seg-btn.active.p2 { background: var(--surface-2); border-color: var(--border-strong); color: var(--ink); }
 
-    /* Custom Dark Picker Trigger & Bottom Action Sheet (for dynamic model list) */
+    /* Dark Trigger Button for Picker Sheet */
     .picker-trigger {
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
+      padding: 9px 11px;
       background: var(--bg);
-      color: var(--ink);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 10px 12px;
-      font-size: 13.5px;
+      color: var(--ink);
+      font-size: 13px;
       cursor: pointer;
       text-align: left;
     }
     .picker-trigger:hover { border-color: var(--border-strong); }
-    .picker-trigger-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
-    .picker-arrow { color: var(--muted); font-size: 12px; flex-shrink: 0; }
+    .picker-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .picker-caret { color: var(--muted); font-size: 11px; flex-shrink: 0; }
 
+    /* Aesthetic Notice / Capability Banner */
+    .notice-banner {
+      padding: 10px 12px;
+      border-radius: 9px;
+      border: 1px solid var(--border-strong);
+      background: var(--surface-2);
+      font-size: 12.5px;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+    .notice-banner.amber {
+      background: rgba(245, 166, 35, 0.08);
+      border-color: rgba(245, 166, 35, 0.36);
+      color: #f6d594;
+    }
+    .notice-banner.mint {
+      background: rgba(46, 229, 157, 0.08);
+      border-color: rgba(46, 229, 157, 0.34);
+      color: #9ff5d1;
+    }
+    .chip-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 7px; }
+    .cap-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--border-strong);
+      background: var(--bg);
+      color: var(--ink);
+      font-size: 11.5px;
+      cursor: pointer;
+    }
+    .cap-pill:hover { border-color: var(--accent); }
+
+    /* Dark Modal Picker Sheet */
     .sheet-backdrop {
       position: fixed;
       inset: 0;
-      z-index: 100;
-      background: rgba(0, 0, 0, 0.72);
+      z-index: 90;
+      background: rgba(0, 0, 0, 0.65);
       backdrop-filter: blur(4px);
       display: none;
       align-items: flex-end;
@@ -253,8 +289,8 @@
     .sheet-backdrop.open { display: flex; }
     .sheet-panel {
       width: 100%;
-      max-width: 560px;
-      max-height: 75vh;
+      max-width: 580px;
+      max-height: 78vh;
       background: var(--surface);
       border: 1px solid var(--border-strong);
       border-radius: 14px;
@@ -270,11 +306,7 @@
       padding: 12px 14px;
       border-bottom: 1px solid var(--border);
     }
-    .sheet-body {
-      overflow-y: auto;
-      padding: 10px 12px;
-      -webkit-overflow-scrolling: touch;
-    }
+    .sheet-body { overflow-y: auto; padding: 10px 12px; -webkit-overflow-scrolling: touch; }
     .sheet-group-title {
       font-family: var(--mono);
       font-size: 11px;
@@ -300,7 +332,7 @@
     }
     .sheet-option.active { border-color: var(--accent); background: var(--accent-soft); }
 
-    /* Todo Items */
+    /* Todo & Schedule */
     .filter-pills { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
     .pill-btn {
       padding: 4px 10px;
@@ -348,86 +380,90 @@
     .badge.P0 { background: var(--accent-soft); color: var(--accent); border: 1px solid rgba(255,90,38,0.35); }
     .badge.P1 { background: var(--amber-soft); color: var(--amber); border: 1px solid rgba(245,166,35,0.35); }
     .badge.P2 { background: var(--surface-2); color: var(--muted); border: 1px solid var(--border); }
-    .badge.state { background: var(--surface-2); color: var(--ink); cursor: pointer; }
+    .badge.sky { background: var(--sky-soft); color: var(--sky); border: 1px solid rgba(88,166,255,0.35); }
+    .badge.mint { background: var(--mint-soft); color: var(--mint); border: 1px solid rgba(46,229,157,0.35); }
 
-    /* Timeline Slots */
     .slot-item {
       display: flex;
       align-items: center;
-      gap: 9px;
+      gap: 10px;
       padding: 8px 10px;
-      border-left: 3px solid var(--accent);
       background: var(--bg);
-      border-radius: 0 8px 8px 0;
-      border-top: 1px solid var(--border);
-      border-right: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 6px;
       margin-bottom: 7px;
+      cursor: pointer;
     }
     .slot-item.done { border-left-color: var(--mint); opacity: 0.6; }
-    .slot-time { font-family: var(--mono); font-size: 11.5px; color: var(--amber); min-width: 84px; }
+    .slot-time { font-family: var(--mono); font-size: 12px; color: var(--accent); width: 92px; flex-shrink: 0; }
+    .slot-item.done .slot-time { color: var(--mint); }
 
-    details.panel-details summary {
-      cursor: pointer;
-      list-style: none;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--muted);
-      padding-top: 4px;
+    /* Cards Grid for Presets & Connectors */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
     }
-    details.panel-details[open] summary { color: var(--ink); margin-bottom: 8px; }
+    @media (max-width: 720px) { .card-grid { grid-template-columns: 1fr; } }
 
-    .stream-box {
-      height: 290px;
-      overflow-y: auto;
+    .subcard {
       background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 10px 11px;
+    }
+    .subcard-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .subcard-title { font-size: 13px; font-weight: 700; }
+    .muted-xs { font-size: 11.5px; color: var(--muted); line-height: 1.45; }
+
+    .terminal-log {
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.55;
+      background: #0a0b0d;
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 11px;
-      font-size: 13px;
-      line-height: 1.55;
+      height: 240px;
+      overflow-y: auto;
       white-space: pre-wrap;
       word-break: break-word;
     }
-    .report-pre {
-      background: var(--bg);
-      border: 1px solid var(--border);
+    .confirm-card {
+      background: rgba(245, 166, 35, 0.1);
+      border: 1px solid rgba(245, 166, 35, 0.45);
       border-radius: 8px;
-      padding: 10px;
-      font-size: 12px;
-      line-height: 1.5;
-      white-space: pre-wrap;
-      max-height: 200px;
-      overflow-y: auto;
-      margin: 8px 0 0;
+      padding: 10px 12px;
+      margin-bottom: 8px;
     }
 
-    /* ALWAYS-VISIBLE BOTTOM CHAT DOCK + GUARANTEED ABOVE-IME TRACKING */
+    details > summary { cursor: pointer; font-size: 12.5px; color: var(--muted); padding: 4px 0; }
+
+    /* Persistent Adaptive Bottom Chat Dock */
     .chat-dock {
       position: fixed;
       left: 0;
       right: 0;
-      bottom: var(--kb-offset, 0px);
+      bottom: var(--kb-offset);
       z-index: 60;
-      background: rgba(18, 20, 25, 0.98);
-      backdrop-filter: blur(16px);
+      background: rgba(14, 15, 18, 0.98);
+      backdrop-filter: blur(14px);
       border-top: 1px solid var(--border-strong);
+      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.6);
       padding: 8px 12px calc(10px + env(safe-area-inset-bottom));
-      box-shadow: 0 -10px 28px rgba(0, 0, 0, 0.55);
-      transition: bottom 0.14s ease-out;
+      transition: bottom 0.08s ease-out;
     }
-    body.ime-dock-active .chat-dock {
-      padding-top: 6px;
-      padding-bottom: 10px;
-    }
-    body.ime-dock-active .quick-chips {
-      display: none;
-    }
-    body.ime-body-input .chat-dock {
-      display: none;
-    }
+    body.ime-dock-active .chat-dock { padding-bottom: 10px; }
+    body.ime-dock-active .quick-chips { display: none; }
+    body.ime-body-input .chat-dock { display: none; }
 
-    .chat-dock-inner { max-width: 1100px; margin: 0 auto; }
+    .chat-dock-inner { max-width: 1120px; margin: 0 auto; }
 
     .dock-live-bar {
       display: none;
@@ -451,7 +487,6 @@
       color: var(--ink);
     }
 
-    /* Always visible whenever dock keyboard is active so user can fine-tune IME height +50px/-20px once and remember it */
     .ime-tune-bar {
       display: none;
       align-items: center;
@@ -462,9 +497,7 @@
       font-size: 11px;
       color: var(--muted);
     }
-    body.ime-dock-active .ime-tune-bar {
-      display: flex;
-    }
+    body.ime-dock-active .ime-tune-bar { display: flex; }
 
     .quick-chips {
       display: flex;
@@ -498,7 +531,6 @@
     }
     .composer-send { height: 42px; padding: 0 18px; font-size: 13.5px; flex-shrink: 0; }
 
-    /* Toast */
     .toast {
       position: fixed;
       top: 56px;
@@ -520,106 +552,113 @@
   </style>
 </head>
 <body>
+  <div id="toast" class="toast"></div>
+
+  <!-- Dark Model Picker Sheet -->
+  <div id="sheetBackdrop" class="sheet-backdrop" onclick="if(event.target===this) closePicker()">
+    <div class="sheet-panel">
+      <div class="sheet-head">
+        <strong id="sheetTitle" style="font-size:14px">选择模型</strong>
+        <button class="btn sm" onclick="closePicker()">关闭</button>
+      </div>
+      <div id="sheetBody" class="sheet-body"></div>
+    </div>
+  </div>
+
+  <!-- Header -->
   <header class="topbar">
     <div class="topbar-inner">
       <div class="brand-row">
         <div class="brand">
-          <span class="brand-mark"></span>
+          <div class="brand-mark"></div>
           <div>
-            <div class="brand-title">CODEPLANT // MI14 COMMANDER</div>
-            <div class="brand-sub" id="ctxUsage">CTX --% · 等待配置模型</div>
+            <div class="brand-title">CODEPLANT // MI14 COMMANDER <span style="color:var(--accent)">v0.2</span></div>
+            <div class="brand-sub" id="ctxInlineText">CTX 0% · CACHE -- · KB --</div>
           </div>
         </div>
-        <div class="led-strip" id="statusPills"></div>
+        <div class="led-strip">
+          <span class="led off" id="ledPortal">Portal</span>
+          <span class="led off" id="ledA11y">无障碍</span>
+          <span class="led off" id="ledNotify">通知</span>
+          <span class="led" id="ledShizuku">Shizuku</span>
+        </div>
       </div>
-      <nav class="nav-tabs">
-        <button class="tab-btn active" data-tab="butler" onclick="switchTab('butler')">01 待办日程</button>
-        <button class="tab-btn" data-tab="agent" onclick="switchTab('agent')">02 执行·虫部落</button>
-        <button class="tab-btn" data-tab="models" onclick="switchTab('models')">03 模型配置</button>
+
+      <nav class="nav-tabs" role="tablist">
+        <button class="tab-btn active" data-tab="butler" onclick="switchTab('butler')">01 管家</button>
+        <button class="tab-btn" data-tab="control" onclick="switchTab('control')">02 控屏·搜索</button>
+        <button class="tab-btn" data-tab="knowledge" onclick="switchTab('knowledge')">03 知识库</button>
+        <button class="tab-btn" data-tab="models" onclick="switchTab('models')">04 配置</button>
       </nav>
     </div>
   </header>
 
-  <div class="toast" id="toast"></div>
-
   <main class="container" id="mainContainer">
-    <!-- TAB 1: BUTLER / TODO / SCHEDULE / WEEKLY REVIEW -->
+    <!-- TAB 1: Butler -->
     <section id="view-butler" class="view active">
       <div class="kpi-strip">
         <div class="kpi-card">
-          <div class="kpi-label">待办</div>
+          <div class="kpi-label">待办总数</div>
           <div class="kpi-value" id="kpiTotal">0</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">未完</div>
-          <div class="kpi-value" style="color:var(--accent)" id="kpiOpen">0</div>
+          <div class="kpi-label">已完成</div>
+          <div class="kpi-value" id="kpiDone" style="color:var(--mint)">0</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">已完</div>
-          <div class="kpi-value" style="color:var(--mint)" id="kpiDone">0</div>
+          <div class="kpi-label">今日排期</div>
+          <div class="kpi-value" id="kpiSlots" style="color:var(--accent)">0</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">达成</div>
-          <div class="kpi-value" id="kpiRate">0%</div>
-          <div class="kpi-bar"><div class="kpi-bar-fill" id="kpiRateBar" style="width:0%"></div></div>
+          <div class="kpi-label">CACHE 命中</div>
+          <div class="kpi-value" id="kpiCache" style="color:var(--sky)">0%</div>
+          <div class="kpi-bar"><div class="kpi-bar-fill" id="kpiCacheBar" style="width:0%"></div></div>
         </div>
       </div>
 
       <div class="grid-2">
-        <!-- Left: Todos -->
-        <div>
-          <div class="panel">
-            <div class="panel-head">
-              <div class="panel-title">📋 待办事项清单</div>
-              <span class="tag-mono" id="todayLabel">--</span>
-            </div>
-            <div class="row">
-              <input id="todoTitle" placeholder="输入待办（按回车直接添加）..." onkeydown="if(event.key==='Enter') addTodo()" style="flex:1;min-width:160px;" />
-            </div>
-            <div class="row" style="margin-top:8px;">
-              <div class="seg-group" id="todoPrioritySeg" style="flex:1;min-width:190px;">
-                <button type="button" class="seg-btn p0" onclick="pickTodoPriority('P0', this)">P0 紧急</button>
-                <button type="button" class="seg-btn p1 active" onclick="pickTodoPriority('P1', this)">P1 重要</button>
-                <button type="button" class="seg-btn p2" onclick="pickTodoPriority('P2', this)">P2 常规</button>
-              </div>
-              <button class="btn primary" onclick="addTodo()" style="min-width:86px;">+ 添加</button>
-            </div>
-            <div class="row" style="margin-top:8px;">
-              <div class="seg-group" id="todoMinutesSeg" style="flex:1;">
-                <button type="button" class="seg-btn" onclick="pickTodoMinutes(15, this)">15m</button>
-                <button type="button" class="seg-btn active" onclick="pickTodoMinutes(30, this)">30m</button>
-                <button type="button" class="seg-btn" onclick="pickTodoMinutes(45, this)">45m</button>
-                <button type="button" class="seg-btn" onclick="pickTodoMinutes(60, this)">60m</button>
-                <button type="button" class="seg-btn" onclick="pickTodoMinutes(90, this)">90m</button>
-              </div>
-            </div>
-
-            <div class="filter-pills">
-              <button class="pill-btn active" onclick="setTodoFilter('all', this)">全部</button>
-              <button class="pill-btn" onclick="setTodoFilter('open', this)">未完成</button>
-              <button class="pill-btn" onclick="setTodoFilter('doing', this)">进行中</button>
-              <button class="pill-btn" onclick="setTodoFilter('done', this)">已完成</button>
-            </div>
-
-            <div id="todoList"></div>
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">📋 待办事项中心</div>
+            <span class="tag-mono" id="todoSummaryLabel">0 pending</span>
           </div>
+
+          <div class="row">
+            <input id="todoTitle" placeholder="新增待办：如 晚上9点练口语40分钟..." style="flex:1;min-width:170px" onkeydown="if(event.key==='Enter') addTodo()" />
+            <input id="todoMinutes" type="number" value="30" min="5" max="240" style="width:76px;text-align:center" title="预估分钟" />
+          </div>
+
+          <div class="row" style="margin-top:8px">
+            <div class="seg-group" id="prioritySeg" style="flex:1">
+              <button type="button" class="seg-btn" data-val="P0" onclick="selectPriority('P0')">P0 紧急</button>
+              <button type="button" class="seg-btn active" data-val="P1" onclick="selectPriority('P1')">P1 重要</button>
+              <button type="button" class="seg-btn" data-val="P2" onclick="selectPriority('P2')">P2 日常</button>
+            </div>
+            <button class="btn primary" onclick="addTodo()">+ 添加</button>
+          </div>
+
+          <div class="filter-pills">
+            <button class="pill-btn active" data-filter="all" onclick="setTodoFilter('all')">全部</button>
+            <button class="pill-btn" data-filter="todo" onclick="setTodoFilter('todo')">未完成</button>
+            <button class="pill-btn" data-filter="in_progress" onclick="setTodoFilter('in_progress')">进行中</button>
+            <button class="pill-btn" data-filter="done" onclick="setTodoFilter('done')">已完成</button>
+          </div>
+
+          <div id="todoList"></div>
         </div>
 
-        <!-- Right: Daily Plan & Weekly Review -->
         <div>
           <div class="panel">
             <div class="panel-head">
-              <div class="panel-title">⏰ 今日排期与督促</div>
+              <div class="panel-title">⏰ 今日排期与原生督促</div>
               <button class="btn sm mint" onclick="testNotify()">🔔 测试提醒</button>
             </div>
-            <div class="row" style="margin-bottom:10px;">
-              <div class="seg-group" id="planStartSeg" style="flex:1;min-width:200px;">
-                <button type="button" class="seg-btn active" onclick="pickPlanMode('now', this)">现在顺延</button>
-                <button type="button" class="seg-btn" onclick="pickPlanMode('9', this)">09:00</button>
-                <button type="button" class="seg-btn" onclick="pickPlanMode('14', this)">14:00</button>
-              </div>
-              <button class="btn primary" onclick="genPlan()">⚡ 一键排期</button>
+            <div class="seg-group" id="planModeSeg" style="margin-bottom:8px">
+              <button type="button" class="seg-btn active" data-val="now" onclick="selectPlanMode('now')">从现在顺延(+5m)</button>
+              <button type="button" class="seg-btn" data-val="9" onclick="selectPlanMode('9')">09:00</button>
+              <button type="button" class="seg-btn" data-val="14" onclick="selectPlanMode('14')">14:00</button>
             </div>
+            <button class="btn primary" style="width:100%;margin-bottom:8px" onclick="genPlan()">⚡ 一键按优先级生成今日行动时间块</button>
             <div id="planSlots"></div>
           </div>
 
@@ -628,239 +667,337 @@
               <div class="panel-title">📈 周复盘与偏好迭代</div>
               <span class="tag-mono">preferences.md</span>
             </div>
-            <div class="row">
-              <button class="btn" onclick="genReview(false)" style="flex:1;">复盘草稿</button>
-              <button class="btn primary" onclick="genReview(true)" style="flex:1;">复盘并迭代偏好</button>
+            <div class="row" style="margin-bottom:8px">
+              <button class="btn" style="flex:1" onclick="genReview(false)">复盘草稿</button>
+              <button class="btn primary" style="flex:1" onclick="genReview(true)">复盘并迭代偏好</button>
             </div>
-            <pre class="report-pre" id="reviewPreview">点击上方按钮统计本周待办完成率并生成改进建议。</pre>
-            <details class="panel-details" style="margin-top:10px;">
+            <pre id="weeklyReviewOut" class="terminal-log" style="height:145px">点击上方生成本周完成率与卡点分析...</pre>
+            <details style="margin-top:8px">
               <summary>展开 / 编辑个人偏好规则 (preferences.md)</summary>
-              <textarea id="prefsEditor" rows="4" placeholder="个人偏好与复盘迭代规则..."></textarea>
-              <div class="row" style="margin-top:6px;">
-                <button class="btn sm" onclick="savePreferences()">💾 保存偏好规则</button>
-              </div>
+              <textarea id="prefsEditor" rows="4" style="margin:6px 0"></textarea>
+              <button class="btn sm mint" onclick="savePreferences()">💾 保存偏好规则</button>
             </details>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- TAB 2: AGENT STREAM / CHONGBULUO / WECHAT -->
-    <section id="view-agent" class="view">
-      <div class="grid-2">
-        <div>
-          <div class="panel">
-            <div class="panel-head">
-              <div class="panel-title">🖥️ Agent 实时执行日志</div>
-              <div class="row">
-                <button class="btn sm" onclick="compactNow()">🗜️ 压缩</button>
-                <button class="btn sm" onclick="clearStream()">清空</button>
-              </div>
-            </div>
-            <div id="chatLog" class="stream-box">系统就绪。在底部聊天栏输入指令即可控屏、查虫部落或管理待办。</div>
-          </div>
+    <!-- TAB 2: Phone Control + Search (Metaso & Chongbuluo) -->
+    <section id="view-control" class="view">
+      <div id="modelCapNoticeControl"></div>
 
-          <div class="panel">
-            <div class="panel-head">
-              <div class="panel-title">🛡️ 高敏动作二次确认（如微信打视频）</div>
-            </div>
-            <div id="confirmList" class="tag-mono">暂无挂起操作</div>
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">📱 手机实时控屏与执行流</div>
+          <div class="row">
+            <button class="btn sm" onclick="loadInstalledApps()">📦 扫描本机 App</button>
+            <button class="btn sm" onclick="compactNow()">🗜️ 滚动压缩</button>
+            <button class="btn sm danger" onclick="abortChat()">🛑 中止</button>
           </div>
         </div>
+        <div class="row" style="margin-bottom:8px">
+          <button class="btn sm" onclick="useQuickPrompt('先调用 phone_list_apps 查看微信包名，再打开微信，点开文件传输助手并输入发送：CodePlant 控屏测试成功')">💬 一键微信发送测试</button>
+          <button class="btn sm" onclick="useQuickPrompt('查一下手机里装了哪些音乐 App，打开它并帮我点击播放推荐歌曲')">🎵 音乐 App 播控测试</button>
+          <button class="btn sm" onclick="useQuickPrompt('读取当前手机屏幕控件树并告诉我页面上可以点击什么')">👁️ 读当前控件树</button>
+        </div>
+        <div id="agentLog" class="terminal-log">等待指令... 在下方聊天框下发指令（如「用微信给文件传输助手发消息说我在测试」「打开音乐App放首歌」「把明天复盘写进待办」）。</div>
+        <div id="appsPreview" class="muted-xs" style="margin-top:7px;display:none"></div>
+      </div>
 
+      <div class="panel" id="confirmPanel" style="display:none">
+        <div class="panel-head">
+          <div class="panel-title" style="color:var(--amber)">⚠️ 敏感动作确认队列</div>
+        </div>
+        <div id="confirmList"></div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Metaso AI Search & Download -->
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">🚀 秘塔 AI 检索与文档下载导出</div>
+            <span class="tag-mono" id="metasoStatusTag">未配置 Key</span>
+          </div>
+          <div class="row">
+            <input id="metasoKey" type="password" placeholder="秘塔 AI API Key (sk-...)" style="flex:1;min-width:150px" />
+            <button class="btn sm" onclick="saveMetasoConfig()">保存 Key</button>
+          </div>
+          <div class="seg-group" id="metasoScopeSeg" style="margin:8px 0">
+            <button type="button" class="seg-btn active" data-val="webpage" onclick="selectMetasoScope('webpage')">网页全网</button>
+            <button type="button" class="seg-btn" data-val="document" onclick="selectMetasoScope('document')">文库资料</button>
+            <button type="button" class="seg-btn" data-val="scholar" onclick="selectMetasoScope('scholar')">学术文献</button>
+          </div>
+          <div class="row">
+            <input id="metasoQuery" placeholder="输入检索主题（自动生成可下载 Markdown 报告）" style="flex:1;min-width:160px" />
+            <button class="btn primary" onclick="searchMetaso()">检索并导出</button>
+          </div>
+          <pre id="metasoOut" class="terminal-log" style="height:135px;margin-top:8px">支持直连秘塔 API 检索并自动生成 .md / .json 文件供手机直接下载保存。</pre>
+          <div id="downloadsList" style="margin-top:8px"></div>
+        </div>
+
+        <!-- Chongbuluo + WeChat Listener -->
         <div>
           <div class="panel">
             <div class="panel-head">
-              <div class="panel-title">🔍 虫部落检索（优先后台抓取）</div>
+              <div class="panel-title">🔍 虫部落后台检索</div>
+              <span class="tag-mono">Termux-first</span>
             </div>
             <div class="row">
-              <input id="cblQuery" placeholder="输入关键词，例如：嵌入式 Rust STM32..." onkeydown="if(event.key==='Enter') searchChongbuluo()" style="flex:1;" />
-              <button class="btn primary" onclick="searchChongbuluo()">抓取整理</button>
+              <input id="cblQuery" placeholder="输入检索词..." style="flex:1" />
+              <button class="btn primary" onclick="searchChongbuluo()">抓取</button>
             </div>
-            <pre class="report-pre" id="cblOut">点击「抓取整理」优先走 Termux 后台抓取，若遇登录/动态页将提示改走控屏。</pre>
+            <pre id="cblOut" class="terminal-log" style="height:110px;margin-top:8px">后台优先直接抓取虫部落结果；受限则切换手机控屏。</pre>
           </div>
 
           <div class="panel">
             <div class="panel-head">
               <div class="panel-title">💬 微信通知监听与白名单</div>
-              <button class="btn sm" onclick="saveWeChatPolicy()">保存</button>
             </div>
             <div class="row">
-              <input id="wxWhitelist" placeholder="回复白名单（逗号分隔，如：文件传输助手,张三）" />
+              <input id="wxWhitelist" placeholder="自动回复白名单，逗号分隔，如: 文件传输助手, 家人" style="flex:1" />
+              <button class="btn sm" onclick="saveWeChatPolicy()">保存</button>
             </div>
-            <div id="wxEvents" style="margin-top:10px;" class="tag-mono">暂无捕获的微信通知</div>
+            <div id="wechatEvents" style="margin-top:8px"></div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- TAB 3: MODELS & CHATGPT OAUTH -->
-    <section id="view-models" class="view">
+    <!-- TAB 3: Personal Knowledge Base + Multi-Platform Connectors -->
+    <section id="view-knowledge" class="view">
       <div class="grid-2">
         <div class="panel">
           <div class="panel-head">
-            <div class="panel-title">🔑 接口密钥与自动找模型</div>
+            <div class="panel-title">🧠 个人知识库（本地 Markdown）</div>
+            <span class="tag-mono" id="kbCountTag">0 篇</span>
           </div>
           <div class="row">
-            <input id="baseUrl" placeholder="Base URL（如 https://api.openai.com 或中转站）" />
+            <input id="kbSearchInput" placeholder="搜索标题、标签或正文内容..." style="flex:1" onkeydown="if(event.key==='Enter') searchKbNotes()" />
+            <button class="btn sm sky" onclick="searchKbNotes()">搜索</button>
+            <button class="btn sm" onclick="loadKbNotes()">全部</button>
           </div>
-          <div class="row">
-            <input id="apiKey" type="password" placeholder="API Key（sk-...）" />
-          </div>
-          <div class="row" style="margin-top:8px;">
-            <div class="seg-group" id="apiDialectSeg" style="flex:1;">
-              <button type="button" class="seg-btn active" onclick="pickApiDialect('openai-completions', this)">OpenAI 兼容</button>
-              <button type="button" class="seg-btn" onclick="pickApiDialect('openai-responses', this)">Responses</button>
-              <button type="button" class="seg-btn" onclick="pickApiDialect('anthropic-messages', this)">Claude</button>
-            </div>
-          </div>
-          <div class="row" style="margin-top:8px;">
-            <button class="btn primary" onclick="discoverModels()" style="flex:1;">🔎 自动发现并拉取模型列表</button>
-          </div>
-          <div class="row" style="margin-top:10px;">
-            <button type="button" class="picker-trigger" id="modelPickerBtn" onclick="openModelSheet()">
-              <span class="picker-trigger-text" id="modelPickerLabel">选择当前主控模型...</span>
-              <span class="picker-arrow">▾ 切换</span>
-            </button>
-          </div>
-          <div class="tag-mono" style="margin-top:8px;">已采用深色面板选择器，点击即可切换底部聊天框的主控引擎。</div>
+          <div id="kbNotesList" style="margin-top:10px;max-height:290px;overflow-y:auto"></div>
         </div>
 
         <div class="panel">
           <div class="panel-head">
-            <div class="panel-title">🟢 ChatGPT 订阅账号 OAuth 登录</div>
+            <div class="panel-title">✍️ 新建 / 编辑知识条目</div>
+            <button class="btn sm" onclick="clearKbEditor()">清空</button>
+          </div>
+          <input id="kbEditId" type="hidden" />
+          <input id="kbTitle" placeholder="笔记标题" style="margin-bottom:7px" />
+          <input id="kbTags" placeholder="标签（逗号分隔，如：工作, 架构, 灵感）" style="margin-bottom:7px" />
+          <textarea id="kbContent" rows="7" placeholder="输入 Markdown 正文（Agent 对话时将自动检索匹配摘要辅助回答）..."></textarea>
+          <div class="row" style="margin-top:8px">
+            <button class="btn primary" style="flex:1" onclick="saveKbNote()">💾 保存到本地知识库</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">🔌 外部知识平台与自动化生态接入</div>
+          <span class="tag-mono">API直连 · 本地Vault · MCP桥接</span>
+        </div>
+        <div class="notice-banner">
+          <strong>多平台接入策略说明：</strong> 飞书 / Notion / 语雀 / Obsidian 支持直连其官方 OpenAPI 或本地文件系统，<strong>不依赖特定大模型</strong>；Gemini Notebook (NotebookLM) 与腾讯 ima 因官方暂无公开个人 REST API，通过 MCP Bridge 端口或小米无障碍控屏协同接入。
+        </div>
+        <div class="card-grid" id="connectorsGrid"></div>
+      </div>
+    </section>
+
+    <!-- TAB 4: Config (Free Models, Prompt Cache, OAuth, Network/Port Bridge) -->
+    <section id="view-models" class="view">
+      <div id="modelCapNoticeConfig"></div>
+
+      <!-- Free & Latest Models Presets -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">✨ 免费与高性价比大模型快速接入</div>
+          <span class="tag-mono">智谱 GLM · 魔搭 Qwen3/DeepSeek · 百炼 · DeepSeek</span>
+        </div>
+        <div class="card-grid" id="freePresetsGrid"></div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Custom Discover & Dark Sheet Routing -->
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">🔑 自定义中转站与模型路由</div>
+            <span class="tag-mono">零原生白框</span>
+          </div>
+          <input id="baseUrl" placeholder="Base URL（如 https://open.bigmodel.cn/api/paas/v4）" style="margin-bottom:7px" />
+          <input id="apiKey" type="password" placeholder="API Key (sk-...)" style="margin-bottom:7px" />
+          <div class="seg-group" id="dialectSeg" style="margin-bottom:8px">
+            <button type="button" class="seg-btn active" data-val="openai-completions" onclick="selectDialect('openai-completions')">OpenAI 兼容</button>
+            <button type="button" class="seg-btn" data-val="openai-responses" onclick="selectDialect('openai-responses')">Responses</button>
+            <button type="button" class="seg-btn" data-val="anthropic-messages" onclick="selectDialect('anthropic-messages')">Claude 兼容</button>
+          </div>
+          <button class="btn primary" style="width:100%;margin-bottom:10px" onclick="discoverModels()">🔍 拉取 /models 并设为默认主模型</button>
+
+          <div style="margin-bottom:8px">
+            <div class="muted-xs" style="margin-bottom:4px">主对话 / 手机控屏模型：</div>
+            <button class="picker-trigger" onclick="openModelPicker('primary')">
+              <span class="picker-label" id="primaryModelLabel">未配置</span>
+              <span class="picker-caret">▼ 切换</span>
+            </button>
+          </div>
+          <div>
+            <div class="muted-xs" style="margin-bottom:4px">后台滚动压缩模型（建议选免费/高速模型）：</div>
+            <button class="picker-trigger" onclick="openModelPicker('compaction')">
+              <span class="picker-label" id="compactionModelLabel">跟随主模型</span>
+              <span class="picker-caret">▼ 切换</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Pi Prompt Cache Savings Module -->
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">⚡ Pi Prompt Cache 缓存命中省 Token</div>
+            <span class="badge sky" id="cachePiRetentionBadge">short</span>
+          </div>
+          <div class="seg-group" id="cacheTierSeg" style="margin-bottom:8px">
+            <button type="button" class="seg-btn" data-val="low" onclick="selectCacheTier('low')">低命中 (none)</button>
+            <button type="button" class="seg-btn active" data-val="medium" onclick="selectCacheTier('medium')">中命中 (short)</button>
+            <button type="button" class="seg-btn" data-val="high" onclick="selectCacheTier('high')">高命中 (long)</button>
+          </div>
+          <div class="row" style="margin-bottom:8px">
+            <div style="flex:1;min-width:120px">
+              <div class="muted-xs">目标前缀最小阈值 (tokens)</div>
+              <input id="cacheMinPrefix" type="number" min="256" max="32768" step="256" value="2048" />
+            </div>
+            <div style="flex:1;min-width:120px">
+              <div class="muted-xs">保持前缀不压缩轮数</div>
+              <input id="cacheHoldTurns" type="number" min="2" max="30" value="8" />
+            </div>
+            <button class="btn sm primary" style="align-self:flex-end;height:39px" onclick="saveCacheConfig()">保存参数</button>
+          </div>
+          <div id="cacheModelHintBox" class="notice-banner mint" style="margin-bottom:8px">等待识别当前模型缓存建议...</div>
+          <div class="kpi-strip" style="grid-template-columns:repeat(3,1fr);margin-bottom:0">
+            <div class="kpi-card">
+              <div class="kpi-label">命中读取</div>
+              <div class="kpi-value" id="statCacheRead" style="font-size:15px;color:var(--mint)">0</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">总输入</div>
+              <div class="kpi-value" id="statInputTokens" style="font-size:15px">0</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">累计命中率</div>
+              <div class="kpi-value" id="statHitRate" style="font-size:15px;color:var(--sky)">0%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- ChatGPT OAuth -->
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">🔐 ChatGPT Plus/Pro OAuth</div>
+            <span class="tag-mono" id="oauthStateText">未登录</span>
           </div>
           <div class="row">
-            <button class="btn" onclick="startChatGptOAuth('browser')" style="flex:1;">浏览器回调登录</button>
-            <button class="btn" onclick="startChatGptOAuth('device')" style="flex:1;">Device Code 登录</button>
+            <button class="btn" style="flex:1" onclick="startChatGptOAuth('browser')">浏览器回调</button>
+            <button class="btn" style="flex:1" onclick="startChatGptOAuth('device')">Device Code</button>
           </div>
-          <div id="oauthPromptBox" style="display:none;margin-top:10px;">
-            <div id="oauthPromptLabel" class="tag-mono" style="margin-bottom:6px;color:var(--amber);"></div>
+          <div id="oauthPromptBox" style="display:none;margin-top:8px">
+            <div id="oauthPromptText" class="muted-xs" style="margin-bottom:6px"></div>
             <div class="row">
-              <input id="oauthAnswer" placeholder="粘贴回调 URL 或验证码..." style="flex:1;" />
+              <input id="oauthAnswer" placeholder="粘贴验证码或回调 URL..." style="flex:1" />
               <button class="btn primary" onclick="submitOAuthAnswer()">提交</button>
             </div>
           </div>
-          <pre class="report-pre" id="oauthBox">未启动登录流程</pre>
+          <pre id="oauthLogs" class="terminal-log" style="height:95px;margin-top:8px">等待操作...</pre>
+        </div>
+
+        <!-- Network, Shared Ports, Website Bridge -->
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">🌐 网络桥接、共享端口与个人网站接入</div>
+            <span class="badge mint">/api/bridge/*</span>
+          </div>
+          <div class="muted-xs" style="margin-bottom:6px">监听地址模式（设为 0.0.0.0 后可供同局域网电脑或内网穿透访问；变更端口需重启服务生效）：</div>
+          <div class="seg-group" id="listenHostSeg" style="margin-bottom:8px">
+            <button type="button" class="seg-btn active" data-val="127.0.0.1" onclick="selectListenHost('127.0.0.1')">仅本机 127.0.0.1</button>
+            <button type="button" class="seg-btn" data-val="0.0.0.0" onclick="selectListenHost('0.0.0.0')">局域网/桥接 0.0.0.0</button>
+          </div>
+          <div class="row" style="margin-bottom:7px">
+            <input id="bridgePort" type="number" min="1024" max="65535" placeholder="监听端口 8787" style="width:120px" />
+            <input id="bridgePublicUrl" placeholder="公网/隧道地址（如 https://mi14.example.com）" style="flex:1;min-width:150px" />
+          </div>
+          <input id="bridgeCors" placeholder="允许跨域调用的个人网站 Origin（逗号分隔，默认 *）" style="margin-bottom:7px" />
+          <input id="bridgeToken" type="password" placeholder="Bridge Bearer Token（暴露到外部网站时建议设置）" style="margin-bottom:7px" />
+          <input id="bridgeWebhook" placeholder="出站事件 Webhook URL（任务完成时推送到你的个人网站）" style="margin-bottom:8px" />
+          <div class="row">
+            <button class="btn primary" style="flex:1" onclick="saveBridgeConfig()">💾 保存桥接配置</button>
+            <button class="btn sky" onclick="previewBridgeManifest()">查看 Bridge API 清单</button>
+          </div>
+          <pre id="bridgeOut" class="terminal-log" style="height:95px;margin-top:8px;display:none"></pre>
         </div>
       </div>
     </section>
   </main>
 
-  <!-- DARK MODEL PICKER SHEET -->
-  <div class="sheet-backdrop" id="modelSheet" onclick="if(event.target===this) closeModelSheet()">
-    <div class="sheet-panel">
-      <div class="sheet-head">
-        <div class="panel-title">🧠 选择当前主控模型</div>
-        <button class="btn sm" onclick="closeModelSheet()">关闭</button>
-      </div>
-      <div style="padding:10px 12px 0;">
-        <input id="modelSearchInput" placeholder="搜索模型名称..." oninput="renderModelSheetOptions()" />
-      </div>
-      <div class="sheet-body" id="modelSheetBody"></div>
-    </div>
-  </div>
-
-  <!-- ALWAYS-VISIBLE BOTTOM CHAT DOCK -->
-  <footer class="chat-dock" id="chatDock">
+  <!-- Persistent Adaptive Bottom Chat Dock -->
+  <div class="chat-dock" id="chatDock">
     <div class="chat-dock-inner">
       <div class="dock-live-bar" id="dockLiveBar">
-        <div class="dock-live-text" id="dockLiveText">准备执行...</div>
-        <button class="btn sm" onclick="switchTab('agent')">详情</button>
-        <button class="btn sm danger" id="dockAbortBtn" onclick="abortChat()" style="display:none;">中止</button>
+        <span class="dock-live-text" id="dockLiveText">🤖 执行中...</span>
+        <button class="btn sm" onclick="switchTab('control')">看日志</button>
       </div>
+
       <div class="ime-tune-bar" id="imeTuneBar">
-        <span id="imeTuneLabel">键盘避让偏移</span>
-        <div class="row" style="gap:4px;">
-          <button class="btn sm" onpointerdown="event.preventDefault()" onclick="nudgeExtraOffset(30)">▲ 再抬高</button>
-          <button class="btn sm" onpointerdown="event.preventDefault()" onclick="nudgeExtraOffset(-30)">▼ 降一点</button>
-          <button class="btn sm" onclick="chatInput.blur()">收起</button>
+        <span id="imeTuneLabel">键盘避让已启用</span>
+        <div class="row" style="gap:4px">
+          <button type="button" class="btn sm" onclick="nudgeExtraOffset(-20)">▼ 降20</button>
+          <button type="button" class="btn sm" onclick="nudgeExtraOffset(20)">▲ 升20</button>
         </div>
       </div>
-      <div class="quick-chips" id="quickChips">
-        <button class="chip" onclick="useQuickPrompt('请帮我把今天要做的 3 件重要事情整理成待办，并按现在时间生成今日计划')">📋 需求转待办</button>
-        <button class="chip" onclick="useQuickPrompt('用虫部落搜索并整理：')">🔍 虫部落搜索</button>
-        <button class="chip" onclick="useQuickPrompt('读取当前手机屏幕，告诉我现在界面上有什么')">📱 看当前屏幕</button>
-        <button class="chip" onclick="useQuickPrompt('查看最近微信通知并给出回复建议')">💬 查微信通知</button>
-        <button class="chip" onclick="useQuickPrompt('帮我生成本周复盘并提出优化建议')">📈 本周复盘</button>
+
+      <div class="quick-chips">
+        <button class="chip" onclick="useQuickPrompt('打开微信，给文件传输助手发送消息：你好，我是MI14 Agent测试')">💬 微信发消息</button>
+        <button class="chip" onclick="useQuickPrompt('查找我手机上的音乐应用并打开播放音乐')">🎵 打开音乐App</button>
+        <button class="chip" onclick="useQuickPrompt('用秘塔AI搜索 2026年端侧AI Agent趋势 并导出Markdown报告')">🚀 秘塔导出</button>
+        <button class="chip" onclick="useQuickPrompt('把「明天上午整理个人知识库」写进我的待办并生成今日排期')">📋 写待办排期</button>
+        <button class="chip" onclick="useQuickPrompt('查一下我的个人知识库里有哪些内容')">🧠 查知识库</button>
       </div>
+
       <div class="composer-row">
-        <textarea id="chatInput" rows="1" enterkeyhint="send" placeholder="输入指令控制手机、查虫部落或管理待办..."></textarea>
+        <textarea id="chatInput" rows="1" placeholder="输入指令控屏、发微信、开App、搜秘塔或记待办..."></textarea>
         <button class="btn primary composer-send" id="sendBtn" onclick="sendChat()">▶ 执行</button>
       </div>
     </div>
-  </footer>
+  </div>
 
   <script>
+    let state = null;
     let todoFilter = "all";
-    let selectedTodoPriority = "P1";
-    let selectedTodoMinutes = 30;
+    let selectedPriority = "P1";
     let selectedPlanMode = "now";
-    let selectedApiDialect = "openai-completions";
-    let latestState = null;
+    let selectedDialect = "openai-completions";
+    let selectedMetasoScope = "webpage";
+    let selectedCacheTier = "medium";
+    let selectedListenHost = "127.0.0.1";
+    let activePickerRole = null;
     let isRunningChat = false;
+    let currentTab = "butler";
 
-    const mainContainer = document.getElementById("mainContainer");
-    const chatLog = document.getElementById("chatLog");
-    const chatInput = document.getElementById("chatInput");
     const chatDock = document.getElementById("chatDock");
+    const chatInput = document.getElementById("chatInput");
+    const mainContainer = document.getElementById("mainContainer");
 
-    // 1. Segmented controls helpers
-    function setActiveSeg(containerId, btn) {
-      document.querySelectorAll(`#${containerId} .seg-btn`).forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-    }
-    function pickTodoPriority(p, btn) { selectedTodoPriority = p; setActiveSeg("todoPrioritySeg", btn); }
-    function pickTodoMinutes(m, btn) { selectedTodoMinutes = m; setActiveSeg("todoMinutesSeg", btn); }
-    function pickPlanMode(mode, btn) { selectedPlanMode = mode; setActiveSeg("planStartSeg", btn); }
-    function pickApiDialect(d, btn) { selectedApiDialect = d; setActiveSeg("apiDialectSeg", btn); }
-
-    // 2. Dark Model Picker Sheet
-    function openModelSheet() {
-      document.getElementById("modelSearchInput").value = "";
-      renderModelSheetOptions();
-      document.getElementById("modelSheet").classList.add("open");
-    }
-    function closeModelSheet() {
-      document.getElementById("modelSheet").classList.remove("open");
-    }
-    function renderModelSheetOptions() {
-      const body = document.getElementById("modelSheetBody");
-      if (!latestState?.models?.providers) {
-        body.innerHTML = `<div class="tag-mono">暂无模型列表，请先点击「自动发现」。</div>`;
-        return;
-      }
-      const q = document.getElementById("modelSearchInput").value.trim().toLowerCase();
-      const cur = `${latestState.models.routing.primaryProvider}::${latestState.models.routing.primaryModel}`;
-      const html = [];
-      for (const prov of latestState.models.providers) {
-        const matched = prov.models.filter((m) => !q || m.id.toLowerCase().includes(q) || prov.name.toLowerCase().includes(q));
-        if (!matched.length) continue;
-        html.push(`<div class="sheet-group-title">${escapeHtml(prov.name)}</div>`);
-        for (const m of matched) {
-          const val = `${prov.id}::${m.id}`;
-          const active = val === cur ? "active" : "";
-          html.push(`
-            <button type="button" class="sheet-option ${active}" onclick="selectModelFromSheet('${escapeHtml(prov.id)}', '${escapeHtml(m.id)}')">
-              <span>${escapeHtml(m.id)}</span>
-              <span class="tag-mono">${m.images ? "看图 · " : ""}${Math.round((m.contextWindow || 128000) / 1000)}K</span>
-            </button>`);
-        }
-      }
-      body.innerHTML = html.length ? html.join("") : `<div class="tag-mono">没有匹配的模型。</div>`;
-    }
-    async function selectModelFromSheet(primaryProvider, primaryModel) {
-      closeModelSheet();
-      await api("/api/models/routing", { primaryProvider, primaryModel });
-      showToast(`已切换模型: ${primaryModel}`);
-      refreshStatus();
+    function escHtml(s) {
+      return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
     }
 
-    // 3. Adaptive Keyboard Tracking (handles MIUI/Quark IME toolbar strip + blind browsers + fine-tune)
-    const EXTRA_CUSHION_KEY = "cp_ime_extra_cushion_px";
+    // ---------- Adaptive IME Keyboard Offset + Auto-Probe + Fine-Tune ----------
+    const EXTRA_CUSHION_KEY = "cp_ime_extra_px";
     const BLIND_OFFSET_KEY = "cp_blind_ime_offset_px";
     let baseVvHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
     let probeTimer = null;
+    let currentMode = "idle";
 
     function isTouchMobile() {
       return window.matchMedia("(pointer: coarse)").matches || window.innerWidth <= 900;
@@ -872,7 +1009,6 @@
         const n = Number(saved);
         if (Number.isFinite(n) && n >= 0 && n <= 260) return n;
       }
-      // Mobile keyboards often add a ~56px suggestion/toolbar strip above the reported inset or Quark bottom bar
       return isTouchMobile() ? 56 : 0;
     }
 
@@ -894,14 +1030,12 @@
       }).observe(chatDock);
     }
 
-    let currentMode = "idle"; // "measured" | "native" | "blind" | "idle"
     function applyDockOffset(px, mode) {
       currentMode = mode;
       const safePx = Math.max(0, Math.round(px));
       document.documentElement.style.setProperty("--kb-offset", `${safePx}px`);
       if (mode !== "idle") {
-        document.getElementById("imeTuneLabel").textContent =
-          `键盘避让 +${safePx}px (${mode === "blind" ? "盲键盘" : "视口"})`;
+        document.getElementById("imeTuneLabel").textContent = `键盘避让 +${safePx}px (${mode === "blind" ? "盲键盘" : "视口"})`;
       }
       syncBodyDockPadding(safePx);
     }
@@ -934,382 +1068,696 @@
       document.body.classList.toggle("ime-dock-active", isDockInput);
       document.body.classList.toggle("ime-body-input", isBodyInput);
 
-      if (!isDockInput && !isBodyInput) {
-        applyDockOffset(0, "idle");
-        return;
-      }
-      if (isBodyInput) {
+      if (!isDockInput || isBodyInput) {
         applyDockOffset(0, "idle");
         return;
       }
 
       const visualDelta = Math.max(0, Math.round(layoutH - vvH - vvTop));
-      const vkH = navigator.virtualKeyboard?.boundingRect?.height
-        ? Math.round(navigator.virtualKeyboard.boundingRect.height)
-        : 0;
+      const vkH = navigator.virtualKeyboard?.boundingRect?.height ? Math.round(navigator.virtualKeyboard.boundingRect.height) : 0;
       const measuredOffset = Math.max(visualDelta, vkH);
       const layoutNativeShrunk = (baseVvHeight - vvH) > 100;
 
-      if (measuredOffset > 40) {
-        applyDockOffset(measuredOffset + getExtraCushion(), "measured");
-      } else if (layoutNativeShrunk) {
-        applyDockOffset(getExtraCushion(), "native");
-      } else if (forceProbe && isTouchMobile()) {
-        applyDockOffset(getBlindOffset(), "blind");
-      }
+      if (measuredOffset > 40) applyDockOffset(measuredOffset + getExtraCushion(), "measured");
+      else if (layoutNativeShrunk) applyDockOffset(getExtraCushion(), "native");
+      else if (forceProbe && isTouchMobile()) applyDockOffset(getBlindOffset(), "blind");
     }
 
+    if ("virtualKeyboard" in navigator) {
+      try { navigator.virtualKeyboard.overlaysContent = false; } catch {}
+    }
+
+    chatInput.addEventListener("focus", () => {
+      updateKeyboardTracking(false);
+      clearTimeout(probeTimer);
+      probeTimer = setTimeout(() => updateKeyboardTracking(true), 320);
+    });
+    document.addEventListener("focusin", (e) => {
+      if (e.target !== chatInput) setTimeout(() => updateKeyboardTracking(false), 60);
+    });
+    document.addEventListener("focusout", () => {
+      clearTimeout(probeTimer);
+      setTimeout(() => updateKeyboardTracking(false), 180);
+    });
     if (window.visualViewport) {
       window.visualViewport.addEventListener("resize", () => updateKeyboardTracking(false));
       window.visualViewport.addEventListener("scroll", () => updateKeyboardTracking(false));
     }
-    if (navigator.virtualKeyboard) {
-      try {
-        navigator.virtualKeyboard.overlaysContent = false;
-        navigator.virtualKeyboard.addEventListener("geometrychange", () => updateKeyboardTracking(false));
-      } catch {}
-    }
     window.addEventListener("resize", () => updateKeyboardTracking(false));
 
-    document.addEventListener("focusin", (e) => {
-      const target = e.target;
-      if (!(target instanceof HTMLElement)) return;
-      if (target.tagName !== "INPUT" && target.tagName !== "TEXTAREA") return;
-      clearTimeout(probeTimer);
-      updateKeyboardTracking(false);
-      probeTimer = setTimeout(() => {
-        updateKeyboardTracking(true);
-        if (target !== chatInput && mainContainer.contains(target)) {
-          const vv = window.visualViewport;
-          const vvH = vv ? vv.height : window.innerHeight;
-          const vvShrunk = (baseVvHeight - vvH) > 100;
-          const safeBottom = vvShrunk ? vvH : Math.round(window.innerHeight * 0.48);
-          const rect = target.getBoundingClientRect();
-          if (rect.bottom > safeBottom - 16 || rect.top < 64) {
-            window.scrollBy({ top: rect.top - Math.round(safeBottom * 0.40), behavior: "smooth" });
-          }
-        }
-      }, 300);
-    });
-
-    document.addEventListener("focusout", () => {
-      clearTimeout(probeTimer);
-      setTimeout(() => {
-        const active = document.activeElement;
-        if (!active || (active.tagName !== "INPUT" && active.tagName !== "TEXTAREA")) {
-          document.body.classList.remove("ime-dock-active", "ime-body-input");
-          applyDockOffset(0, "idle");
-        }
-      }, 180);
-    });
-
-    function showToast(msg, isErr = false) {
-      const el = document.getElementById("toast");
-      el.textContent = msg;
-      el.style.borderColor = isErr ? "var(--danger)" : "var(--mint)";
-      el.classList.add("show");
-      clearTimeout(el._t);
-      el._t = setTimeout(() => el.classList.remove("show"), 2800);
+    // ---------- Helpers ----------
+    function showToast(msg, isError = false) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.style.borderColor = isError ? "var(--danger)" : "var(--mint)";
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 2600);
     }
 
     function switchTab(name) {
-      document.querySelectorAll(".tab-btn").forEach((b) => {
-        b.classList.toggle("active", b.dataset.tab === name);
-      });
-      document.querySelectorAll(".view").forEach((v) => {
-        v.classList.toggle("active", v.id === `view-${name}`);
-      });
+      currentTab = name;
+      document.querySelectorAll(".tab-btn").forEach((b) => b.classList.toggle("active", b.dataset.tab === name));
+      document.querySelectorAll(".view").forEach((v) => v.classList.toggle("active", v.id === "view-" + name));
       window.scrollTo({ top: 0, behavior: "smooth" });
+      if (name === "knowledge") loadKbNotes();
+    }
+
+    function setSegActive(id, val) {
+      document.querySelectorAll(`#${id} .seg-btn`).forEach((b) => b.classList.toggle("active", b.dataset.val === val));
+    }
+    function selectPriority(val) { selectedPriority = val; setSegActive("prioritySeg", val); }
+    function selectPlanMode(val) { selectedPlanMode = val; setSegActive("planModeSeg", val); }
+    function selectDialect(val) { selectedDialect = val; setSegActive("dialectSeg", val); }
+    function selectMetasoScope(val) { selectedMetasoScope = val; setSegActive("metasoScopeSeg", val); }
+    function selectListenHost(val) { selectedListenHost = val; setSegActive("listenHostSeg", val); }
+
+    async function selectCacheTier(val) {
+      selectedCacheTier = val;
+      setSegActive("cacheTierSeg", val);
+      const defaults = { low: [1024, 4], medium: [2048, 8], high: [4096, 14] }[val] || [2048, 8];
+      document.getElementById("cacheMinPrefix").value = defaults[0];
+      document.getElementById("cacheHoldTurns").value = defaults[1];
+      await saveCacheConfig();
+    }
+
+    async function api(path, body = null, method = null) {
+      const m = method || (body ? "POST" : "GET");
+      const res = await fetch(path, {
+        method: m,
+        headers: body ? { "Content-Type": "application/json" } : {},
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
+      return json;
+    }
+
+    function setLed(id, ok) {
+      const el = document.getElementById(id);
+      el.classList.toggle("on", Boolean(ok));
+      el.classList.toggle("off", !ok);
     }
 
     function appendLog(txt) {
-      chatLog.textContent += "\n" + txt;
-      chatLog.scrollTop = chatLog.scrollHeight;
+      const el = document.getElementById("agentLog");
+      el.textContent += txt;
+      el.scrollTop = el.scrollHeight;
     }
 
-    function clearStream() {
-      chatLog.textContent = "日志已清空。";
-    }
-
-    function setLiveBar(text, running = false) {
+    function setLiveBar(text, visible = true) {
       const bar = document.getElementById("dockLiveBar");
-      const label = document.getElementById("dockLiveText");
-      const abortBtn = document.getElementById("dockAbortBtn");
-      bar.classList.add("show");
-      label.textContent = text;
-      abortBtn.style.display = running ? "inline-flex" : "none";
+      document.getElementById("dockLiveText").textContent = text;
+      bar.classList.toggle("show", visible);
     }
 
-    async function api(path, body) {
-      const r = await fetch(path, body !== undefined
-        ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }
-        : {});
-      const j = await r.json();
-      if (!r.ok) throw new Error(j.error || r.statusText);
-      return j;
-    }
-
-    // SSE real-time stream
+    // SSE Live Stream
     const es = new EventSource("/api/events");
     es.addEventListener("step", (e) => {
-      const msg = "⚙️ " + JSON.parse(e.data).label;
-      appendLog(msg);
-      setLiveBar(msg, true);
+      const d = JSON.parse(e.data);
+      appendLog(`\n[步骤] ${d.label}`);
+      if (isRunningChat) setLiveBar(`⚙️ ${d.label}`, true);
     });
     es.addEventListener("tool_start", (e) => {
       const d = JSON.parse(e.data);
-      setLiveBar(`🔧 调用工具: ${d.tool}`, true);
+      appendLog(`\n→ 调用工具 ${d.tool}`);
     });
     es.addEventListener("delta", (e) => {
-      const delta = JSON.parse(e.data).delta;
-      chatLog.textContent += delta;
-      chatLog.scrollTop = chatLog.scrollHeight;
-    });
-    es.addEventListener("done", (e) => {
       const d = JSON.parse(e.data);
-      const preview = (d.text || "执行完成").replace(/\s+/g, " ").slice(0, 90);
-      setLiveBar(`✅ ${preview}`, false);
+      appendLog(d.delta || "");
+    });
+    es.addEventListener("cache_updated", () => refreshStatus());
+    es.addEventListener("compacted", () => {
+      appendLog(`\n[🗜️ 已触发上下文滚动压缩]`);
       refreshStatus();
     });
     es.addEventListener("butler_updated", () => refreshStatus());
-    es.addEventListener("compacted", () => {
-      appendLog("\n🗜️ 已自动触发上下文滚动压缩");
-      showToast("已自动滚动压缩上下文");
-      refreshStatus();
-    });
-    es.addEventListener("wechat_notification", (e) => {
-      const d = JSON.parse(e.data);
-      appendLog(`\n📩 微信通知 [${d.title}]: ${d.text}`);
-      showToast(`微信新消息: ${d.title}`);
-      refreshStatus();
-    });
-
-    function setTodoFilter(f, btn) {
-      todoFilter = f;
-      document.querySelectorAll(".pill-btn").forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      if (latestState) renderTodos(latestState.butler.todos);
-    }
-
-    function escapeHtml(str) {
-      return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
-    }
-
-    function renderTodos(todos) {
-      const total = todos.length;
-      const doneCount = todos.filter((t) => t.status === "done").length;
-      const openCount = total - doneCount;
-      const rate = total === 0 ? 0 : Math.round((doneCount / total) * 100);
-      document.getElementById("kpiTotal").textContent = total;
-      document.getElementById("kpiOpen").textContent = openCount;
-      document.getElementById("kpiDone").textContent = doneCount;
-      document.getElementById("kpiRate").textContent = `${rate}%`;
-      document.getElementById("kpiRateBar").style.width = `${rate}%`;
-
-      const filtered = todos.filter((t) => {
-        if (todoFilter === "open") return t.status !== "done";
-        if (todoFilter === "doing") return t.status === "doing";
-        if (todoFilter === "done") return t.status === "done";
-        return true;
-      });
-
-      const box = document.getElementById("todoList");
-      if (!filtered.length) {
-        box.innerHTML = `<div class="tag-mono" style="padding:10px 0;">当前筛选下暂无待办，可在上方添加或在底部聊天栏口述需求。</div>`;
-        return;
-      }
-
-      const statusLabel = { todo: "待办", doing: "进行中", done: "已完成", deferred: "延后" };
-      box.innerHTML = filtered.map((t) => {
-        const isDone = t.status === "done";
-        const nextStatus = isDone ? "todo" : "done";
-        const cycleStatus = t.status === "todo" ? "doing" : t.status === "doing" ? "done" : "todo";
-        return `
-          <div class="todo-item ${isDone ? "done" : ""}">
-            <button class="todo-check" onclick="setTodoStatus('${t.id}', '${nextStatus}')" title="标记完成/恢复">${isDone ? "✓" : ""}</button>
-            <div class="todo-body">
-              <div class="todo-title">${escapeHtml(t.title)}</div>
-              <div class="todo-meta">
-                <span class="badge ${t.priority}">${t.priority}</span>
-                <span class="tag-mono">${t.estMinutes}m</span>
-                <span class="badge state" onclick="setTodoStatus('${t.id}', '${cycleStatus}')" title="点击切换状态">${statusLabel[t.status] || t.status}</span>
-              </div>
-            </div>
-            <div class="row" style="gap:4px;">
-              <button class="btn sm" onclick="executeTodoInChat('${escapeHtml(t.title)}')" title="让 Agent 执行这项待办">▶ 执行</button>
-              <button class="btn sm danger" onclick="deleteTodo('${t.id}')" title="删除">×</button>
-            </div>
-          </div>`;
-      }).join("");
-    }
-
-    function renderPlan(plan) {
-      const box = document.getElementById("planSlots");
-      if (!plan || !plan.slots.length) {
-        box.innerHTML = `<div class="tag-mono">今日尚未排期。添加未完成待办后点击「一键排期」。</div>`;
-        return;
-      }
-      box.innerHTML = plan.slots.map((sl) => `
-        <div class="slot-item ${sl.done ? "done" : ""}">
-          <input type="checkbox" ${sl.done ? "checked" : ""} onchange="toggleSlot('${sl.id}', this.checked)" style="width:18px;height:18px;flex-shrink:0;" />
-          <div class="slot-time">${escapeHtml(sl.timeRange)}</div>
-          <div style="flex:1;font-size:13px;">${escapeHtml(sl.title)}</div>
-          <span class="tag-mono">${sl.reminded ? "🔔 已督促" : "⏳ " + sl.remindAt}</span>
-        </div>`).join("");
-    }
+    es.addEventListener("kb_updated", () => { if (currentTab === "knowledge") loadKbNotes(); refreshStatus(); });
+    es.addEventListener("wechat_notification", () => refreshStatus());
 
     async function refreshStatus() {
       try {
-        const s = await api("/api/status");
-        latestState = s;
-        const p = s.portal;
-        document.getElementById("statusPills").innerHTML = [
-          `<span class="led ${p.ok ? "on" : "off"}">Portal</span>`,
-          `<span class="led ${p.accessibilityConnected ? "on" : "off"}">无障碍</span>`,
-          `<span class="led ${p.notificationListenerConnected ? "on" : "off"}">通知</span>`,
-          `<span class="led ${p.shizukuReady ? "on" : ""}">Shizuku</span>`,
-        ].join("");
+        state = await api("/api/status");
+        renderStatus();
+      } catch {}
+    }
 
-        if (s.contextUsage) {
-          document.getElementById("ctxUsage").textContent =
-            `CTX ${s.contextUsage.percent}% (${s.contextUsage.estimatedTokens}/${s.contextUsage.contextWindow}) · 压缩 ${s.contextUsage.compactionCount} 次`;
-        }
+    function renderStatus() {
+      if (!state) return;
 
-        document.getElementById("todayLabel").textContent = s.butler.today;
-        renderTodos(s.butler.todos || []);
-        renderPlan(s.butler.todayPlan);
+      // LEDs
+      const p = state.portal || {};
+      setLed("ledPortal", p.portalReachable);
+      setLed("ledA11y", p.accessibilityEnabled);
+      setLed("ledNotify", p.notificationListenerEnabled);
+      const sz = document.getElementById("ledShizuku");
+      sz.classList.toggle("on", Boolean(p.shizukuAvailable));
+      sz.classList.toggle("off", false);
 
-        if (s.butler.latestReview) {
-          document.getElementById("reviewPreview").textContent = s.butler.latestReview.markdownReport;
-        }
-        const prefsEl = document.getElementById("prefsEditor");
-        if (document.activeElement !== prefsEl) {
-          prefsEl.value = s.butler.preferences || "";
-        }
+      // Header inline
+      const ctx = state.contextUsage;
+      const cacheStats = state.cache?.stats || {};
+      document.getElementById("ctxInlineText").textContent =
+        `CTX ${ctx ? `${ctx.percent}% (${ctx.estimatedTokens})` : "--"} · CACHE ${cacheStats.overallHitRatePercent ?? 0}% · KB ${state.kbCount ?? 0}`;
 
-        const r = s.models.routing;
-        const provObj = s.models.providers.find((pr) => pr.id === r.primaryProvider);
-        document.getElementById("modelPickerLabel").textContent =
-          r.primaryModel ? `${provObj ? provObj.name : r.primaryProvider} / ${r.primaryModel}` : "选择当前主控模型...";
+      // KPIs
+      const todos = state.butler?.todos || [];
+      const doneCount = todos.filter((t) => t.status === "done").length;
+      const slots = state.butler?.todayPlan?.slots || [];
+      document.getElementById("kpiTotal").textContent = todos.length;
+      document.getElementById("kpiDone").textContent = doneCount;
+      document.getElementById("kpiSlots").textContent = slots.length;
+      document.getElementById("kpiCache").textContent = `${cacheStats.overallHitRatePercent ?? 0}%`;
+      document.getElementById("kpiCacheBar").style.width = `${cacheStats.overallHitRatePercent ?? 0}%`;
+      document.getElementById("todoSummaryLabel").textContent = `${todos.length - doneCount} pending`;
 
-        document.getElementById("oauthBox").textContent =
-          (s.models.oauthLogs && s.models.oauthLogs.length) ? s.models.oauthLogs.join("\n") : "未启动登录流程";
-        const promptBox = document.getElementById("oauthPromptBox");
-        if (s.models.oauthPendingPrompt) {
-          promptBox.style.display = "block";
-          document.getElementById("oauthPromptLabel").textContent =
-            s.models.oauthPendingPrompt.message || "请输入授权回调信息：";
-        } else {
-          promptBox.style.display = "none";
-        }
-
-        const wlEl = document.getElementById("wxWhitelist");
-        if (document.activeElement !== wlEl && s.safety?.wechat?.replyWhitelist) {
-          wlEl.value = s.safety.wechat.replyWhitelist.join(", ");
-        }
-        const wxEvents = s.butler.recentWeChatEvents || [];
-        document.getElementById("wxEvents").innerHTML = wxEvents.length
-          ? wxEvents.slice().reverse().map((ev) =>
-              `<div style="padding:6px 0;border-bottom:1px solid var(--border)"><strong>${escapeHtml(ev.contact)}</strong>: ${escapeHtml(ev.text)} <span style="color:var(--mint)">[${escapeHtml(ev.actionTaken)}]</span></div>`
-            ).join("")
-          : "暂无捕获的微信通知";
-
-        const cBox = document.getElementById("confirmList");
-        cBox.innerHTML = s.pendingConfirmations.length
-          ? s.pendingConfirmations.map((c) => `
-            <div class="todo-item">
-              <div class="todo-body">
-                <strong>${escapeHtml(c.title)}</strong><br>
-                <span class="tag-mono">${escapeHtml(c.detail)}</span>
-              </div>
-              <div class="row">
-                <button class="btn sm mint" onclick="resolveConfirm('${c.id}', true)">允许</button>
-                <button class="btn sm danger" onclick="resolveConfirm('${c.id}', false)">拒绝</button>
-              </div>
-            </div>`).join("")
-          : "暂无挂起操作";
-      } catch (e) {
-        console.error(e);
+      // Butler Lists
+      renderTodos(todos);
+      renderSlots(slots);
+      document.getElementById("weeklyReviewOut").textContent =
+        state.butler?.latestWeeklyReview?.markdownReport || "点击上方生成本周完成率与卡点分析...";
+      if (document.activeElement?.id !== "prefsEditor") {
+        document.getElementById("prefsEditor").value = state.butler?.preferencesMarkdown || "";
       }
+
+      // Confirmations
+      const pending = state.pendingConfirmations || [];
+      document.getElementById("confirmPanel").style.display = pending.length ? "block" : "none";
+      document.getElementById("confirmList").innerHTML = pending
+        .map((c) => `<div class="confirm-card">
+          <strong>${escHtml(c.title)}</strong>
+          <div class="muted-xs" style="margin:4px 0 8px">${escHtml(c.detail)}</div>
+          <div class="row">
+            <button class="btn sm mint" onclick="resolveConfirm('${escHtml(c.id)}', true)">✅ 同意</button>
+            <button class="btn sm danger" onclick="resolveConfirm('${escHtml(c.id)}', false)">❌ 拒绝</button>
+          </div>
+        </div>`)
+        .join("");
+
+      // WeChat
+      const wxEvents = state.butler?.wechatEvents || [];
+      document.getElementById("wechatEvents").innerHTML = wxEvents.length
+        ? wxEvents.slice(0, 6).map((w) => `<div class="subcard" style="margin-bottom:6px">
+            <div class="row" style="justify-content:space-between"><strong style="font-size:12.5px">${escHtml(w.sender)}</strong><span class="tag-mono">${escHtml(w.actionTaken)}</span></div>
+            <div class="muted-xs">${escHtml(w.preview)}</div>
+          </div>`).join("")
+        : `<div class="muted-xs">暂无微信监听记录</div>`;
+      if (document.activeElement?.id !== "wxWhitelist") {
+        document.getElementById("wxWhitelist").value = (state.safety?.wechat?.replyWhitelist || []).join(", ");
+      }
+
+      // Metaso + Downloads
+      const mCfg = state.metaso || {};
+      document.getElementById("metasoStatusTag").textContent = mCfg.configured ? `已配置 (${mCfg.apiKeyMasked})` : "未配置 Key";
+      renderDownloads(state.downloads || []);
+
+      // Models & Capability Notice
+      const r = state.models?.routing || {};
+      document.getElementById("primaryModelLabel").textContent = r.primaryProvider ? `${r.primaryProvider} / ${r.primaryModel}` : "点击选择主模型";
+      document.getElementById("compactionModelLabel").textContent = r.compactionProvider ? `${r.compactionProvider} / ${r.compactionModel}` : "跟随主模型";
+      renderCapabilityNotices();
+      renderFreePresets();
+
+      // Pi Cache Config & Stats
+      const cCfg = state.cache?.config;
+      if (cCfg) {
+        selectedCacheTier = cCfg.tier;
+        setSegActive("cacheTierSeg", cCfg.tier);
+        document.getElementById("cachePiRetentionBadge").textContent = cCfg.tier === "low" ? "none" : cCfg.tier === "high" ? "long" : "short";
+        if (document.activeElement?.id !== "cacheMinPrefix") document.getElementById("cacheMinPrefix").value = cCfg.minPrefixTokens;
+        if (document.activeElement?.id !== "cacheHoldTurns") document.getElementById("cacheHoldTurns").value = cCfg.batchHoldTurns;
+      }
+      const hint = state.cache?.hint;
+      document.getElementById("cacheModelHintBox").innerHTML = hint
+        ? `<strong>当前模型推荐：</strong> ${escHtml(hint.recommendedTier.toUpperCase())} 档 · 前缀 ≥${hint.recommendedMinTokens} tokens。<br><span style="opacity:.9">${escHtml(hint.note)}</span>`
+        : "选择并激活模型后，此处将自动显示针对该模型厂商的最佳缓存阈值建议。";
+      document.getElementById("statCacheRead").textContent = cacheStats.totalCacheReadTokens ?? 0;
+      document.getElementById("statInputTokens").textContent = cacheStats.totalInputTokens ?? 0;
+      document.getElementById("statHitRate").textContent = `${cacheStats.overallHitRatePercent ?? 0}%`;
+
+      // OAuth
+      const codex = (state.models?.providers || []).find((x) => x.id === "openai-codex");
+      document.getElementById("oauthStateText").textContent = codex?.authenticated ? "✅ 已授权" : "未登录";
+      const prompt = state.models?.oauthPendingPrompt;
+      document.getElementById("oauthPromptBox").style.display = prompt ? "block" : "none";
+      if (prompt) document.getElementById("oauthPromptText").textContent = prompt.message || JSON.stringify(prompt);
+      document.getElementById("oauthLogs").textContent = (state.models?.oauthLogs || []).join("\n") || "点击上方按钮启动 OAuth...";
+
+      // Connectors
+      renderConnectorsGrid();
+
+      // Bridge Config
+      const br = state.bridge;
+      if (br) {
+        selectedListenHost = br.listenHost || "127.0.0.1";
+        setSegActive("listenHostSeg", selectedListenHost);
+        if (document.activeElement?.id !== "bridgePort") document.getElementById("bridgePort").value = br.listenPort || 8787;
+        if (document.activeElement?.id !== "bridgePublicUrl") document.getElementById("bridgePublicUrl").value = br.publicBaseUrl || "";
+        if (document.activeElement?.id !== "bridgeCors") document.getElementById("bridgeCors").value = (br.corsOrigins || ["*"]).join(", ");
+        if (document.activeElement?.id !== "bridgeWebhook") document.getElementById("bridgeWebhook").value = br.outboundWebhookUrl || "";
+      }
+    }
+
+    function renderCapabilityNotices() {
+      const cap = state.models?.activeCapabilities;
+      const html = !cap
+        ? ""
+        : !cap.authenticated
+          ? `<div class="notice-banner amber"><strong>当前模型尚未填入有效凭据：</strong> <code>${escHtml(cap.provider)} / ${escHtml(cap.model)}</code>。请在「04 配置」选择免费预设或填入 API Key。</div>`
+          : !cap.images
+            ? `<div class="notice-banner amber">
+                <strong>能力提示（优雅降级）：</strong> 当前主模型 <code>${escHtml(cap.model)}</code> 为纯文本模型，不支持视觉截图理解（已自动使用无障碍编号控件树控屏省 Token；遇到非标准自绘界面可一键切换多模态视觉模型）：
+                ${(cap.visionAlternatives || []).length
+                  ? `<div class="chip-row">${cap.visionAlternatives.map((v) =>
+                      `<button class="cap-pill" onclick="quickSwitchModel('${escHtml(v.provider)}','${escHtml(v.model)}')">👁️ 切到 ${escHtml(v.model)}</button>`
+                    ).join("")}</div>`
+                  : `<div class="muted-xs" style="margin-top:4px">推荐在「04 配置」激活智谱免费 <code>glm-4.6v-flash</code> 或魔搭 <code>Qwen2.5-VL-72B-Instruct</code> 即可获得视觉识屏能力。</div>`
+                }
+              </div>`
+            : "";
+      document.getElementById("modelCapNoticeControl").innerHTML = html;
+      document.getElementById("modelCapNoticeConfig").innerHTML = html;
+    }
+
+    async function quickSwitchModel(provider, model) {
+      await api("/api/models/routing", { primaryProvider: provider, primaryModel: model });
+      showToast(`✅ 已切换主模型为 ${model}`);
+      refreshStatus();
+    }
+
+    function renderFreePresets() {
+      const presets = state.models?.presets || [];
+      const providers = state.models?.providers || [];
+      document.getElementById("freePresetsGrid").innerHTML = presets.map((pr) => {
+        const activeProv = providers.find((x) => x.id === pr.id);
+        const authed = Boolean(activeProv?.authenticated);
+        return `<div class="subcard">
+          <div class="subcard-head">
+            <span class="subcard-title">${escHtml(pr.name)}</span>
+            <span class="badge ${authed ? "mint" : "sky"}">${authed ? "已激活" : escHtml(pr.tag)}</span>
+          </div>
+          <div class="muted-xs" style="margin-bottom:6px">${escHtml(pr.note)}<br>获取方式：${escHtml(pr.signupHint)}</div>
+          <div class="row">
+            <input id="presetKey-${escHtml(pr.id)}" type="password" placeholder="填入 API Key 快速启用" style="flex:1;padding:6px 9px;font-size:12.5px" />
+            <button class="btn sm primary" onclick="activatePreset('${escHtml(pr.id)}')">激活</button>
+          </div>
+        </div>`;
+      }).join("");
+    }
+
+    async function activatePreset(presetId) {
+      const keyEl = document.getElementById(`presetKey-${presetId}`);
+      const apiKey = keyEl ? keyEl.value.trim() : "";
+      if (!apiKey) return showToast("请先粘贴该平台的 API Key", true);
+      try {
+        const res = await api("/api/models/preset", { presetId, apiKey });
+        showToast(`✅ 已启用 ${presetId}（加载 ${res.models.length} 个模型）`);
+        if (keyEl) keyEl.value = "";
+        await refreshStatus();
+      } catch (e) { showToast(e.message, true); }
+    }
+
+    function renderTodos(todos) {
+      const listEl = document.getElementById("todoList");
+      const filtered = todos.filter((t) => (todoFilter === "all" ? true : t.status === todoFilter));
+      if (!filtered.length) {
+        listEl.innerHTML = `<div class="muted-xs" style="padding:16px 0;text-align:center">暂无待办项</div>`;
+        return;
+      }
+      listEl.innerHTML = filtered.map((t) => {
+        const done = t.status === "done";
+        const nextStatus = done ? "todo" : "done";
+        return `<div class="todo-item ${done ? "done" : ""}">
+          <button class="todo-check" onclick="setTodoStatus('${escHtml(t.id)}','${nextStatus}')">${done ? "✓" : ""}</button>
+          <div class="todo-body">
+            <div class="todo-title">${escHtml(t.title)}</div>
+            <div class="todo-meta">
+              <span class="badge ${escHtml(t.priority)}">${escHtml(t.priority)}</span>
+              <span class="tag-mono">${t.estMinutes}m</span>
+            </div>
+          </div>
+          <div class="row" style="gap:4px;flex-shrink:0">
+            <button class="btn sm" onclick="executeTodoInChat('${escHtml(t.title)}')">▶</button>
+            <button class="btn sm danger" onclick="deleteTodo('${escHtml(t.id)}')">×</button>
+          </div>
+        </div>`;
+      }).join("");
+    }
+
+    function renderSlots(slots) {
+      const box = document.getElementById("planSlots");
+      if (!slots.length) {
+        box.innerHTML = `<div class="muted-xs">今日尚未排期，点击上方一键排期。</div>`;
+        return;
+      }
+      box.innerHTML = slots.map((s) => `<div class="slot-item ${s.done ? "done" : ""}" onclick="toggleSlot('${escHtml(s.id)}',${!s.done})">
+        <div class="slot-time">${escHtml(s.startTime)}-${escHtml(s.endTime)}</div>
+        <div style="flex:1;font-size:13.5px">${s.done ? "✅" : "⏳"} ${escHtml(s.title)}</div>
+      </div>`).join("");
+    }
+
+    function renderDownloads(files) {
+      const box = document.getElementById("downloadsList");
+      if (!files.length) {
+        box.innerHTML = "";
+        return;
+      }
+      box.innerHTML = `<div class="muted-xs" style="margin-bottom:5px">已导出的可下载研究文件：</div>` +
+        files.slice(0, 6).map((f) => `<div class="row" style="justify-content:space-between;margin-bottom:5px">
+          <span class="tag-mono" style="overflow:hidden;text-overflow:ellipsis;max-width:72%">${escHtml(f.name)}</span>
+          <a class="btn sm sky" href="${escHtml(f.downloadUrl)}" download="${escHtml(f.name)}">⬇ 下载</a>
+        </div>`).join("");
+    }
+
+    // ---------- Knowledge Base ----------
+    async function loadKbNotes() {
+      try {
+        const res = await api("/api/kb/notes");
+        document.getElementById("kbCountTag").textContent = `${res.notes.length} 篇`;
+        renderKbList(res.notes);
+      } catch {}
+    }
+
+    async function searchKbNotes() {
+      const q = document.getElementById("kbSearchInput").value.trim();
+      if (!q) return loadKbNotes();
+      const res = await api("/api/kb/search", { query: q });
+      renderKbList(res.hits);
+    }
+
+    function renderKbList(items) {
+      const box = document.getElementById("kbNotesList");
+      if (!items.length) {
+        box.innerHTML = `<div class="muted-xs" style="padding:12px 0">未找到匹配知识条目</div>`;
+        return;
+      }
+      box.innerHTML = items.map((n) => `<div class="subcard" style="margin-bottom:8px">
+        <div class="subcard-head">
+          <strong style="font-size:13px">${escHtml(n.title)}</strong>
+          <span class="badge sky">${escHtml(n.source || "local")}</span>
+        </div>
+        <div class="muted-xs" style="margin-bottom:6px">${escHtml(n.snippet || n.preview || "")}</div>
+        <div class="row">
+          <button class="btn sm" onclick="editKbNote('${escHtml(n.id)}')">编辑</button>
+          <button class="btn sm danger" onclick="deleteKbNote('${escHtml(n.id)}')">删除</button>
+        </div>
+      </div>`).join("");
+    }
+
+    async function editKbNote(id) {
+      const res = await api(`/api/kb/notes/${encodeURIComponent(id)}`);
+      const n = res.note;
+      document.getElementById("kbEditId").value = n.id;
+      document.getElementById("kbTitle").value = n.title;
+      document.getElementById("kbTags").value = (n.tags || []).join(", ");
+      document.getElementById("kbContent").value = n.content;
+    }
+
+    function clearKbEditor() {
+      document.getElementById("kbEditId").value = "";
+      document.getElementById("kbTitle").value = "";
+      document.getElementById("kbTags").value = "";
+      document.getElementById("kbContent").value = "";
+    }
+
+    async function saveKbNote() {
+      const title = document.getElementById("kbTitle").value.trim();
+      const content = document.getElementById("kbContent").value.trim();
+      if (!title || !content) return showToast("请填写标题与正文", true);
+      await api("/api/kb/notes", {
+        id: document.getElementById("kbEditId").value || undefined,
+        title,
+        tags: document.getElementById("kbTags").value,
+        content,
+      });
+      showToast("✅ 已保存到本地知识库");
+      clearKbEditor();
+      loadKbNotes();
+      refreshStatus();
+    }
+
+    async function deleteKbNote(id) {
+      await fetch(`/api/kb/notes/${encodeURIComponent(id)}`, { method: "DELETE" });
+      showToast("已删除笔记");
+      loadKbNotes();
+      refreshStatus();
+    }
+
+    // ---------- Multi-Platform Connectors ----------
+    async function renderConnectorsGrid() {
+      const grid = document.getElementById("connectorsGrid");
+      const catalog = state.connectors || [];
+      let cfg = {};
+      try {
+        const res = await api("/api/connectors");
+        cfg = res.config || {};
+      } catch {}
+
+      grid.innerHTML = catalog.map((c) => {
+        const cur = cfg[c.id] || {};
+        let fields = "";
+        if (c.id === "obsidian") {
+          fields = `
+            <input id="conn-obsidian-vault" value="${escHtml(cur.vaultPath || "")}" placeholder="Vault 路径 (/sdcard/Documents/Obsidian)" style="margin-bottom:5px;font-size:12px" />
+            <input id="conn-obsidian-url" value="${escHtml(cur.restApiUrl || "")}" placeholder="可选 Local REST API URL" style="margin-bottom:5px;font-size:12px" />
+            <input id="conn-obsidian-token" type="password" value="${escHtml(cur.restApiToken || "")}" placeholder="可选 REST Bearer Token" style="font-size:12px" />`;
+        } else if (c.id === "yuque") {
+          fields = `<input id="conn-yuque-token" type="password" value="${escHtml(cur.token || "")}" placeholder="语雀 Personal Access Token" style="font-size:12px" />`;
+        } else if (c.id === "feishu") {
+          fields = `
+            <input id="conn-feishu-appid" value="${escHtml(cur.appId || "")}" placeholder="飞书 App ID" style="margin-bottom:5px;font-size:12px" />
+            <input id="conn-feishu-secret" type="password" value="${escHtml(cur.appSecret || "")}" placeholder="飞书 App Secret" style="margin-bottom:5px;font-size:12px" />
+            <input id="conn-feishu-webhook" value="${escHtml(cur.webhookUrl || "")}" placeholder="或群机器人 Webhook URL" style="font-size:12px" />`;
+        } else if (c.id === "notion") {
+          fields = `<input id="conn-notion-token" type="password" value="${escHtml(cur.token || "")}" placeholder="Notion Integration Token (secret_...)" style="font-size:12px" />`;
+        } else if (c.id === "notebooklm") {
+          fields = `
+            <input id="conn-notebooklm-mcp" value="${escHtml(cur.mcpEndpoint || "")}" placeholder="notebooklm-mcp 桥接地址" style="margin-bottom:5px;font-size:12px" />
+            <input id="conn-notebooklm-url" value="${escHtml(cur.notebookUrl || "")}" placeholder="常用笔记本链接" style="font-size:12px" />`;
+        } else if (c.id === "ima") {
+          fields = `
+            <input id="conn-ima-mcp" value="${escHtml(cur.mcpEndpoint || "")}" placeholder="ima-kb-mcp 桥接地址" style="margin-bottom:5px;font-size:12px" />
+            <input id="conn-ima-kbid" value="${escHtml(cur.kbId || "")}" placeholder="目标 ima 知识库 ID" style="font-size:12px" />`;
+        } else {
+          fields = `
+            <input id="conn-custom-ep" value="${escHtml(cur.endpoint || "")}" placeholder="个人网站 / MCP HTTP 端点" style="margin-bottom:5px;font-size:12px" />
+            <input id="conn-custom-tk" type="password" value="${escHtml(cur.token || "")}" placeholder="可选访问 Token" style="font-size:12px" />`;
+        }
+
+        const canSync = ["obsidian", "yuque", "notion"].includes(c.id);
+        return `<div class="subcard">
+          <div class="subcard-head">
+            <span class="subcard-title">${escHtml(c.name)}</span>
+            <span class="badge ${c.configured ? "mint" : "P2"}">${escHtml(c.strategyLabel)}</span>
+          </div>
+          <div class="muted-xs" style="margin-bottom:7px">${escHtml(c.statusNote)}</div>
+          ${fields}
+          <div class="row" style="margin-top:8px">
+            <button class="btn sm" onclick="saveConnector('${escHtml(c.id)}')">保存</button>
+            <button class="btn sm sky" onclick="testConnector('${escHtml(c.id)}')">测试连通</button>
+            ${canSync ? `<button class="btn sm mint" onclick="syncConnector('${escHtml(c.id)}')">同步到 KB</button>` : ""}
+          </div>
+        </div>`;
+      }).join("");
+    }
+
+    async function saveConnector(platform) {
+      let patch = {};
+      if (platform === "obsidian") {
+        patch = {
+          enabled: true,
+          vaultPath: document.getElementById("conn-obsidian-vault").value.trim(),
+          restApiUrl: document.getElementById("conn-obsidian-url").value.trim(),
+          restApiToken: document.getElementById("conn-obsidian-token").value.trim(),
+        };
+      } else if (platform === "yuque") {
+        patch = { enabled: true, token: document.getElementById("conn-yuque-token").value.trim() };
+      } else if (platform === "feishu") {
+        patch = {
+          enabled: true,
+          appId: document.getElementById("conn-feishu-appid").value.trim(),
+          appSecret: document.getElementById("conn-feishu-secret").value.trim(),
+          webhookUrl: document.getElementById("conn-feishu-webhook").value.trim(),
+        };
+      } else if (platform === "notion") {
+        patch = { enabled: true, token: document.getElementById("conn-notion-token").value.trim() };
+      } else if (platform === "notebooklm") {
+        patch = {
+          enabled: true,
+          mcpEndpoint: document.getElementById("conn-notebooklm-mcp").value.trim(),
+          notebookUrl: document.getElementById("conn-notebooklm-url").value.trim(),
+        };
+      } else if (platform === "ima") {
+        patch = {
+          enabled: true,
+          mcpEndpoint: document.getElementById("conn-ima-mcp").value.trim(),
+          kbId: document.getElementById("conn-ima-kbid").value.trim(),
+        };
+      } else {
+        patch = {
+          enabled: true,
+          endpoint: document.getElementById("conn-custom-ep").value.trim(),
+          token: document.getElementById("conn-custom-tk").value.trim(),
+        };
+      }
+      await api("/api/connectors/update", { platform, patch });
+      showToast(`✅ ${platform} 配置已保存`);
+      refreshStatus();
+    }
+
+    async function testConnector(platform) {
+      const res = await api("/api/connectors/test", { platform });
+      showToast(res.message, !res.ok);
+    }
+
+    async function syncConnector(platform) {
+      const res = await api("/api/connectors/sync", { platform });
+      showToast(res.message, res.imported === 0);
+      loadKbNotes();
+      refreshStatus();
+    }
+
+    // ---------- Dark Picker Sheet for Models ----------
+    function openModelPicker(role) {
+      activePickerRole = role;
+      const r = state?.models?.routing || {};
+      const curKey = role === "primary"
+        ? `${r.primaryProvider}:${r.primaryModel}`
+        : `${r.compactionProvider || r.primaryProvider}:${r.compactionModel || r.primaryModel}`;
+
+      document.getElementById("sheetTitle").textContent = role === "primary" ? "选择主对话 / 控屏模型" : "选择压缩摘要模型";
+      const providers = state?.models?.providers || [];
+      let html = "";
+      for (const p of providers) {
+        if (!p.models?.length) continue;
+        html += `<div class="sheet-group-title">${escHtml(p.name)} ${p.authenticated ? "· ✅ 已鉴权" : "· 未填Key"}</div>`;
+        for (const m of p.models) {
+          const val = `${p.id}:${m.id}`;
+          const active = val === curKey ? "active" : "";
+          const caps = `${m.images ? "👁️识图 " : ""}${m.reasoning ? "🧠推理 " : ""}· ${Math.round((m.contextWindow || 0) / 1000)}k`;
+          html += `<button class="sheet-option ${active}" onclick="pickModel('${escHtml(p.id)}','${escHtml(m.id)}')">
+            <span>${escHtml(m.id)}</span>
+            <span class="tag-mono">${caps}</span>
+          </button>`;
+        }
+      }
+      document.getElementById("sheetBody").innerHTML = html || `<div class="muted-xs">请先启用一个预设或自定义模型端点</div>`;
+      document.getElementById("sheetBackdrop").classList.add("open");
+    }
+
+    function closePicker() { document.getElementById("sheetBackdrop").classList.remove("open"); }
+
+    async function pickModel(provider, model) {
+      closePicker();
+      if (activePickerRole === "primary") await api("/api/models/routing", { primaryProvider: provider, primaryModel: model });
+      else await api("/api/models/routing", { compactionProvider: provider, compactionModel: model });
+      showToast(`✅ 已切换为 ${model}`);
+      await refreshStatus();
+    }
+
+    // ---------- Remaining Actions ----------
+    function setTodoFilter(f) {
+      todoFilter = f;
+      document.querySelectorAll(".pill-btn").forEach((el) => el.classList.toggle("active", el.dataset.filter === f));
+      renderTodos(state?.butler?.todos || []);
     }
 
     async function addTodo() {
-      const input = document.getElementById("todoTitle");
-      const title = input.value.trim();
-      if (!title) {
-        showToast("请先输入待办内容", true);
-        input.focus();
-        return;
-      }
-      try {
-        await api("/api/butler/todos", {
-          title,
-          priority: selectedTodoPriority,
-          estMinutes: selectedTodoMinutes,
-        });
-        input.value = "";
-        showToast("✅ 已添加待办");
-        await refreshStatus();
-      } catch (e) { showToast(e.message, true); }
+      const title = document.getElementById("todoTitle").value.trim();
+      if (!title) return showToast("请输入待办内容", true);
+      await api("/api/butler/todos", {
+        title,
+        priority: selectedPriority,
+        estMinutes: Number(document.getElementById("todoMinutes").value || 30),
+      });
+      document.getElementById("todoTitle").value = "";
+      showToast("✅ 已添加待办");
+      refreshStatus();
     }
 
     async function setTodoStatus(id, status) {
-      try {
-        await api("/api/butler/todos", { action: "status", id, status });
-        await refreshStatus();
-      } catch (e) { showToast(e.message, true); }
+      await api("/api/butler/todos", { action: "status", id, status });
+      refreshStatus();
     }
 
     async function deleteTodo(id) {
-      try {
-        await api("/api/butler/todos", { action: "delete", id });
-        showToast("已删除待办");
-        await refreshStatus();
-      } catch (e) { showToast(e.message, true); }
+      await api("/api/butler/todos", { action: "delete", id });
+      showToast("已删除待办");
+      refreshStatus();
     }
 
     async function genPlan() {
-      try {
-        const payload = selectedPlanMode === "now"
-          ? { fromNow: true }
-          : { startHour: Number(selectedPlanMode), fromNow: false };
-        const res = await api("/api/butler/plan/generate", payload);
-        showToast(`✅ 已排期 ${res.plan.slots.length} 个时段`);
-        await refreshStatus();
-      } catch (e) { showToast(e.message, true); }
+      const payload = selectedPlanMode === "now" ? { fromNow: true } : { startHour: Number(selectedPlanMode), fromNow: false };
+      const res = await api("/api/butler/plan/generate", payload);
+      showToast(`✅ 已排期 ${res.plan.slots.length} 个时段`);
+      refreshStatus();
     }
 
     async function toggleSlot(slotId, done) {
-      try {
-        await api("/api/butler/plan/slot", { slotId, done });
-        await refreshStatus();
-      } catch (e) { showToast(e.message, true); }
+      await api("/api/butler/plan/slot", { slotId, done });
+      refreshStatus();
     }
 
     async function testNotify() {
       try {
         await api("/api/butler/notify-test", {});
         showToast("🔔 已向 MI14 发送测试提醒通知");
-      } catch (e) { showToast("通知发送失败（请检查 Portal 是否在线）: " + e.message, true); }
+      } catch (e) { showToast("通知失败: " + e.message, true); }
     }
 
     async function genReview(apply) {
-      try {
-        await api("/api/butler/review/weekly", { applyOptimization: apply });
-        showToast(apply ? "✅ 已生成周复盘并写入偏好" : "✅ 已生成周复盘草稿");
-        await refreshStatus();
-      } catch (e) { showToast(e.message, true); }
+      await api("/api/butler/review/weekly", { applyOptimization: apply });
+      showToast(apply ? "✅ 已生成周复盘并迭代偏好" : "✅ 已生成周复盘草稿");
+      refreshStatus();
     }
 
     async function savePreferences() {
+      await api("/api/butler/preferences", { content: document.getElementById("prefsEditor").value });
+      showToast("✅ 偏好规则已保存");
+    }
+
+    async function loadInstalledApps() {
       try {
-        await api("/api/butler/preferences", { content: document.getElementById("prefsEditor").value });
-        showToast("✅ 偏好规则已保存");
+        const res = await api("/api/portal/apps");
+        const box = document.getElementById("appsPreview");
+        box.style.display = "block";
+        box.textContent = `已扫描 ${res.apps.length} 个可启动应用（示例）：` +
+          res.apps.slice(0, 14).map((a) => `${a.label}(${a.packageName})`).join(" / ");
+      } catch (e) { showToast("无法读取手机应用列表（请确保 Portal 在线）: " + e.message, true); }
+    }
+
+    async function saveMetasoConfig() {
+      const key = document.getElementById("metasoKey").value.trim();
+      await api("/api/metaso/config", { apiKey: key, defaultScope: selectedMetasoScope });
+      document.getElementById("metasoKey").value = "";
+      showToast("✅ 秘塔 AI 配置已保存");
+      refreshStatus();
+    }
+
+    async function searchMetaso() {
+      const q = document.getElementById("metasoQuery").value.trim();
+      if (!q) return showToast("请输入搜索关键词", true);
+      try {
+        const res = await api("/api/metaso/search", { query: q, scope: selectedMetasoScope });
+        document.getElementById("metasoOut").textContent =
+          (res.answer ? `【AI 摘要】\n${res.answer}\n\n` : "") +
+          (res.items || []).map((x, i) => `${i + 1}. ${x.title}\n   ${x.url}\n   ${x.snippet}`).join("\n\n");
+        renderDownloads(res.downloads || []);
+        showToast("✅ 已完成检索并生成可下载文件");
       } catch (e) { showToast(e.message, true); }
+    }
+
+    async function searchChongbuluo() {
+      const q = document.getElementById("cblQuery").value.trim();
+      if (!q) return showToast("请输入搜索词", true);
+      const res = await api("/api/chongbuluo/search", { query: q });
+      document.getElementById("cblOut").textContent = res.markdownSummary;
+      showToast(res.mode === "needs_phone_control" ? "后台受限，可转底部聊天框控屏" : "✅ 虫部落抓取完成");
+    }
+
+    async function saveWeChatPolicy() {
+      const list = document.getElementById("wxWhitelist").value.split(/[,，]/).map((s) => s.trim()).filter(Boolean);
+      await api("/api/safety", { wechat: { replyWhitelist: list } });
+      showToast("✅ 微信白名单已更新");
     }
 
     async function discoverModels() {
@@ -1317,11 +1765,22 @@
         const res = await api("/api/models/discover", {
           baseUrl: document.getElementById("baseUrl").value,
           apiKey: document.getElementById("apiKey").value,
-          api: selectedApiDialect,
+          api: selectedDialect,
         });
-        showToast(`✅ 自动发现 ${res.models.length} 个模型`);
-        await refreshStatus();
+        showToast(`✅ 发现并启用 ${res.models.length} 个模型`);
+        refreshStatus();
       } catch (e) { showToast(e.message, true); }
+    }
+
+    async function saveCacheConfig() {
+      await api("/api/cache", {
+        tier: selectedCacheTier,
+        minPrefixTokens: Number(document.getElementById("cacheMinPrefix").value || 2048),
+        batchHoldTurns: Number(document.getElementById("cacheHoldTurns").value || 8),
+        stablePrefixAnchor: true,
+      });
+      showToast("✅ Prompt Cache 参数已保存");
+      refreshStatus();
     }
 
     async function startChatGptOAuth(method) {
@@ -1336,21 +1795,33 @@
       refreshStatus();
     }
 
-    async function saveWeChatPolicy() {
-      const raw = document.getElementById("wxWhitelist").value;
-      const list = raw.split(/[,，]/).map((s) => s.trim()).filter(Boolean);
-      await api("/api/safety", { wechat: { replyWhitelist: list } });
-      showToast("✅ 微信白名单已更新");
+    async function saveBridgeConfig() {
+      const res = await api("/api/bridge/config", {
+        listenHost: selectedListenHost,
+        listenPort: Number(document.getElementById("bridgePort").value || 8787),
+        publicBaseUrl: document.getElementById("bridgePublicUrl").value.trim(),
+        corsOrigins: document.getElementById("bridgeCors").value.split(/[,，]/).map((s) => s.trim()).filter(Boolean),
+        bridgeBearerToken: document.getElementById("bridgeToken").value.trim() || undefined,
+        outboundWebhookUrl: document.getElementById("bridgeWebhook").value.trim(),
+      });
+      showToast(res.note || "✅ 网络桥接配置已保存");
+      refreshStatus();
     }
 
-    async function searchChongbuluo() {
-      const q = document.getElementById("cblQuery").value.trim();
-      if (!q) return showToast("请输入搜索词", true);
+    async function previewBridgeManifest() {
+      const box = document.getElementById("bridgeOut");
       try {
-        const res = await api("/api/chongbuluo/search", { query: q });
-        document.getElementById("cblOut").textContent = res.markdownSummary;
-        showToast(res.mode === "needs_phone_control" ? "后台受限，可转底部聊天框控屏" : "✅ 虫部落抓取完成");
-      } catch (e) { showToast(e.message, true); }
+        const token = document.getElementById("bridgeToken").value.trim();
+        const res = await fetch("/api/bridge/manifest", {
+          headers: token && !token.includes("***") ? { Authorization: `Bearer ${token}` } : {},
+        });
+        const j = await res.json();
+        box.style.display = "block";
+        box.textContent = JSON.stringify(j, null, 2);
+      } catch (e) {
+        box.style.display = "block";
+        box.textContent = e.message;
+      }
     }
 
     function useQuickPrompt(text) {
@@ -1370,19 +1841,12 @@
     }
     chatInput.addEventListener("input", autoResizeInput);
     chatInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        sendChat();
-      }
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChat(); }
     });
 
     async function sendChat() {
       const msg = chatInput.value.trim();
-      if (!msg) {
-        showToast("请先输入指令", true);
-        chatInput.focus();
-        return;
-      }
+      if (!msg) { showToast("请先输入指令", true); chatInput.focus(); return; }
       if (isRunningChat) return showToast("当前指令正在执行中", true);
       chatInput.value = "";
       autoResizeInput();
@@ -1412,11 +1876,9 @@
     }
 
     async function compactNow() {
-      try {
-        await api("/api/compact", {});
-        showToast("🗜️ 上下文已滚动压缩");
-        refreshStatus();
-      } catch (e) { showToast(e.message, true); }
+      await api("/api/compact", {});
+      showToast("🗜️ 上下文已滚动压缩");
+      refreshStatus();
     }
 
     async function resolveConfirm(id, allow) {

@@ -164,6 +164,20 @@ class PortalForegroundService : Service() {
             }
         }
 
+        if (method == "GET" && path == "/apps") {
+            val launchIntent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
+            val resolved = packageManager.queryIntentActivities(launchIntent, 0)
+            val arr = JSONArray()
+            val seen = HashSet<String>()
+            for (info in resolved) {
+                val pkg = info.activityInfo?.packageName ?: continue
+                if (!seen.add(pkg)) continue
+                val label = info.loadLabel(packageManager)?.toString()?.trim().orEmpty()
+                arr.put(JSONObject().put("label", label).put("packageName", pkg))
+            }
+            return 200 to JSONObject().put("apps", arr)
+        }
+
         if (method == "GET" && path == "/screen") {
             val includeImage = query["includeImage"] == "1"
             val annotate = query["annotate"] != "0"
@@ -200,12 +214,23 @@ class PortalForegroundService : Service() {
             val req = if (bodyStr.isBlank()) JSONObject() else JSONObject(bodyStr)
             val type = req.optString("type")
             if (type == "open_app") {
-                val pkg = req.optString("packageName")
+                var pkg = req.optString("packageName").trim()
+                val appName = req.optString("appName").trim()
+                if (pkg.isEmpty() && appName.isNotEmpty()) {
+                    pkg = resolvePackageByName(appName).orEmpty()
+                }
+                if (pkg.isEmpty()) {
+                    return 400 to JSONObject().put("ok", false).put("message", "未找到应用: ${appName.ifEmpty { pkg }}")
+                }
                 val intent = packageManager.getLaunchIntentForPackage(pkg)?.apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                } ?: return 400 to JSONObject().put("ok", false).put("message", "未找到包名: $pkg")
-                startActivity(intent)
-                return 200 to JSONObject().put("ok", true).put("message", "已拉起应用 $pkg")
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+                } ?: return 400 to JSONObject().put("ok", false).put("message", "未找到可启动包名: $pkg")
+                return runCatching {
+                    startActivity(intent)
+                    200 to JSONObject().put("ok", true).put("message", "已尝试拉起应用 $pkg（若未跳转请检查 MI14「后台弹出界面」权限）")
+                }.getOrElse { err ->
+                    500 to JSONObject().put("ok", false).put("message", "拉起应用失败（请开启后台弹出界面权限）: ${err.message}")
+                }
             }
 
             val service = a11y ?: return 503 to JSONObject()
@@ -218,6 +243,18 @@ class PortalForegroundService : Service() {
                     val y = req.optDouble("y").toFloat()
                     val done = runBlocking { service.tap(x, y, 60L) }
                     done to if (done) "已点击 ($x, $y)" else "手势点击被系统取消"
+                }
+                "tap_element" -> {
+                    val idx = req.optInt("index", -1)
+                    val node = service.findCachedNode(idx)
+                    if (node == null) {
+                        false to "未找到编号 [$idx] 的控件，请先重新读取屏幕控件树"
+                    } else {
+                        val cx = node.centerX().toFloat()
+                        val cy = node.centerY().toFloat()
+                        val done = runBlocking { service.tap(cx, cy, 60L) }
+                        done to if (done) "已点击控件 [$idx] (${node.text.ifBlank { node.desc }}) @($cx,$cy)" else "控件 [$idx] 点击被取消"
+                    }
                 }
                 "long_press" -> {
                     val x = req.optDouble("x").toFloat()
@@ -237,8 +274,20 @@ class PortalForegroundService : Service() {
                 }
                 "input" -> {
                     val text = req.optString("text")
-                    val done = service.inputText(text)
-                    done to if (done) "已输入文本" else "未找到可输入焦点控件"
+                    val idx = req.optInt("index", -1)
+                    val node = if (idx > 0) service.findCachedNode(idx) else null
+                    val tx = when {
+                        node != null -> node.centerX().toFloat()
+                        req.has("x") -> req.optDouble("x").toFloat()
+                        else -> null
+                    }
+                    val ty = when {
+                        node != null -> node.centerY().toFloat()
+                        req.has("y") -> req.optDouble("y").toFloat()
+                        else -> null
+                    }
+                    val done = runBlocking { service.inputText(text, tx, ty) }
+                    done to if (done) "已输入文本: ${text.take(24)}" else "未找到可输入焦点控件，请先点击输入框或传入元素编号 index"
                 }
                 "key" -> {
                     val key = req.optString("key")
@@ -274,6 +323,23 @@ class PortalForegroundService : Service() {
         }
 
         return 404 to JSONObject().put("error", "Not found: $path")
+    }
+
+    private fun resolvePackageByName(appName: String): String? {
+        val target = appName.trim().lowercase()
+        if (target.isEmpty()) return null
+        val launchIntent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
+        val resolved = packageManager.queryIntentActivities(launchIntent, 0)
+        var partialHit: String? = null
+        for (info in resolved) {
+            val pkg = info.activityInfo?.packageName ?: continue
+            val label = info.loadLabel(packageManager)?.toString()?.trim()?.lowercase().orEmpty()
+            if (label == target || pkg.lowercase() == target) return pkg
+            if (partialHit == null && (label.contains(target) || target.contains(label))) {
+                partialHit = pkg
+            }
+        }
+        return partialHit
     }
 
     private fun drawSomBoxes(src: Bitmap, nodes: List<PrunedUiNode>): Bitmap {

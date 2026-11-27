@@ -38,6 +38,11 @@ export interface PortalNotificationItem {
   postTimeMs: number;
 }
 
+export interface InstalledAppEntry {
+  label: string;
+  packageName: string;
+}
+
 export class PortalClient {
   constructor(
     private readonly baseUrl: string,
@@ -81,6 +86,11 @@ export class PortalClient {
     }
   }
 
+  async listApps(): Promise<InstalledAppEntry[]> {
+    const res = await this.request<{ apps: InstalledAppEntry[] }>("/apps", { method: "GET" }, 8_000);
+    return res.apps ?? [];
+  }
+
   async getScreen(includeImage = false, annotate = true): Promise<ScreenPerception> {
     return this.request<ScreenPerception>(
       `/screen?includeImage=${includeImage ? 1 : 0}&annotate=${annotate ? 1 : 0}`,
@@ -90,7 +100,8 @@ export class PortalClient {
   }
 
   async performAction(payload: {
-    type: "tap" | "long_press" | "swipe" | "input" | "key" | "open_app";
+    type: "tap" | "tap_element" | "long_press" | "swipe" | "input" | "key" | "open_app";
+    index?: number;
     x?: number;
     y?: number;
     x2?: number;
@@ -99,6 +110,7 @@ export class PortalClient {
     text?: string;
     key?: string;
     packageName?: string;
+    appName?: string;
   }): Promise<{ ok: boolean; message: string }> {
     return this.request("/action", {
       method: "POST",
