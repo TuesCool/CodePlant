@@ -6,6 +6,8 @@
   <title>CODEPLANT // MI14 个人管家与控屏台</title>
   <style>
     :root {
+      --kb-offset: 0px;
+      --dock-pad: 140px;
       --bg: #0e0f12;
       --bg-grid: rgba(255, 255, 255, 0.03);
       --surface: #16181d;
@@ -37,10 +39,13 @@
       background-color: var(--bg);
       background-image: radial-gradient(var(--bg-grid) 1px, transparent 1px);
       background-size: 18px 18px;
-      scroll-behavior: smooth;
     }
 
-    /* Sticky Top Telemetry Header (normal document scroll stays enabled!) */
+    body {
+      padding-bottom: var(--dock-pad);
+    }
+
+    /* Sticky Top Telemetry Header */
     .topbar {
       position: sticky;
       top: 0;
@@ -116,7 +121,7 @@
     .tab-btn.active { color: var(--ink); border-bottom-color: var(--accent); }
 
     /* Main Content Flow */
-    .container { max-width: 1100px; margin: 0 auto; padding: 14px 14px 16px; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 14px 14px 20px; }
     .view { display: none; animation: fadeIn 0.16s ease-out; }
     .view.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
@@ -312,23 +317,40 @@
       margin: 8px 0 0;
     }
 
-    /* NORMAL-FLOW BOTTOM CHAT PANEL:
-       Appears naturally when scrolling down; never fixed-trapped behind mobile keyboard! */
+    /* ALWAYS-VISIBLE BOTTOM CHAT DOCK + ADAPTIVE KEYBOARD TRACKING */
     .chat-dock {
-      background: var(--surface);
-      border: 1px solid var(--border-strong);
-      border-radius: 12px;
-      padding: 14px;
-      margin-top: 4px;
-      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: var(--kb-offset, 0px);
+      z-index: 60;
+      background: rgba(18, 20, 25, 0.98);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border-strong);
+      padding: 8px 12px calc(10px + env(safe-area-inset-bottom));
+      box-shadow: 0 -10px 28px rgba(0, 0, 0, 0.52);
+      transition: bottom 0.14s ease-out;
     }
+    body.ime-dock-active .chat-dock {
+      padding-top: 6px;
+      padding-bottom: 8px;
+    }
+    body.ime-dock-active .quick-chips {
+      display: none;
+    }
+    body.ime-body-input .chat-dock {
+      display: none;
+    }
+
+    .chat-dock-inner { max-width: 1100px; margin: 0 auto; }
+
     .dock-live-bar {
       display: none;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      padding: 6px 10px;
-      margin-bottom: 9px;
+      padding: 5px 9px;
+      margin-bottom: 6px;
       background: var(--surface-2);
       border: 1px solid var(--border-strong);
       border-radius: 7px;
@@ -344,21 +366,35 @@
       color: var(--ink);
     }
 
+    .ime-tune-bar {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 6px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+    body.ime-blind-active .ime-tune-bar {
+      display: flex;
+    }
+
     .quick-chips {
       display: flex;
       gap: 6px;
       overflow-x: auto;
       scrollbar-width: none;
-      margin-bottom: 9px;
+      margin-bottom: 7px;
     }
     .quick-chips::-webkit-scrollbar { display: none; }
     .chip {
-      padding: 5px 10px;
+      padding: 4px 10px;
       border-radius: 999px;
-      background: var(--bg);
+      background: var(--surface);
       border: 1px solid var(--border);
       color: var(--muted);
-      font-size: 12px;
+      font-size: 11.5px;
       white-space: nowrap;
       cursor: pointer;
     }
@@ -368,48 +404,13 @@
     .composer-row textarea {
       flex: 1;
       min-width: 0;
-      min-height: 44px;
-      max-height: 130px;
+      min-height: 42px;
+      max-height: 112px;
       resize: none;
-      padding: 10px 12px;
+      padding: 9px 11px;
       line-height: 1.4;
     }
-    .composer-send { height: 44px; padding: 0 18px; font-size: 13.5px; flex-shrink: 0; }
-
-    /* Dynamic IME scroll cushion below the page when any input is focused on mobile */
-    .ime-cushion {
-      height: calc(20px + env(safe-area-inset-bottom));
-      transition: height 0.18s ease;
-    }
-    body.ime-active .ime-cushion {
-      height: 54vh;
-    }
-
-    /* Subtle corner jump pill: only visible when scrolled away from bottom chat-dock */
-    .jump-chat-fab {
-      position: fixed;
-      right: 14px;
-      bottom: calc(16px + env(safe-area-inset-bottom));
-      z-index: 50;
-      padding: 9px 14px;
-      border-radius: 999px;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      font-size: 12.5px;
-      font-weight: 700;
-      box-shadow: 0 6px 20px rgba(255, 90, 38, 0.4);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: opacity 0.2s, transform 0.2s;
-    }
-    .jump-chat-fab.hidden {
-      opacity: 0;
-      pointer-events: none;
-      transform: translateY(10px);
-    }
+    .composer-send { height: 42px; padding: 0 18px; font-size: 13.5px; flex-shrink: 0; }
 
     /* Toast */
     .toast {
@@ -455,7 +456,7 @@
 
   <div class="toast" id="toast"></div>
 
-  <main class="container">
+  <main class="container" id="mainContainer">
     <!-- TAB 1: BUTLER / TODO / SCHEDULE / WEEKLY REVIEW -->
     <section id="view-butler" class="view active">
       <div class="kpi-strip">
@@ -568,7 +569,7 @@
                 <button class="btn sm" onclick="clearStream()">清空</button>
               </div>
             </div>
-            <div id="chatLog" class="stream-box">系统就绪。在下方指令执行栏输入指令即可控屏、查虫部落或管理待办。</div>
+            <div id="chatLog" class="stream-box">系统就绪。在下方聊天栏输入指令即可控屏、查虫部落或管理待办。</div>
           </div>
 
           <div class="panel">
@@ -629,7 +630,7 @@
           <div class="row" style="margin-top:10px;">
             <select id="modelSelect" onchange="switchModel()"></select>
           </div>
-          <div class="tag-mono" style="margin-top:8px;">切换下拉框立即生效，当前选中模型即为下方聊天命令框的主控引擎。</div>
+          <div class="tag-mono" style="margin-top:8px;">切换下拉框立即生效，当前选中模型即为底部聊天框的主控引擎。</div>
         </div>
 
         <div class="panel">
@@ -651,17 +652,22 @@
         </div>
       </div>
     </section>
+  </main>
 
-    <!-- NORMAL-FLOW BOTTOM CHAT COMMAND SECTION (appears on scroll down, scrolls above IME on focus) -->
-    <section class="chat-dock" id="chatDock">
-      <div class="panel-head" style="margin-bottom:8px;">
-        <div class="panel-title">💬 聊天命令执行栏</div>
-        <span class="tag-mono">下拉即达 · 输入自动避让键盘</span>
-      </div>
+  <!-- ALWAYS-VISIBLE BOTTOM CHAT DOCK (automatically rides up right above system IME) -->
+  <footer class="chat-dock" id="chatDock">
+    <div class="chat-dock-inner">
       <div class="dock-live-bar" id="dockLiveBar">
         <div class="dock-live-text" id="dockLiveText">准备执行...</div>
         <button class="btn sm" onclick="switchTab('agent')">详情</button>
         <button class="btn sm danger" id="dockAbortBtn" onclick="abortChat()" style="display:none;">中止</button>
+      </div>
+      <div class="ime-tune-bar" id="imeTuneBar">
+        <span id="imeTuneLabel">键盘自适应抬升中</span>
+        <div class="row" style="gap:4px;">
+          <button class="btn sm" onpointerdown="event.preventDefault()" onclick="nudgeBlindOffset(24)">▲ 上移</button>
+          <button class="btn sm" onpointerdown="event.preventDefault()" onclick="nudgeBlindOffset(-24)">▼ 下移</button>
+        </div>
       </div>
       <div class="quick-chips" id="quickChips">
         <button class="chip" onclick="useQuickPrompt('请帮我把今天要做的 3 件重要事情整理成待办，并按现在时间生成今日计划')">📋 需求转待办</button>
@@ -674,98 +680,162 @@
         <textarea id="chatInput" rows="1" enterkeyhint="send" placeholder="输入指令控制手机、查虫部落或管理待办..."></textarea>
         <button class="btn primary composer-send" id="sendBtn" onclick="sendChat()">▶ 执行</button>
       </div>
-    </section>
-
-    <div class="ime-cushion" aria-hidden="true"></div>
-  </main>
-
-  <button class="jump-chat-fab" id="jumpChatFab" onclick="jumpToComposer()">💬 指令栏</button>
+    </div>
+  </footer>
 
   <script>
     let todoFilter = "all";
     let latestState = null;
     let isRunningChat = false;
 
+    const mainContainer = document.getElementById("mainContainer");
     const chatLog = document.getElementById("chatLog");
     const chatInput = document.getElementById("chatInput");
     const chatDock = document.getElementById("chatDock");
-    const jumpChatFab = document.getElementById("jumpChatFab");
 
-    let baseWindowHeight = window.innerHeight;
-    let imeScrollTimer = null;
-    let dockInView = false;
+    // 4-mode mobile IME tracking:
+    // 1) interactive-widget=resizes-content -> clientHeight & vv.height shrink together -> kbOffset = 0 (fixed bottom:0 rides keyboard natively)
+    // 2) visualViewport resize/pan -> clientHeight > vv.height -> kbOffset = clientHeight - vv.height - vv.offsetTop
+    // 3) VirtualKeyboard API boundingRect -> exact kb height
+    // 4) Blind OEM browser (neither shrinks) -> calibrated localStorage fallback + fine-tune buttons
+    const BLIND_STORAGE_KEY = "cp_blind_ime_offset_px";
+    let baseVvHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    let probeTimer = null;
 
-    function updateFabVisibility() {
-      const keyboardOpen = document.body.classList.contains("ime-active");
-      jumpChatFab.classList.toggle("hidden", dockInView || keyboardOpen);
+    function isTouchMobile() {
+      return window.matchMedia("(pointer: coarse)").matches || window.innerWidth <= 900;
     }
 
-    if ("IntersectionObserver" in window) {
-      const io = new IntersectionObserver(
-        (entries) => {
-          dockInView = entries.some((entry) => entry.isIntersecting);
-          updateFabVisibility();
-        },
-        { threshold: 0.25 },
-      );
-      io.observe(chatDock);
+    function getSavedBlindOffset() {
+      const saved = Number(localStorage.getItem(BLIND_STORAGE_KEY) || "0");
+      if (Number.isFinite(saved) && saved >= 120 && saved <= 600) return saved;
+      return Math.round((baseVvHeight || window.innerHeight) * 0.42);
     }
 
-    function scrollElementSafelyAboveKeyboard(el) {
+    function syncBodyDockPadding(kbOffsetPx) {
+      const dockH = chatDock.style.display === "none" ? 0 : chatDock.offsetHeight;
+      document.documentElement.style.setProperty("--dock-pad", `${dockH + kbOffsetPx + 18}px`);
+    }
+
+    if ("ResizeObserver" in window) {
+      new ResizeObserver(() => {
+        const cur = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--kb-offset") || "0", 10) || 0;
+        syncBodyDockPadding(cur);
+      }).observe(chatDock);
+    }
+
+    function applyDockOffset(px, blindMode) {
+      const safePx = Math.max(0, Math.round(px));
+      document.documentElement.style.setProperty("--kb-offset", `${safePx}px`);
+      document.body.classList.toggle("ime-blind-active", Boolean(blindMode && safePx > 0));
+      if (blindMode && safePx > 0) {
+        document.getElementById("imeTuneLabel").textContent = `键盘抬升 ${safePx}px（可微调并记住）`;
+      }
+      syncBodyDockPadding(safePx);
+    }
+
+    function nudgeBlindOffset(delta) {
+      const next = Math.max(120, Math.min(580, getSavedBlindOffset() + delta));
+      localStorage.setItem(BLIND_STORAGE_KEY, String(next));
+      applyDockOffset(next, true);
+      chatInput.focus();
+    }
+
+    function updateKeyboardTracking() {
       const vv = window.visualViewport;
       const vvH = vv ? vv.height : window.innerHeight;
-      if (vvH > baseWindowHeight) baseWindowHeight = vvH;
-      const vvShrunk = (baseWindowHeight - vvH) > 100;
-      const safeBottom = vvShrunk ? vvH : Math.round(window.innerHeight * 0.50);
-      const rect = el.getBoundingClientRect();
-      const targetTop = Math.max(66, Math.round(safeBottom * 0.42));
-      if (rect.bottom > safeBottom - 10 || rect.top < 56) {
-        window.scrollBy({ top: rect.top - targetTop, behavior: "smooth" });
+      const vvTop = vv ? vv.offsetTop : 0;
+      const layoutH = document.documentElement.clientHeight || window.innerHeight;
+      if (vvH > baseVvHeight) baseVvHeight = vvH;
+
+      const active = document.activeElement;
+      const isDockInput = active === chatInput;
+      const isBodyInput = Boolean(active && active !== chatInput && mainContainer.contains(active) &&
+        (active.tagName === "INPUT" || active.tagName === "TEXTAREA"));
+
+      document.body.classList.toggle("ime-dock-active", isDockInput);
+      document.body.classList.toggle("ime-body-input", isBodyInput);
+
+      // Signal A: layout vs visualViewport delta (covers resizes-visual & pan modes)
+      const visualDelta = Math.max(0, Math.round(layoutH - vvH - vvTop));
+      // Signal B: VirtualKeyboard API if exposed
+      const vkH = navigator.virtualKeyboard?.boundingRect?.height
+        ? Math.round(navigator.virtualKeyboard.boundingRect.height)
+        : 0;
+      const measuredOffset = Math.max(visualDelta, vkH);
+
+      if (measuredOffset > 40) {
+        // Browser reported exact offset between layout bottom and visual bottom
+        applyDockOffset(measuredOffset, false);
+        return;
+      }
+
+      // If browser resized layout viewport natively (baseVvHeight shrunk significantly), bottom:0 is already above IME!
+      const layoutNativeShrunk = (baseVvHeight - vvH) > 100;
+      if (layoutNativeShrunk || (!isDockInput && !isBodyInput)) {
+        applyDockOffset(0, false);
+        return;
+      }
+
+      // If dock is focused and browser gave 0 resize signal yet, wait for probeTimer or use saved blind offset
+      if (!isDockInput) {
+        applyDockOffset(0, false);
       }
     }
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", updateKeyboardTracking);
+      window.visualViewport.addEventListener("scroll", updateKeyboardTracking);
+    }
+    if (navigator.virtualKeyboard) {
+      try {
+        navigator.virtualKeyboard.overlaysContent = false;
+        navigator.virtualKeyboard.addEventListener("geometrychange", updateKeyboardTracking);
+      } catch {}
+    }
+    window.addEventListener("resize", updateKeyboardTracking);
 
     document.addEventListener("focusin", (e) => {
       const target = e.target;
       if (!(target instanceof HTMLElement)) return;
-      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") {
-        document.body.classList.add("ime-active");
-        updateFabVisibility();
-        clearTimeout(imeScrollTimer);
-        imeScrollTimer = setTimeout(() => {
-          scrollElementSafelyAboveKeyboard(target === chatInput ? chatDock : target);
-        }, 280);
-      }
+      if (target.tagName !== "INPUT" && target.tagName !== "TEXTAREA") return;
+
+      clearTimeout(probeTimer);
+      updateKeyboardTracking();
+
+      probeTimer = setTimeout(() => {
+        updateKeyboardTracking();
+        const vv = window.visualViewport;
+        const vvH = vv ? vv.height : window.innerHeight;
+        const layoutH = document.documentElement.clientHeight || window.innerHeight;
+        const vvShrunk = (baseVvHeight - vvH) > 100 || (layoutH - vvH) > 100;
+        const vkH = navigator.virtualKeyboard?.boundingRect?.height || 0;
+
+        if (target === chatInput) {
+          if (!vvShrunk && vkH <= 40 && isTouchMobile()) {
+            // Mode 4 fallback: OEM browser overlayed keyboard without resizing viewport
+            applyDockOffset(getSavedBlindOffset(), true);
+          }
+        } else if (mainContainer.contains(target)) {
+          const safeBottom = vvShrunk ? vvH : Math.round(window.innerHeight * 0.50);
+          const rect = target.getBoundingClientRect();
+          if (rect.bottom > safeBottom - 16 || rect.top < 64) {
+            window.scrollBy({ top: rect.top - Math.round(safeBottom * 0.42), behavior: "smooth" });
+          }
+        }
+      }, 320);
     });
 
     document.addEventListener("focusout", () => {
-      clearTimeout(imeScrollTimer);
+      clearTimeout(probeTimer);
       setTimeout(() => {
         const active = document.activeElement;
-        const stillEditing = active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA");
-        if (!stillEditing) {
-          document.body.classList.remove("ime-active");
-          updateFabVisibility();
+        if (!active || (active.tagName !== "INPUT" && active.tagName !== "TEXTAREA")) {
+          document.body.classList.remove("ime-dock-active", "ime-body-input");
+          applyDockOffset(0, false);
         }
       }, 180);
     });
-
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener("resize", () => {
-        const active = document.activeElement;
-        if (active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA")) {
-          scrollElementSafelyAboveKeyboard(active === chatInput ? chatDock : active);
-        }
-      });
-    }
-
-    function jumpToComposer() {
-      document.body.classList.add("ime-active");
-      updateFabVisibility();
-      chatDock.scrollIntoView({ block: "center", behavior: "smooth" });
-      setTimeout(() => {
-        chatInput.focus();
-      }, 220);
-    }
 
     function showToast(msg, isErr = false) {
       const el = document.getElementById("toast");
@@ -883,7 +953,7 @@
 
       const box = document.getElementById("todoList");
       if (!filtered.length) {
-        box.innerHTML = `<div class="tag-mono" style="padding:10px 0;">当前筛选下暂无待办，可在上方添加或在页面最下方聊天栏口述需求。</div>`;
+        box.innerHTML = `<div class="tag-mono" style="padding:10px 0;">当前筛选下暂无待办，可在上方添加或在底部聊天栏口述需求。</div>`;
         return;
       }
 
@@ -1127,13 +1197,13 @@
       try {
         const res = await api("/api/chongbuluo/search", { query: q });
         document.getElementById("cblOut").textContent = res.markdownSummary;
-        showToast(res.mode === "needs_phone_control" ? "后台受限，可转下方命令栏控屏" : "✅ 虫部落抓取完成");
+        showToast(res.mode === "needs_phone_control" ? "后台受限，可转底部聊天框控屏" : "✅ 虫部落抓取完成");
       } catch (e) { showToast(e.message, true); }
     }
 
     function useQuickPrompt(text) {
       chatInput.value = text;
-      jumpToComposer();
+      chatInput.focus();
       autoResizeInput();
     }
 
@@ -1144,7 +1214,7 @@
 
     function autoResizeInput() {
       chatInput.style.height = "auto";
-      chatInput.style.height = Math.min(130, chatInput.scrollHeight) + "px";
+      chatInput.style.height = Math.min(112, chatInput.scrollHeight) + "px";
     }
     chatInput.addEventListener("input", autoResizeInput);
     chatInput.addEventListener("keydown", (e) => {
@@ -1202,6 +1272,7 @@
       refreshStatus();
     }
 
+    syncBodyDockPadding(0);
     refreshStatus();
     setInterval(refreshStatus, 8000);
   </script>
