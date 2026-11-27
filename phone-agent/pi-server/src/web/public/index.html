@@ -7,21 +7,21 @@
   <style>
     :root {
       --kb-offset: 0px;
-      --dock-pad: 140px;
+      --dock-pad: 150px;
       --bg: #0e0f12;
       --bg-grid: rgba(255, 255, 255, 0.03);
       --surface: #16181d;
-      --surface-2: #1d2027;
+      --surface-2: #1e2129;
       --border: #272b34;
-      --border-strong: #383e4b;
+      --border-strong: #3a404f;
       --ink: #f2efe9;
       --muted: #8b919d;
       --accent: #ff5a26;
-      --accent-soft: rgba(255, 90, 38, 0.14);
+      --accent-soft: rgba(255, 90, 38, 0.15);
       --mint: #2ee59d;
-      --mint-soft: rgba(46, 229, 157, 0.12);
+      --mint-soft: rgba(46, 229, 157, 0.13);
       --amber: #f5a623;
-      --amber-soft: rgba(245, 166, 35, 0.14);
+      --amber-soft: rgba(245, 166, 35, 0.15);
       --danger: #ff4d4f;
       --mono: "JetBrains Mono", "SFMono-Regular", Consolas, ui-monospace, monospace;
       --sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
@@ -41,19 +41,17 @@
       background-size: 18px 18px;
     }
 
-    body {
-      padding-bottom: var(--dock-pad);
-    }
+    body { padding-bottom: var(--dock-pad); }
 
-    /* Sticky Top Telemetry Header */
+    /* Topbar */
     .topbar {
       position: sticky;
       top: 0;
       z-index: 40;
-      background: rgba(14, 15, 18, 0.94);
+      background: rgba(14, 15, 18, 0.95);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
-      padding: calc(8px + env(safe-area-inset-top)) 14px 0;
+      padding: calc(8px + env(safe-area-inset-top)) 12px 0;
     }
     .topbar-inner { max-width: 1100px; margin: 0 auto; }
 
@@ -74,15 +72,8 @@
       box-shadow: 0 0 10px var(--accent);
       flex-shrink: 0;
     }
-    .brand-title { font-family: var(--mono); font-size: 12.5px; font-weight: 700; letter-spacing: 0.06em; }
-    .brand-sub {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+    .brand-title { font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 0.05em; }
+    .brand-sub { font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
 
     .led-strip { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
     .led {
@@ -103,25 +94,31 @@
     .led.off { color: #ff7b72; border-color: rgba(255, 77, 79, 0.3); }
     .led.off::before { background: var(--danger); }
 
-    /* Navigation Tabs */
-    .nav-tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
-    .nav-tabs::-webkit-scrollbar { display: none; }
+    /* Compact 3-column Tabs: fits 100% on narrow phones without clipping */
+    .nav-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+    }
     .tab-btn {
       background: transparent;
       border: none;
       border-bottom: 2px solid transparent;
       color: var(--muted);
-      padding: 8px 12px;
-      font-size: 13px;
+      padding: 8px 4px;
+      font-size: 12.5px;
       font-weight: 600;
       cursor: pointer;
+      text-align: center;
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
       transition: color 0.15s, border-color 0.15s;
     }
     .tab-btn.active { color: var(--ink); border-bottom-color: var(--accent); }
 
     /* Main Content Flow */
-    .container { max-width: 1100px; margin: 0 auto; padding: 14px 14px 20px; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 12px 12px 20px; }
     .view { display: none; animation: fadeIn 0.16s ease-out; }
     .view.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
@@ -134,59 +131,34 @@
     }
     @media (max-width: 860px) { .grid-2 { grid-template-columns: 1fr; } }
 
-    /* Compact KPI Strip */
-    .kpi-strip {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-    .kpi-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      padding: 9px 11px;
-    }
+    /* KPI Strip */
+    .kpi-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+    .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 9px 10px; }
     .kpi-label { font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
-    .kpi-value { font-family: var(--mono); font-size: 19px; font-weight: 700; margin-top: 2px; }
+    .kpi-value { font-family: var(--mono); font-size: 18px; font-weight: 700; margin-top: 2px; }
     .kpi-bar { height: 3px; background: var(--surface-2); border-radius: 99px; margin-top: 5px; overflow: hidden; }
     .kpi-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--mint)); transition: width 0.3s ease; }
 
     /* Panels */
-    .panel {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px;
-      margin-bottom: 12px;
-    }
-    .panel-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 10px;
-    }
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 13px; margin-bottom: 12px; }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
     .panel-title { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 7px; }
     .tag-mono { font-family: var(--mono); font-size: 11px; color: var(--muted); }
 
-    /* Form Controls (>=15px on mobile prevents browser focus auto-zoom) */
-    input, select, textarea {
+    /* Inputs */
+    input, textarea {
       width: 100%;
       background: var(--bg);
       color: var(--ink);
       border: 1px solid var(--border);
-      border-radius: 7px;
+      border-radius: 8px;
       padding: 9px 11px;
-      font-size: 14px;
+      font-size: 15px;
       font-family: var(--sans);
       outline: none;
       transition: border-color 0.15s;
     }
-    @media (max-width: 768px) {
-      input, select, textarea { font-size: 15px; }
-    }
-    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+    input:focus, textarea:focus { border-color: var(--accent); }
 
     .btn {
       display: inline-flex;
@@ -194,7 +166,7 @@
       justify-content: center;
       gap: 5px;
       padding: 8px 12px;
-      border-radius: 7px;
+      border-radius: 8px;
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
@@ -212,6 +184,121 @@
 
     .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     .row + .row { margin-top: 8px; }
+
+    /* Custom Dark Segmented Controls (replaces ugly bright-white Android <select> popups!) */
+    .seg-group {
+      display: flex;
+      gap: 4px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 3px;
+      flex-wrap: wrap;
+    }
+    .seg-btn {
+      flex: 1;
+      min-width: 52px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--muted);
+      border-radius: 6px;
+      padding: 6px 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      white-space: nowrap;
+      transition: background 0.14s, color 0.14s, border-color 0.14s;
+    }
+    .seg-btn.active {
+      background: var(--surface-2);
+      border-color: var(--accent);
+      color: var(--ink);
+    }
+    .seg-btn.active.p0 { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+    .seg-btn.active.p1 { background: var(--amber-soft); border-color: var(--amber); color: var(--amber); }
+    .seg-btn.active.p2 { background: var(--surface-2); border-color: var(--border-strong); color: var(--ink); }
+
+    /* Custom Dark Picker Trigger & Bottom Action Sheet (for dynamic model list) */
+    .picker-trigger {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: var(--bg);
+      color: var(--ink);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 13.5px;
+      cursor: pointer;
+      text-align: left;
+    }
+    .picker-trigger:hover { border-color: var(--border-strong); }
+    .picker-trigger-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+    .picker-arrow { color: var(--muted); font-size: 12px; flex-shrink: 0; }
+
+    .sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 12px;
+    }
+    .sheet-backdrop.open { display: flex; }
+    .sheet-panel {
+      width: 100%;
+      max-width: 560px;
+      max-height: 75vh;
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65);
+    }
+    .sheet-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sheet-body {
+      overflow-y: auto;
+      padding: 10px 12px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .sheet-group-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      margin: 8px 2px 6px;
+      text-transform: uppercase;
+    }
+    .sheet-option {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px 12px;
+      margin-bottom: 6px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--ink);
+      font-size: 13px;
+      text-align: left;
+      cursor: pointer;
+    }
+    .sheet-option.active { border-color: var(--accent); background: var(--accent-soft); }
 
     /* Todo Items */
     .filter-pills { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
@@ -280,7 +367,6 @@
     .slot-item.done { border-left-color: var(--mint); opacity: 0.6; }
     .slot-time { font-family: var(--mono); font-size: 11.5px; color: var(--amber); min-width: 84px; }
 
-    /* Collapsible details */
     details.panel-details summary {
       cursor: pointer;
       list-style: none;
@@ -291,7 +377,6 @@
     }
     details.panel-details[open] summary { color: var(--ink); margin-bottom: 8px; }
 
-    /* Stream & Pre */
     .stream-box {
       height: 290px;
       overflow-y: auto;
@@ -317,7 +402,7 @@
       margin: 8px 0 0;
     }
 
-    /* ALWAYS-VISIBLE BOTTOM CHAT DOCK + ADAPTIVE KEYBOARD TRACKING */
+    /* ALWAYS-VISIBLE BOTTOM CHAT DOCK + GUARANTEED ABOVE-IME TRACKING */
     .chat-dock {
       position: fixed;
       left: 0;
@@ -328,12 +413,12 @@
       backdrop-filter: blur(16px);
       border-top: 1px solid var(--border-strong);
       padding: 8px 12px calc(10px + env(safe-area-inset-bottom));
-      box-shadow: 0 -10px 28px rgba(0, 0, 0, 0.52);
+      box-shadow: 0 -10px 28px rgba(0, 0, 0, 0.55);
       transition: bottom 0.14s ease-out;
     }
     body.ime-dock-active .chat-dock {
       padding-top: 6px;
-      padding-bottom: 8px;
+      padding-bottom: 10px;
     }
     body.ime-dock-active .quick-chips {
       display: none;
@@ -366,6 +451,7 @@
       color: var(--ink);
     }
 
+    /* Always visible whenever dock keyboard is active so user can fine-tune IME height +50px/-20px once and remember it */
     .ime-tune-bar {
       display: none;
       align-items: center;
@@ -376,7 +462,7 @@
       font-size: 11px;
       color: var(--muted);
     }
-    body.ime-blind-active .ime-tune-bar {
+    body.ime-dock-active .ime-tune-bar {
       display: flex;
     }
 
@@ -417,7 +503,7 @@
       position: fixed;
       top: 56px;
       right: 14px;
-      z-index: 90;
+      z-index: 120;
       padding: 8px 13px;
       border-radius: 8px;
       background: var(--surface-2);
@@ -447,9 +533,9 @@
         <div class="led-strip" id="statusPills"></div>
       </div>
       <nav class="nav-tabs">
-        <button class="tab-btn active" data-tab="butler" onclick="switchTab('butler')">01 · 待办与日程</button>
-        <button class="tab-btn" data-tab="agent" onclick="switchTab('agent')">02 · 执行流与虫部落/微信</button>
-        <button class="tab-btn" data-tab="models" onclick="switchTab('models')">03 · 模型路由与 OAuth</button>
+        <button class="tab-btn active" data-tab="butler" onclick="switchTab('butler')">01 待办日程</button>
+        <button class="tab-btn" data-tab="agent" onclick="switchTab('agent')">02 执行·虫部落</button>
+        <button class="tab-btn" data-tab="models" onclick="switchTab('models')">03 模型配置</button>
       </nav>
     </div>
   </header>
@@ -490,20 +576,22 @@
             <div class="row">
               <input id="todoTitle" placeholder="输入待办（按回车直接添加）..." onkeydown="if(event.key==='Enter') addTodo()" style="flex:1;min-width:160px;" />
             </div>
-            <div class="row">
-              <select id="todoPriority" style="width:96px;">
-                <option value="P0">P0 紧急</option>
-                <option value="P1" selected>P1 重要</option>
-                <option value="P2">P2 常规</option>
-              </select>
-              <select id="todoMinutes" style="width:100px;">
-                <option value="15">15 分钟</option>
-                <option value="30" selected>30 分钟</option>
-                <option value="45">45 分钟</option>
-                <option value="60">60 分钟</option>
-                <option value="90">90 分钟</option>
-              </select>
-              <button class="btn primary" onclick="addTodo()" style="flex:1;">+ 添加</button>
+            <div class="row" style="margin-top:8px;">
+              <div class="seg-group" id="todoPrioritySeg" style="flex:1;min-width:190px;">
+                <button type="button" class="seg-btn p0" onclick="pickTodoPriority('P0', this)">P0 紧急</button>
+                <button type="button" class="seg-btn p1 active" onclick="pickTodoPriority('P1', this)">P1 重要</button>
+                <button type="button" class="seg-btn p2" onclick="pickTodoPriority('P2', this)">P2 常规</button>
+              </div>
+              <button class="btn primary" onclick="addTodo()" style="min-width:86px;">+ 添加</button>
+            </div>
+            <div class="row" style="margin-top:8px;">
+              <div class="seg-group" id="todoMinutesSeg" style="flex:1;">
+                <button type="button" class="seg-btn" onclick="pickTodoMinutes(15, this)">15m</button>
+                <button type="button" class="seg-btn active" onclick="pickTodoMinutes(30, this)">30m</button>
+                <button type="button" class="seg-btn" onclick="pickTodoMinutes(45, this)">45m</button>
+                <button type="button" class="seg-btn" onclick="pickTodoMinutes(60, this)">60m</button>
+                <button type="button" class="seg-btn" onclick="pickTodoMinutes(90, this)">90m</button>
+              </div>
             </div>
 
             <div class="filter-pills">
@@ -525,11 +613,11 @@
               <button class="btn sm mint" onclick="testNotify()">🔔 测试提醒</button>
             </div>
             <div class="row" style="margin-bottom:10px;">
-              <select id="planStartMode" style="flex:1;min-width:130px;">
-                <option value="now" selected>从现在顺延 (+5m)</option>
-                <option value="9">从早上 09:00 开始</option>
-                <option value="14">从下午 14:00 开始</option>
-              </select>
+              <div class="seg-group" id="planStartSeg" style="flex:1;min-width:200px;">
+                <button type="button" class="seg-btn active" onclick="pickPlanMode('now', this)">现在顺延</button>
+                <button type="button" class="seg-btn" onclick="pickPlanMode('9', this)">09:00</button>
+                <button type="button" class="seg-btn" onclick="pickPlanMode('14', this)">14:00</button>
+              </div>
               <button class="btn primary" onclick="genPlan()">⚡ 一键排期</button>
             </div>
             <div id="planSlots"></div>
@@ -569,7 +657,7 @@
                 <button class="btn sm" onclick="clearStream()">清空</button>
               </div>
             </div>
-            <div id="chatLog" class="stream-box">系统就绪。在下方聊天栏输入指令即可控屏、查虫部落或管理待办。</div>
+            <div id="chatLog" class="stream-box">系统就绪。在底部聊天栏输入指令即可控屏、查虫部落或管理待办。</div>
           </div>
 
           <div class="panel">
@@ -619,18 +707,23 @@
           <div class="row">
             <input id="apiKey" type="password" placeholder="API Key（sk-...）" />
           </div>
-          <div class="row">
-            <select id="apiDialect" style="flex:1;">
-              <option value="openai-completions">openai-completions（标准兼容）</option>
-              <option value="openai-responses">openai-responses</option>
-              <option value="anthropic-messages">anthropic-messages（Claude 兼容）</option>
-            </select>
-            <button class="btn primary" onclick="discoverModels()">🔎 自动发现</button>
+          <div class="row" style="margin-top:8px;">
+            <div class="seg-group" id="apiDialectSeg" style="flex:1;">
+              <button type="button" class="seg-btn active" onclick="pickApiDialect('openai-completions', this)">OpenAI 兼容</button>
+              <button type="button" class="seg-btn" onclick="pickApiDialect('openai-responses', this)">Responses</button>
+              <button type="button" class="seg-btn" onclick="pickApiDialect('anthropic-messages', this)">Claude</button>
+            </div>
+          </div>
+          <div class="row" style="margin-top:8px;">
+            <button class="btn primary" onclick="discoverModels()" style="flex:1;">🔎 自动发现并拉取模型列表</button>
           </div>
           <div class="row" style="margin-top:10px;">
-            <select id="modelSelect" onchange="switchModel()"></select>
+            <button type="button" class="picker-trigger" id="modelPickerBtn" onclick="openModelSheet()">
+              <span class="picker-trigger-text" id="modelPickerLabel">选择当前主控模型...</span>
+              <span class="picker-arrow">▾ 切换</span>
+            </button>
           </div>
-          <div class="tag-mono" style="margin-top:8px;">切换下拉框立即生效，当前选中模型即为底部聊天框的主控引擎。</div>
+          <div class="tag-mono" style="margin-top:8px;">已采用深色面板选择器，点击即可切换底部聊天框的主控引擎。</div>
         </div>
 
         <div class="panel">
@@ -654,7 +747,21 @@
     </section>
   </main>
 
-  <!-- ALWAYS-VISIBLE BOTTOM CHAT DOCK (automatically rides up right above system IME) -->
+  <!-- DARK MODEL PICKER SHEET -->
+  <div class="sheet-backdrop" id="modelSheet" onclick="if(event.target===this) closeModelSheet()">
+    <div class="sheet-panel">
+      <div class="sheet-head">
+        <div class="panel-title">🧠 选择当前主控模型</div>
+        <button class="btn sm" onclick="closeModelSheet()">关闭</button>
+      </div>
+      <div style="padding:10px 12px 0;">
+        <input id="modelSearchInput" placeholder="搜索模型名称..." oninput="renderModelSheetOptions()" />
+      </div>
+      <div class="sheet-body" id="modelSheetBody"></div>
+    </div>
+  </div>
+
+  <!-- ALWAYS-VISIBLE BOTTOM CHAT DOCK -->
   <footer class="chat-dock" id="chatDock">
     <div class="chat-dock-inner">
       <div class="dock-live-bar" id="dockLiveBar">
@@ -663,10 +770,11 @@
         <button class="btn sm danger" id="dockAbortBtn" onclick="abortChat()" style="display:none;">中止</button>
       </div>
       <div class="ime-tune-bar" id="imeTuneBar">
-        <span id="imeTuneLabel">键盘自适应抬升中</span>
+        <span id="imeTuneLabel">键盘避让偏移</span>
         <div class="row" style="gap:4px;">
-          <button class="btn sm" onpointerdown="event.preventDefault()" onclick="nudgeBlindOffset(24)">▲ 上移</button>
-          <button class="btn sm" onpointerdown="event.preventDefault()" onclick="nudgeBlindOffset(-24)">▼ 下移</button>
+          <button class="btn sm" onpointerdown="event.preventDefault()" onclick="nudgeExtraOffset(30)">▲ 再抬高</button>
+          <button class="btn sm" onpointerdown="event.preventDefault()" onclick="nudgeExtraOffset(-30)">▼ 降一点</button>
+          <button class="btn sm" onclick="chatInput.blur()">收起</button>
         </div>
       </div>
       <div class="quick-chips" id="quickChips">
@@ -685,6 +793,10 @@
 
   <script>
     let todoFilter = "all";
+    let selectedTodoPriority = "P1";
+    let selectedTodoMinutes = 30;
+    let selectedPlanMode = "now";
+    let selectedApiDialect = "openai-completions";
     let latestState = null;
     let isRunningChat = false;
 
@@ -693,12 +805,60 @@
     const chatInput = document.getElementById("chatInput");
     const chatDock = document.getElementById("chatDock");
 
-    // 4-mode mobile IME tracking:
-    // 1) interactive-widget=resizes-content -> clientHeight & vv.height shrink together -> kbOffset = 0 (fixed bottom:0 rides keyboard natively)
-    // 2) visualViewport resize/pan -> clientHeight > vv.height -> kbOffset = clientHeight - vv.height - vv.offsetTop
-    // 3) VirtualKeyboard API boundingRect -> exact kb height
-    // 4) Blind OEM browser (neither shrinks) -> calibrated localStorage fallback + fine-tune buttons
-    const BLIND_STORAGE_KEY = "cp_blind_ime_offset_px";
+    // 1. Segmented controls helpers
+    function setActiveSeg(containerId, btn) {
+      document.querySelectorAll(`#${containerId} .seg-btn`).forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+    }
+    function pickTodoPriority(p, btn) { selectedTodoPriority = p; setActiveSeg("todoPrioritySeg", btn); }
+    function pickTodoMinutes(m, btn) { selectedTodoMinutes = m; setActiveSeg("todoMinutesSeg", btn); }
+    function pickPlanMode(mode, btn) { selectedPlanMode = mode; setActiveSeg("planStartSeg", btn); }
+    function pickApiDialect(d, btn) { selectedApiDialect = d; setActiveSeg("apiDialectSeg", btn); }
+
+    // 2. Dark Model Picker Sheet
+    function openModelSheet() {
+      document.getElementById("modelSearchInput").value = "";
+      renderModelSheetOptions();
+      document.getElementById("modelSheet").classList.add("open");
+    }
+    function closeModelSheet() {
+      document.getElementById("modelSheet").classList.remove("open");
+    }
+    function renderModelSheetOptions() {
+      const body = document.getElementById("modelSheetBody");
+      if (!latestState?.models?.providers) {
+        body.innerHTML = `<div class="tag-mono">暂无模型列表，请先点击「自动发现」。</div>`;
+        return;
+      }
+      const q = document.getElementById("modelSearchInput").value.trim().toLowerCase();
+      const cur = `${latestState.models.routing.primaryProvider}::${latestState.models.routing.primaryModel}`;
+      const html = [];
+      for (const prov of latestState.models.providers) {
+        const matched = prov.models.filter((m) => !q || m.id.toLowerCase().includes(q) || prov.name.toLowerCase().includes(q));
+        if (!matched.length) continue;
+        html.push(`<div class="sheet-group-title">${escapeHtml(prov.name)}</div>`);
+        for (const m of matched) {
+          const val = `${prov.id}::${m.id}`;
+          const active = val === cur ? "active" : "";
+          html.push(`
+            <button type="button" class="sheet-option ${active}" onclick="selectModelFromSheet('${escapeHtml(prov.id)}', '${escapeHtml(m.id)}')">
+              <span>${escapeHtml(m.id)}</span>
+              <span class="tag-mono">${m.images ? "看图 · " : ""}${Math.round((m.contextWindow || 128000) / 1000)}K</span>
+            </button>`);
+        }
+      }
+      body.innerHTML = html.length ? html.join("") : `<div class="tag-mono">没有匹配的模型。</div>`;
+    }
+    async function selectModelFromSheet(primaryProvider, primaryModel) {
+      closeModelSheet();
+      await api("/api/models/routing", { primaryProvider, primaryModel });
+      showToast(`已切换模型: ${primaryModel}`);
+      refreshStatus();
+    }
+
+    // 3. Adaptive Keyboard Tracking (handles MIUI/Quark IME toolbar strip + blind browsers + fine-tune)
+    const EXTRA_CUSHION_KEY = "cp_ime_extra_cushion_px";
+    const BLIND_OFFSET_KEY = "cp_blind_ime_offset_px";
     let baseVvHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
     let probeTimer = null;
 
@@ -706,15 +866,25 @@
       return window.matchMedia("(pointer: coarse)").matches || window.innerWidth <= 900;
     }
 
-    function getSavedBlindOffset() {
-      const saved = Number(localStorage.getItem(BLIND_STORAGE_KEY) || "0");
-      if (Number.isFinite(saved) && saved >= 120 && saved <= 600) return saved;
-      return Math.round((baseVvHeight || window.innerHeight) * 0.42);
+    function getExtraCushion() {
+      const saved = localStorage.getItem(EXTRA_CUSHION_KEY);
+      if (saved !== null) {
+        const n = Number(saved);
+        if (Number.isFinite(n) && n >= 0 && n <= 260) return n;
+      }
+      // Mobile keyboards often add a ~56px suggestion/toolbar strip above the reported inset or Quark bottom bar
+      return isTouchMobile() ? 56 : 0;
+    }
+
+    function getBlindOffset() {
+      const saved = Number(localStorage.getItem(BLIND_OFFSET_KEY) || "0");
+      if (Number.isFinite(saved) && saved >= 160 && saved <= 620) return saved;
+      return Math.round((baseVvHeight || window.innerHeight) * 0.46);
     }
 
     function syncBodyDockPadding(kbOffsetPx) {
       const dockH = chatDock.style.display === "none" ? 0 : chatDock.offsetHeight;
-      document.documentElement.style.setProperty("--dock-pad", `${dockH + kbOffsetPx + 18}px`);
+      document.documentElement.style.setProperty("--dock-pad", `${dockH + kbOffsetPx + 20}px`);
     }
 
     if ("ResizeObserver" in window) {
@@ -724,24 +894,32 @@
       }).observe(chatDock);
     }
 
-    function applyDockOffset(px, blindMode) {
+    let currentMode = "idle"; // "measured" | "native" | "blind" | "idle"
+    function applyDockOffset(px, mode) {
+      currentMode = mode;
       const safePx = Math.max(0, Math.round(px));
       document.documentElement.style.setProperty("--kb-offset", `${safePx}px`);
-      document.body.classList.toggle("ime-blind-active", Boolean(blindMode && safePx > 0));
-      if (blindMode && safePx > 0) {
-        document.getElementById("imeTuneLabel").textContent = `键盘抬升 ${safePx}px（可微调并记住）`;
+      if (mode !== "idle") {
+        document.getElementById("imeTuneLabel").textContent =
+          `键盘避让 +${safePx}px (${mode === "blind" ? "盲键盘" : "视口"})`;
       }
       syncBodyDockPadding(safePx);
     }
 
-    function nudgeBlindOffset(delta) {
-      const next = Math.max(120, Math.min(580, getSavedBlindOffset() + delta));
-      localStorage.setItem(BLIND_STORAGE_KEY, String(next));
-      applyDockOffset(next, true);
+    function nudgeExtraOffset(delta) {
+      if (currentMode === "blind") {
+        const next = Math.max(160, Math.min(620, getBlindOffset() + delta));
+        localStorage.setItem(BLIND_OFFSET_KEY, String(next));
+        applyDockOffset(next, "blind");
+      } else {
+        const nextExtra = Math.max(0, Math.min(260, getExtraCushion() + delta));
+        localStorage.setItem(EXTRA_CUSHION_KEY, String(nextExtra));
+        updateKeyboardTracking(true);
+      }
       chatInput.focus();
     }
 
-    function updateKeyboardTracking() {
+    function updateKeyboardTracking(forceProbe = false) {
       const vv = window.visualViewport;
       const vvH = vv ? vv.height : window.innerHeight;
       const vvTop = vv ? vv.offsetTop : 0;
@@ -756,74 +934,62 @@
       document.body.classList.toggle("ime-dock-active", isDockInput);
       document.body.classList.toggle("ime-body-input", isBodyInput);
 
-      // Signal A: layout vs visualViewport delta (covers resizes-visual & pan modes)
+      if (!isDockInput && !isBodyInput) {
+        applyDockOffset(0, "idle");
+        return;
+      }
+      if (isBodyInput) {
+        applyDockOffset(0, "idle");
+        return;
+      }
+
       const visualDelta = Math.max(0, Math.round(layoutH - vvH - vvTop));
-      // Signal B: VirtualKeyboard API if exposed
       const vkH = navigator.virtualKeyboard?.boundingRect?.height
         ? Math.round(navigator.virtualKeyboard.boundingRect.height)
         : 0;
       const measuredOffset = Math.max(visualDelta, vkH);
+      const layoutNativeShrunk = (baseVvHeight - vvH) > 100;
 
       if (measuredOffset > 40) {
-        // Browser reported exact offset between layout bottom and visual bottom
-        applyDockOffset(measuredOffset, false);
-        return;
-      }
-
-      // If browser resized layout viewport natively (baseVvHeight shrunk significantly), bottom:0 is already above IME!
-      const layoutNativeShrunk = (baseVvHeight - vvH) > 100;
-      if (layoutNativeShrunk || (!isDockInput && !isBodyInput)) {
-        applyDockOffset(0, false);
-        return;
-      }
-
-      // If dock is focused and browser gave 0 resize signal yet, wait for probeTimer or use saved blind offset
-      if (!isDockInput) {
-        applyDockOffset(0, false);
+        applyDockOffset(measuredOffset + getExtraCushion(), "measured");
+      } else if (layoutNativeShrunk) {
+        applyDockOffset(getExtraCushion(), "native");
+      } else if (forceProbe && isTouchMobile()) {
+        applyDockOffset(getBlindOffset(), "blind");
       }
     }
 
     if (window.visualViewport) {
-      window.visualViewport.addEventListener("resize", updateKeyboardTracking);
-      window.visualViewport.addEventListener("scroll", updateKeyboardTracking);
+      window.visualViewport.addEventListener("resize", () => updateKeyboardTracking(false));
+      window.visualViewport.addEventListener("scroll", () => updateKeyboardTracking(false));
     }
     if (navigator.virtualKeyboard) {
       try {
         navigator.virtualKeyboard.overlaysContent = false;
-        navigator.virtualKeyboard.addEventListener("geometrychange", updateKeyboardTracking);
+        navigator.virtualKeyboard.addEventListener("geometrychange", () => updateKeyboardTracking(false));
       } catch {}
     }
-    window.addEventListener("resize", updateKeyboardTracking);
+    window.addEventListener("resize", () => updateKeyboardTracking(false));
 
     document.addEventListener("focusin", (e) => {
       const target = e.target;
       if (!(target instanceof HTMLElement)) return;
       if (target.tagName !== "INPUT" && target.tagName !== "TEXTAREA") return;
-
       clearTimeout(probeTimer);
-      updateKeyboardTracking();
-
+      updateKeyboardTracking(false);
       probeTimer = setTimeout(() => {
-        updateKeyboardTracking();
-        const vv = window.visualViewport;
-        const vvH = vv ? vv.height : window.innerHeight;
-        const layoutH = document.documentElement.clientHeight || window.innerHeight;
-        const vvShrunk = (baseVvHeight - vvH) > 100 || (layoutH - vvH) > 100;
-        const vkH = navigator.virtualKeyboard?.boundingRect?.height || 0;
-
-        if (target === chatInput) {
-          if (!vvShrunk && vkH <= 40 && isTouchMobile()) {
-            // Mode 4 fallback: OEM browser overlayed keyboard without resizing viewport
-            applyDockOffset(getSavedBlindOffset(), true);
-          }
-        } else if (mainContainer.contains(target)) {
-          const safeBottom = vvShrunk ? vvH : Math.round(window.innerHeight * 0.50);
+        updateKeyboardTracking(true);
+        if (target !== chatInput && mainContainer.contains(target)) {
+          const vv = window.visualViewport;
+          const vvH = vv ? vv.height : window.innerHeight;
+          const vvShrunk = (baseVvHeight - vvH) > 100;
+          const safeBottom = vvShrunk ? vvH : Math.round(window.innerHeight * 0.48);
           const rect = target.getBoundingClientRect();
           if (rect.bottom > safeBottom - 16 || rect.top < 64) {
-            window.scrollBy({ top: rect.top - Math.round(safeBottom * 0.42), behavior: "smooth" });
+            window.scrollBy({ top: rect.top - Math.round(safeBottom * 0.40), behavior: "smooth" });
           }
         }
-      }, 320);
+      }, 300);
     });
 
     document.addEventListener("focusout", () => {
@@ -832,7 +998,7 @@
         const active = document.activeElement;
         if (!active || (active.tagName !== "INPUT" && active.tagName !== "TEXTAREA")) {
           document.body.classList.remove("ime-dock-active", "ime-body-input");
-          applyDockOffset(0, false);
+          applyDockOffset(0, "idle");
         }
       }, 180);
     });
@@ -1025,18 +1191,10 @@
           prefsEl.value = s.butler.preferences || "";
         }
 
-        const sel = document.getElementById("modelSelect");
-        const cur = `${s.models.routing.primaryProvider}::${s.models.routing.primaryModel}`;
-        sel.innerHTML = "";
-        for (const prov of s.models.providers) {
-          for (const m of prov.models) {
-            const opt = document.createElement("option");
-            opt.value = `${prov.id}::${m.id}`;
-            opt.textContent = `${prov.name} / ${m.id}${m.images ? " [看图]" : ""}`;
-            if (opt.value === cur) opt.selected = true;
-            sel.appendChild(opt);
-          }
-        }
+        const r = s.models.routing;
+        const provObj = s.models.providers.find((pr) => pr.id === r.primaryProvider);
+        document.getElementById("modelPickerLabel").textContent =
+          r.primaryModel ? `${provObj ? provObj.name : r.primaryProvider} / ${r.primaryModel}` : "选择当前主控模型...";
 
         document.getElementById("oauthBox").textContent =
           (s.models.oauthLogs && s.models.oauthLogs.length) ? s.models.oauthLogs.join("\n") : "未启动登录流程";
@@ -1090,8 +1248,8 @@
       try {
         await api("/api/butler/todos", {
           title,
-          priority: document.getElementById("todoPriority").value,
-          estMinutes: Number(document.getElementById("todoMinutes").value),
+          priority: selectedTodoPriority,
+          estMinutes: selectedTodoMinutes,
         });
         input.value = "";
         showToast("✅ 已添加待办");
@@ -1116,8 +1274,9 @@
 
     async function genPlan() {
       try {
-        const mode = document.getElementById("planStartMode").value;
-        const payload = mode === "now" ? { fromNow: true } : { startHour: Number(mode), fromNow: false };
+        const payload = selectedPlanMode === "now"
+          ? { fromNow: true }
+          : { startHour: Number(selectedPlanMode), fromNow: false };
         const res = await api("/api/butler/plan/generate", payload);
         showToast(`✅ 已排期 ${res.plan.slots.length} 个时段`);
         await refreshStatus();
@@ -1158,18 +1317,11 @@
         const res = await api("/api/models/discover", {
           baseUrl: document.getElementById("baseUrl").value,
           apiKey: document.getElementById("apiKey").value,
-          api: document.getElementById("apiDialect").value,
+          api: selectedApiDialect,
         });
         showToast(`✅ 自动发现 ${res.models.length} 个模型`);
         await refreshStatus();
       } catch (e) { showToast(e.message, true); }
-    }
-
-    async function switchModel() {
-      const [primaryProvider, primaryModel] = document.getElementById("modelSelect").value.split("::");
-      await api("/api/models/routing", { primaryProvider, primaryModel });
-      showToast(`已切换模型: ${primaryModel}`);
-      refreshStatus();
     }
 
     async function startChatGptOAuth(method) {
