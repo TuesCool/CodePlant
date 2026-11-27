@@ -2,10 +2,11 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
   <title>CODEPLANT // MI14 个人管家与控屏台</title>
   <style>
     :root {
+      --app-height: 100dvh;
       --bg: #0e0f12;
       --bg-grid: rgba(255, 255, 255, 0.03);
       --surface: #16181d;
@@ -27,195 +28,165 @@
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
       font-family: var(--sans);
       color: var(--ink);
       background-color: var(--bg);
       background-image: radial-gradient(var(--bg-grid) 1px, transparent 1px);
       background-size: 18px 18px;
-      min-height: 100vh;
-      padding-bottom: 190px;
+    }
+
+    /* Full-height Flex App Shell: prevents fixed-bottom IME overlap on mobile */
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: var(--app-height);
+      overflow: hidden;
     }
 
     /* Top Telemetry Header */
     .topbar {
-      position: sticky;
-      top: 0;
+      flex: 0 0 auto;
       z-index: 40;
-      background: rgba(14, 15, 18, 0.9);
+      background: rgba(14, 15, 18, 0.94);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
-      padding: 10px 14px 0;
+      padding: calc(8px + env(safe-area-inset-top)) 14px 0;
     }
-    .topbar-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-    }
+    .topbar-inner { max-width: 1100px; margin: 0 auto; }
+
     .brand-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
-      margin-bottom: 10px;
+      margin-bottom: 6px;
     }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    .brand { display: flex; align-items: center; gap: 8px; min-width: 0; }
     .brand-mark {
-      width: 10px;
-      height: 10px;
+      width: 9px;
+      height: 9px;
       border-radius: 2px;
       background: var(--accent);
-      box-shadow: 0 0 12px var(--accent);
+      box-shadow: 0 0 10px var(--accent);
+      flex-shrink: 0;
     }
     .brand-title {
       font-family: var(--mono);
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 700;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.06em;
     }
     .brand-sub {
       font-family: var(--mono);
       font-size: 11px;
       color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .led-strip {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
+    .led-strip { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
     .led {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      padding: 3px 8px;
+      gap: 4px;
+      padding: 2px 7px;
       font-family: var(--mono);
-      font-size: 11px;
+      font-size: 10.5px;
       border-radius: 4px;
       background: var(--surface);
       border: 1px solid var(--border);
       color: var(--muted);
     }
-    .led::before {
-      content: "";
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--muted);
-    }
+    .led::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--muted); }
     .led.on { color: var(--mint); border-color: rgba(46, 229, 157, 0.35); }
     .led.on::before { background: var(--mint); box-shadow: 0 0 6px var(--mint); }
     .led.off { color: #ff7b72; border-color: rgba(255, 77, 79, 0.3); }
     .led.off::before { background: var(--danger); }
 
     /* Navigation Tabs */
-    .nav-tabs {
-      display: flex;
-      gap: 4px;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
+    .nav-tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
     .nav-tabs::-webkit-scrollbar { display: none; }
     .tab-btn {
       background: transparent;
       border: none;
       border-bottom: 2px solid transparent;
       color: var(--muted);
-      padding: 9px 14px;
+      padding: 8px 12px;
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
       white-space: nowrap;
       transition: color 0.15s, border-color 0.15s;
     }
-    .tab-btn.active {
-      color: var(--ink);
-      border-bottom-color: var(--accent);
-    }
+    .tab-btn.active { color: var(--ink); border-bottom-color: var(--accent); }
 
-    /* Main Container */
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 16px 14px;
+    /* Middle Scrollable Area */
+    .main-scroll {
+      flex: 1 1 0%;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
     }
-    .view { display: none; animation: fadeIn 0.18s ease-out; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 12px 14px 20px; }
+    .view { display: none; animation: fadeIn 0.16s ease-out; }
     .view.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
 
     .grid-2 {
       display: grid;
-      grid-template-columns: 1.25fr 1fr;
-      gap: 14px;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 12px;
       align-items: start;
     }
     @media (max-width: 860px) { .grid-2 { grid-template-columns: 1fr; } }
 
-    /* Tactical Cards */
+    /* Compact KPI Strip */
+    .kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 9px 11px;
+    }
+    .kpi-label { font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+    .kpi-value { font-family: var(--mono); font-size: 19px; font-weight: 700; margin-top: 2px; }
+    .kpi-bar { height: 3px; background: var(--surface-2); border-radius: 99px; margin-top: 5px; overflow: hidden; }
+    .kpi-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--mint)); transition: width 0.3s ease; }
+
+    /* Panels */
     .panel {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 16px;
-      margin-bottom: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
     }
     .panel-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
-    .panel-title {
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .tag-mono {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--muted);
-    }
+    .panel-title { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 7px; }
+    .tag-mono { font-family: var(--mono); font-size: 11px; color: var(--muted); }
 
-    /* Hero KPI Strip */
-    .kpi-strip {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-    @media (max-width: 640px) { .kpi-strip { grid-template-columns: repeat(2, 1fr); } }
-    .kpi-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 14px;
-    }
-    .kpi-label { font-family: var(--mono); font-size: 11px; color: var(--muted); text-transform: uppercase; }
-    .kpi-value { font-family: var(--mono); font-size: 24px; font-weight: 700; margin-top: 4px; }
-    .kpi-bar {
-      height: 4px;
-      background: var(--surface-2);
-      border-radius: 99px;
-      margin-top: 8px;
-      overflow: hidden;
-    }
-    .kpi-bar-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--accent), var(--mint));
-      transition: width 0.3s ease;
-    }
-
-    /* Form Controls */
+    /* Form Controls (>=15px on mobile prevents browser focus auto-zoom) */
     input, select, textarea {
       width: 100%;
       background: var(--bg);
@@ -223,10 +194,13 @@
       border: 1px solid var(--border);
       border-radius: 7px;
       padding: 9px 11px;
-      font-size: 13px;
+      font-size: 14px;
       font-family: var(--sans);
       outline: none;
       transition: border-color 0.15s;
+    }
+    @media (max-width: 768px) {
+      input, select, textarea { font-size: 15px; }
     }
     input:focus, select:focus, textarea:focus { border-color: var(--accent); }
 
@@ -234,8 +208,8 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      padding: 8px 13px;
+      gap: 5px;
+      padding: 8px 12px;
       border-radius: 7px;
       font-size: 13px;
       font-weight: 600;
@@ -244,7 +218,7 @@
       background: var(--surface-2);
       color: var(--ink);
       white-space: nowrap;
-      transition: transform 0.08s, background 0.15s;
+      transition: transform 0.08s;
     }
     .btn:active { transform: scale(0.98); }
     .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
@@ -256,7 +230,7 @@
     .row + .row { margin-top: 8px; }
 
     /* Todo Items */
-    .filter-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .filter-pills { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
     .pill-btn {
       padding: 4px 10px;
       border-radius: 999px;
@@ -271,16 +245,14 @@
     .todo-item {
       display: flex;
       align-items: flex-start;
-      gap: 10px;
-      padding: 10px 12px;
+      gap: 9px;
+      padding: 9px 11px;
       background: var(--bg);
       border: 1px solid var(--border);
       border-radius: 8px;
-      margin-bottom: 8px;
-      transition: border-color 0.15s;
+      margin-bottom: 7px;
     }
-    .todo-item:hover { border-color: var(--border-strong); }
-    .todo-item.done { opacity: 0.58; }
+    .todo-item.done { opacity: 0.56; }
     .todo-check {
       width: 20px;
       height: 20px;
@@ -300,14 +272,8 @@
     .todo-body { flex: 1; min-width: 0; }
     .todo-title { font-size: 14px; font-weight: 500; word-break: break-word; }
     .todo-item.done .todo-title { text-decoration: line-through; }
-    .todo-meta { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 5px; }
-    .badge {
-      font-family: var(--mono);
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 4px;
-    }
+    .todo-meta { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
+    .badge { font-family: var(--mono); font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
     .badge.P0 { background: var(--accent-soft); color: var(--accent); border: 1px solid rgba(255,90,38,0.35); }
     .badge.P1 { background: var(--amber-soft); color: var(--amber); border: 1px solid rgba(245,166,35,0.35); }
     .badge.P2 { background: var(--surface-2); color: var(--muted); border: 1px solid var(--border); }
@@ -317,29 +283,40 @@
     .slot-item {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 9px 11px;
+      gap: 9px;
+      padding: 8px 10px;
       border-left: 3px solid var(--accent);
       background: var(--bg);
       border-radius: 0 8px 8px 0;
       border-top: 1px solid var(--border);
       border-right: 1px solid var(--border);
       border-bottom: 1px solid var(--border);
-      margin-bottom: 8px;
+      margin-bottom: 7px;
     }
     .slot-item.done { border-left-color: var(--mint); opacity: 0.6; }
-    .slot-time { font-family: var(--mono); font-size: 12px; color: var(--amber); min-width: 88px; }
+    .slot-time { font-family: var(--mono); font-size: 11.5px; color: var(--amber); min-width: 84px; }
 
-    /* Chat & Log Stream */
+    /* Collapsible details */
+    details.panel-details summary {
+      cursor: pointer;
+      list-style: none;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      padding-top: 4px;
+    }
+    details.panel-details[open] summary { color: var(--ink); margin-bottom: 8px; }
+
+    /* Stream & Pre */
     .stream-box {
-      height: 360px;
+      height: 300px;
       overflow-y: auto;
       background: var(--bg);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 12px;
+      padding: 11px;
       font-size: 13px;
-      line-height: 1.6;
+      line-height: 1.55;
       white-space: pre-wrap;
       word-break: break-word;
     }
@@ -349,34 +326,41 @@
       border-radius: 8px;
       padding: 10px;
       font-size: 12px;
-      line-height: 1.55;
+      line-height: 1.5;
       white-space: pre-wrap;
-      max-height: 220px;
+      max-height: 200px;
       overflow-y: auto;
       margin: 8px 0 0;
     }
 
-    /* FIXED BOTTOM CHAT DOCK */
+    /* ADAPTIVE BOTTOM CHAT DOCK (flex child, never occluded by IME) */
     .chat-dock {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      flex: 0 0 auto;
       z-index: 60;
-      background: rgba(16, 17, 21, 0.96);
-      backdrop-filter: blur(16px);
+      background: rgba(18, 20, 25, 0.98);
       border-top: 1px solid var(--border-strong);
       padding: 8px 12px calc(10px + env(safe-area-inset-bottom));
-      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.55);
+      box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.45);
+    }
+    .app-shell.ime-open .chat-dock {
+      padding-top: 6px;
+      padding-bottom: 6px;
+    }
+    .app-shell.ime-open .quick-chips {
+      display: none;
+    }
+    .app-shell.ime-open .kpi-strip {
+      display: none;
     }
     .chat-dock-inner { max-width: 1100px; margin: 0 auto; }
+
     .dock-live-bar {
       display: none;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      padding: 6px 10px;
-      margin-bottom: 7px;
+      padding: 5px 9px;
+      margin-bottom: 6px;
       background: var(--surface-2);
       border: 1px solid var(--border-strong);
       border-radius: 7px;
@@ -391,12 +375,13 @@
       font-family: var(--mono);
       color: var(--ink);
     }
+
     .quick-chips {
       display: flex;
       gap: 6px;
       overflow-x: auto;
       scrollbar-width: none;
-      margin-bottom: 8px;
+      margin-bottom: 7px;
     }
     .quick-chips::-webkit-scrollbar { display: none; }
     .chip {
@@ -411,32 +396,24 @@
     }
     .chip:hover { color: var(--ink); border-color: var(--accent); }
 
-    .composer-row {
-      display: flex;
-      gap: 8px;
-      align-items: flex-end;
-    }
+    .composer-row { display: flex; gap: 8px; align-items: flex-end; }
     .composer-row textarea {
       flex: 1;
-      min-height: 42px;
-      max-height: 110px;
+      min-height: 40px;
+      max-height: 104px;
       resize: none;
-      padding: 10px 12px;
-      line-height: 1.4;
+      padding: 9px 11px;
+      line-height: 1.38;
     }
-    .composer-send {
-      height: 42px;
-      padding: 0 18px;
-      font-size: 13px;
-    }
+    .composer-send { height: 40px; padding: 0 16px; font-size: 13px; flex-shrink: 0; }
 
     /* Toast */
     .toast {
       position: fixed;
-      top: 64px;
-      right: 16px;
-      z-index: 80;
-      padding: 9px 14px;
+      top: 56px;
+      right: 14px;
+      z-index: 90;
+      padding: 8px 13px;
       border-radius: 8px;
       background: var(--surface-2);
       border: 1px solid var(--border-strong);
@@ -452,245 +429,250 @@
   </style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="topbar-inner">
-      <div class="brand-row">
-        <div class="brand">
-          <span class="brand-mark"></span>
-          <div>
-            <div class="brand-title">CODEPLANT // MI14 COMMANDER</div>
-            <div class="brand-sub" id="ctxUsage">CTX --% · 等待配置模型</div>
+  <div class="app-shell" id="appShell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand-row">
+          <div class="brand">
+            <span class="brand-mark"></span>
+            <div>
+              <div class="brand-title">CODEPLANT // MI14 COMMANDER</div>
+              <div class="brand-sub" id="ctxUsage">CTX --% · 等待配置模型</div>
+            </div>
           </div>
+          <div class="led-strip" id="statusPills"></div>
         </div>
-        <div class="led-strip" id="statusPills"></div>
+        <nav class="nav-tabs">
+          <button class="tab-btn active" data-tab="butler" onclick="switchTab('butler')">01 · 待办与日程</button>
+          <button class="tab-btn" data-tab="agent" onclick="switchTab('agent')">02 · 执行流与虫部落/微信</button>
+          <button class="tab-btn" data-tab="models" onclick="switchTab('models')">03 · 模型路由与 OAuth</button>
+        </nav>
       </div>
-      <nav class="nav-tabs">
-        <button class="tab-btn active" data-tab="butler" onclick="switchTab('butler')">01 · 待办与日程</button>
-        <button class="tab-btn" data-tab="agent" onclick="switchTab('agent')">02 · 执行流与虫部落/微信</button>
-        <button class="tab-btn" data-tab="models" onclick="switchTab('models')">03 · 模型路由与 OAuth</button>
-      </nav>
-    </div>
-  </header>
+    </header>
 
-  <div class="toast" id="toast"></div>
+    <div class="toast" id="toast"></div>
 
-  <main class="container">
-    <!-- TAB 1: BUTLER / TODO / SCHEDULE / WEEKLY REVIEW -->
-    <section id="view-butler" class="view active">
-      <div class="kpi-strip">
-        <div class="kpi-card">
-          <div class="kpi-label">待办总数</div>
-          <div class="kpi-value" id="kpiTotal">0</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">未完成</div>
-          <div class="kpi-value" style="color:var(--accent)" id="kpiOpen">0</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">已完成</div>
-          <div class="kpi-value" style="color:var(--mint)" id="kpiDone">0</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">完成率</div>
-          <div class="kpi-value" id="kpiRate">0%</div>
-          <div class="kpi-bar"><div class="kpi-bar-fill" id="kpiRateBar" style="width:0%"></div></div>
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <!-- Left: Todos -->
-        <div>
-          <div class="panel">
-            <div class="panel-head">
-              <div class="panel-title">📋 待办事项清单</div>
-              <span class="tag-mono" id="todayLabel">--</span>
+    <main class="main-scroll" id="mainScroll">
+      <div class="container">
+        <!-- TAB 1: BUTLER / TODO / SCHEDULE / WEEKLY REVIEW -->
+        <section id="view-butler" class="view active">
+          <div class="kpi-strip">
+            <div class="kpi-card">
+              <div class="kpi-label">待办</div>
+              <div class="kpi-value" id="kpiTotal">0</div>
             </div>
-            <div class="row">
-              <input id="todoTitle" placeholder="输入待办（按回车直接添加）..." onkeydown="if(event.key==='Enter') addTodo()" style="flex:1;min-width:160px;" />
+            <div class="kpi-card">
+              <div class="kpi-label">未完</div>
+              <div class="kpi-value" style="color:var(--accent)" id="kpiOpen">0</div>
             </div>
-            <div class="row">
-              <select id="todoPriority" style="width:92px;">
-                <option value="P0">P0 紧急</option>
-                <option value="P1" selected>P1 重要</option>
-                <option value="P2">P2 常规</option>
-              </select>
-              <select id="todoMinutes" style="width:98px;">
-                <option value="15">15 分钟</option>
-                <option value="30" selected>30 分钟</option>
-                <option value="45">45 分钟</option>
-                <option value="60">60 分钟</option>
-                <option value="90">90 分钟</option>
-              </select>
-              <button class="btn primary" onclick="addTodo()" style="flex:1;">+ 添加待办</button>
+            <div class="kpi-card">
+              <div class="kpi-label">已完</div>
+              <div class="kpi-value" style="color:var(--mint)" id="kpiDone">0</div>
             </div>
-
-            <div class="filter-pills" style="margin-top:12px;">
-              <button class="pill-btn active" onclick="setTodoFilter('all', this)">全部</button>
-              <button class="pill-btn" onclick="setTodoFilter('open', this)">未完成</button>
-              <button class="pill-btn" onclick="setTodoFilter('doing', this)">进行中</button>
-              <button class="pill-btn" onclick="setTodoFilter('done', this)">已完成</button>
+            <div class="kpi-card">
+              <div class="kpi-label">达成</div>
+              <div class="kpi-value" id="kpiRate">0%</div>
+              <div class="kpi-bar"><div class="kpi-bar-fill" id="kpiRateBar" style="width:0%"></div></div>
             </div>
-
-            <div id="todoList"></div>
-          </div>
-        </div>
-
-        <!-- Right: Daily Plan & Weekly Review -->
-        <div>
-          <div class="panel">
-            <div class="panel-head">
-              <div class="panel-title">⏰ 今日排期与原生督促</div>
-              <button class="btn sm mint" onclick="testNotify()">🔔 测试督促通知</button>
-            </div>
-            <div class="row" style="margin-bottom:10px;">
-              <select id="planStartMode" style="flex:1;min-width:130px;">
-                <option value="now" selected>从现在顺延 (+5m)</option>
-                <option value="9">从早上 09:00 开始</option>
-                <option value="14">从下午 14:00 开始</option>
-              </select>
-              <button class="btn primary" onclick="genPlan()">⚡ 一键生成排期</button>
-            </div>
-            <div id="planSlots"></div>
           </div>
 
-          <div class="panel">
-            <div class="panel-head">
-              <div class="panel-title">📈 周复盘与规则自迭代</div>
-              <span class="tag-mono">preferences.md</span>
-            </div>
-            <div class="row">
-              <button class="btn" onclick="genReview(false)" style="flex:1;">生成复盘草稿</button>
-              <button class="btn primary" onclick="genReview(true)" style="flex:1;">复盘并迭代偏好</button>
-            </div>
-            <pre class="report-pre" id="reviewPreview">点击上方按钮统计本周待办完成率并生成改进建议。</pre>
-            <div class="row" style="margin-top:10px;">
-              <textarea id="prefsEditor" rows="4" placeholder="个人偏好与复盘迭代规则..."></textarea>
-            </div>
-            <div class="row" style="margin-top:6px;">
-              <button class="btn sm" onclick="savePreferences()">💾 保存偏好规则</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+          <div class="grid-2">
+            <!-- Left: Todos -->
+            <div>
+              <div class="panel">
+                <div class="panel-head">
+                  <div class="panel-title">📋 待办事项清单</div>
+                  <span class="tag-mono" id="todayLabel">--</span>
+                </div>
+                <div class="row">
+                  <input id="todoTitle" placeholder="输入待办（按回车直接添加）..." onkeydown="if(event.key==='Enter') addTodo()" style="flex:1;min-width:160px;" />
+                </div>
+                <div class="row">
+                  <select id="todoPriority" style="width:96px;">
+                    <option value="P0">P0 紧急</option>
+                    <option value="P1" selected>P1 重要</option>
+                    <option value="P2">P2 常规</option>
+                  </select>
+                  <select id="todoMinutes" style="width:100px;">
+                    <option value="15">15 分钟</option>
+                    <option value="30" selected>30 分钟</option>
+                    <option value="45">45 分钟</option>
+                    <option value="60">60 分钟</option>
+                    <option value="90">90 分钟</option>
+                  </select>
+                  <button class="btn primary" onclick="addTodo()" style="flex:1;">+ 添加</button>
+                </div>
 
-    <!-- TAB 2: AGENT STREAM / CHONGBULUO / WECHAT -->
-    <section id="view-agent" class="view">
-      <div class="grid-2">
-        <div>
-          <div class="panel">
-            <div class="panel-head">
-              <div class="panel-title">🖥️ Agent 实时执行日志</div>
-              <div class="row">
-                <button class="btn sm" onclick="compactNow()">🗜️ 压缩上下文</button>
-                <button class="btn sm" onclick="clearStream()">清空</button>
+                <div class="filter-pills">
+                  <button class="pill-btn active" onclick="setTodoFilter('all', this)">全部</button>
+                  <button class="pill-btn" onclick="setTodoFilter('open', this)">未完成</button>
+                  <button class="pill-btn" onclick="setTodoFilter('doing', this)">进行中</button>
+                  <button class="pill-btn" onclick="setTodoFilter('done', this)">已完成</button>
+                </div>
+
+                <div id="todoList"></div>
               </div>
             </div>
-            <div id="chatLog" class="stream-box">系统就绪。直接在页面最下方聊天框输入指令即可执行手机控制、虫部落检索或待办排期。</div>
-          </div>
 
-          <div class="panel">
-            <div class="panel-head">
-              <div class="panel-title">🛡️ 高敏动作二次确认（如微信打视频）</div>
+            <!-- Right: Daily Plan & Weekly Review -->
+            <div>
+              <div class="panel">
+                <div class="panel-head">
+                  <div class="panel-title">⏰ 今日排期与督促</div>
+                  <button class="btn sm mint" onclick="testNotify()">🔔 测试提醒</button>
+                </div>
+                <div class="row" style="margin-bottom:10px;">
+                  <select id="planStartMode" style="flex:1;min-width:130px;">
+                    <option value="now" selected>从现在顺延 (+5m)</option>
+                    <option value="9">从早上 09:00 开始</option>
+                    <option value="14">从下午 14:00 开始</option>
+                  </select>
+                  <button class="btn primary" onclick="genPlan()">⚡ 一键排期</button>
+                </div>
+                <div id="planSlots"></div>
+              </div>
+
+              <div class="panel">
+                <div class="panel-head">
+                  <div class="panel-title">📈 周复盘与偏好迭代</div>
+                  <span class="tag-mono">preferences.md</span>
+                </div>
+                <div class="row">
+                  <button class="btn" onclick="genReview(false)" style="flex:1;">复盘草稿</button>
+                  <button class="btn primary" onclick="genReview(true)" style="flex:1;">复盘并迭代偏好</button>
+                </div>
+                <pre class="report-pre" id="reviewPreview">点击上方按钮统计本周待办完成率并生成改进建议。</pre>
+                <details class="panel-details" style="margin-top:10px;">
+                  <summary>展开 / 编辑个人偏好规则 (preferences.md)</summary>
+                  <textarea id="prefsEditor" rows="4" placeholder="个人偏好与复盘迭代规则..."></textarea>
+                  <div class="row" style="margin-top:6px;">
+                    <button class="btn sm" onclick="savePreferences()">💾 保存偏好规则</button>
+                  </div>
+                </details>
+              </div>
             </div>
-            <div id="confirmList" class="tag-mono">暂无挂起操作</div>
           </div>
+        </section>
+
+        <!-- TAB 2: AGENT STREAM / CHONGBULUO / WECHAT -->
+        <section id="view-agent" class="view">
+          <div class="grid-2">
+            <div>
+              <div class="panel">
+                <div class="panel-head">
+                  <div class="panel-title">🖥️ Agent 实时执行日志</div>
+                  <div class="row">
+                    <button class="btn sm" onclick="compactNow()">🗜️ 压缩</button>
+                    <button class="btn sm" onclick="clearStream()">清空</button>
+                  </div>
+                </div>
+                <div id="chatLog" class="stream-box">系统就绪。直接在底部聊天框输入指令即可执行手机控制、虫部落检索或待办排期。</div>
+              </div>
+
+              <div class="panel">
+                <div class="panel-head">
+                  <div class="panel-title">🛡️ 高敏动作二次确认（如微信打视频）</div>
+                </div>
+                <div id="confirmList" class="tag-mono">暂无挂起操作</div>
+              </div>
+            </div>
+
+            <div>
+              <div class="panel">
+                <div class="panel-head">
+                  <div class="panel-title">🔍 虫部落检索（优先后台抓取）</div>
+                </div>
+                <div class="row">
+                  <input id="cblQuery" placeholder="输入关键词，例如：嵌入式 Rust STM32..." onkeydown="if(event.key==='Enter') searchChongbuluo()" style="flex:1;" />
+                  <button class="btn primary" onclick="searchChongbuluo()">抓取整理</button>
+                </div>
+                <pre class="report-pre" id="cblOut">点击「抓取整理」优先走 Termux 后台抓取，若遇登录/动态页将提示改走控屏。</pre>
+              </div>
+
+              <div class="panel">
+                <div class="panel-head">
+                  <div class="panel-title">💬 微信通知监听与白名单</div>
+                  <button class="btn sm" onclick="saveWeChatPolicy()">保存</button>
+                </div>
+                <div class="row">
+                  <input id="wxWhitelist" placeholder="回复白名单（逗号分隔，如：文件传输助手,张三）" />
+                </div>
+                <div id="wxEvents" style="margin-top:10px;" class="tag-mono">暂无捕获的微信通知</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 3: MODELS & CHATGPT OAUTH -->
+        <section id="view-models" class="view">
+          <div class="grid-2">
+            <div class="panel">
+              <div class="panel-head">
+                <div class="panel-title">🔑 接口密钥与自动找模型</div>
+              </div>
+              <div class="row">
+                <input id="baseUrl" placeholder="Base URL（如 https://api.openai.com 或中转站）" />
+              </div>
+              <div class="row">
+                <input id="apiKey" type="password" placeholder="API Key（sk-...）" />
+              </div>
+              <div class="row">
+                <select id="apiDialect" style="flex:1;">
+                  <option value="openai-completions">openai-completions（标准兼容）</option>
+                  <option value="openai-responses">openai-responses</option>
+                  <option value="anthropic-messages">anthropic-messages（Claude 兼容）</option>
+                </select>
+                <button class="btn primary" onclick="discoverModels()">🔎 自动发现</button>
+              </div>
+              <div class="row" style="margin-top:10px;">
+                <select id="modelSelect" onchange="switchModel()"></select>
+              </div>
+              <div class="tag-mono" style="margin-top:8px;">切换下拉框立即生效，当前选中模型即为底部聊天框的主控引擎。</div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <div class="panel-title">🟢 ChatGPT 订阅账号 OAuth 登录</div>
+              </div>
+              <div class="row">
+                <button class="btn" onclick="startChatGptOAuth('browser')" style="flex:1;">浏览器回调登录</button>
+                <button class="btn" onclick="startChatGptOAuth('device')" style="flex:1;">Device Code 登录</button>
+              </div>
+              <div id="oauthPromptBox" style="display:none;margin-top:10px;">
+                <div id="oauthPromptLabel" class="tag-mono" style="margin-bottom:6px;color:var(--amber);"></div>
+                <div class="row">
+                  <input id="oauthAnswer" placeholder="粘贴回调 URL 或验证码..." style="flex:1;" />
+                  <button class="btn primary" onclick="submitOAuthAnswer()">提交</button>
+                </div>
+              </div>
+              <pre class="report-pre" id="oauthBox">未启动登录流程</pre>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- ADAPTIVE BOTTOM CHAT COMPOSER DOCK -->
+    <footer class="chat-dock" id="chatDock">
+      <div class="chat-dock-inner">
+        <div class="dock-live-bar" id="dockLiveBar">
+          <div class="dock-live-text" id="dockLiveText">准备执行...</div>
+          <button class="btn sm" onclick="switchTab('agent')">详情</button>
+          <button class="btn sm danger" id="dockAbortBtn" onclick="abortChat()" style="display:none;">中止</button>
         </div>
-
-        <div>
-          <div class="panel">
-            <div class="panel-head">
-              <div class="panel-title">🔍 虫部落检索（优先后台抓取）</div>
-            </div>
-            <div class="row">
-              <input id="cblQuery" placeholder="输入关键词，例如：嵌入式 Rust STM32..." onkeydown="if(event.key==='Enter') searchChongbuluo()" style="flex:1;" />
-              <button class="btn primary" onclick="searchChongbuluo()">抓取整理</button>
-            </div>
-            <pre class="report-pre" id="cblOut">点击「抓取整理」优先走 Termux 后台抓取，若遇登录/动态页将提示改走控屏。</pre>
-          </div>
-
-          <div class="panel">
-            <div class="panel-head">
-              <div class="panel-title">💬 微信通知监听与白名单</div>
-              <button class="btn sm" onclick="saveWeChatPolicy()">保存白名单</button>
-            </div>
-            <div class="row">
-              <input id="wxWhitelist" placeholder="回复白名单联系人（逗号分隔，如：文件传输助手,张三）" />
-            </div>
-            <div id="wxEvents" style="margin-top:10px;" class="tag-mono">暂无捕获的微信通知</div>
-          </div>
+        <div class="quick-chips" id="quickChips">
+          <button class="chip" onclick="useQuickPrompt('请帮我把今天要做的 3 件重要事情整理成待办，并按现在时间生成今日计划')">📋 需求转待办</button>
+          <button class="chip" onclick="useQuickPrompt('用虫部落搜索并整理：')">🔍 虫部落搜索</button>
+          <button class="chip" onclick="useQuickPrompt('读取当前手机屏幕，告诉我现在界面上有什么')">📱 看当前屏幕</button>
+          <button class="chip" onclick="useQuickPrompt('查看最近微信通知并给出回复建议')">💬 查微信通知</button>
+          <button class="chip" onclick="useQuickPrompt('帮我生成本周复盘并提出优化建议')">📈 本周复盘</button>
+        </div>
+        <div class="composer-row">
+          <textarea id="chatInput" rows="1" enterkeyhint="send" placeholder="输入指令控制手机、查虫部落或管理待办..."></textarea>
+          <button class="btn primary composer-send" id="sendBtn" onclick="sendChat()">▶ 执行</button>
         </div>
       </div>
-    </section>
-
-    <!-- TAB 3: MODELS & CHATGPT OAUTH -->
-    <section id="view-models" class="view">
-      <div class="grid-2">
-        <div class="panel">
-          <div class="panel-head">
-            <div class="panel-title">🔑 接口密钥与自动找模型</div>
-          </div>
-          <div class="row">
-            <input id="baseUrl" placeholder="Base URL（如 https://api.openai.com 或中转站地址）" />
-          </div>
-          <div class="row">
-            <input id="apiKey" type="password" placeholder="API Key（sk-...）" />
-          </div>
-          <div class="row">
-            <select id="apiDialect" style="flex:1;">
-              <option value="openai-completions">openai-completions（标准兼容）</option>
-              <option value="openai-responses">openai-responses</option>
-              <option value="anthropic-messages">anthropic-messages（Claude 兼容）</option>
-            </select>
-            <button class="btn primary" onclick="discoverModels()">🔎 自动发现模型</button>
-          </div>
-          <div class="row" style="margin-top:10px;">
-            <select id="modelSelect" onchange="switchModel()"></select>
-          </div>
-          <div class="tag-mono" style="margin-top:8px;">切换下拉框立即生效，当前选中模型即为底部聊天框的主控引擎。</div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-head">
-            <div class="panel-title">🟢 ChatGPT 订阅账号 OAuth 登录</div>
-          </div>
-          <div class="row">
-            <button class="btn" onclick="startChatGptOAuth('browser')" style="flex:1;">浏览器回调登录</button>
-            <button class="btn" onclick="startChatGptOAuth('device')" style="flex:1;">Device Code 登录</button>
-          </div>
-          <div id="oauthPromptBox" style="display:none;margin-top:10px;">
-            <div id="oauthPromptLabel" class="tag-mono" style="margin-bottom:6px;color:var(--amber);"></div>
-            <div class="row">
-              <input id="oauthAnswer" placeholder="粘贴回调 URL 或验证码..." style="flex:1;" />
-              <button class="btn primary" onclick="submitOAuthAnswer()">提交</button>
-            </div>
-          </div>
-          <pre class="report-pre" id="oauthBox">未启动登录流程</pre>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- FIXED BOTTOM CHAT DOCK -->
-  <div class="chat-dock">
-    <div class="chat-dock-inner">
-      <div class="dock-live-bar" id="dockLiveBar">
-        <div class="dock-live-text" id="dockLiveText">准备执行...</div>
-        <button class="btn sm" onclick="switchTab('agent')">详情</button>
-        <button class="btn sm danger" id="dockAbortBtn" onclick="abortChat()" style="display:none;">中止</button>
-      </div>
-      <div class="quick-chips">
-        <button class="chip" onclick="useQuickPrompt('请帮我把今天要做的 3 件重要事情整理成待办，并按现在时间生成今日计划')">📋 需求转待办+排期</button>
-        <button class="chip" onclick="useQuickPrompt('用虫部落搜索并整理：')">🔍 虫部落搜索</button>
-        <button class="chip" onclick="useQuickPrompt('读取当前手机屏幕，告诉我现在界面上有什么')">📱 看当前屏幕</button>
-        <button class="chip" onclick="useQuickPrompt('查看最近微信通知并给出回复建议')">💬 查微信通知</button>
-        <button class="chip" onclick="useQuickPrompt('帮我生成本周复盘并提出优化建议')">📈 本周复盘</button>
-      </div>
-      <div class="composer-row">
-        <textarea id="chatInput" rows="1" placeholder="在这里输入任何指令控制手机、查虫部落或管理待办（Enter 发送，Shift+Enter 换行）..."></textarea>
-        <button class="btn primary composer-send" id="sendBtn" onclick="sendChat()">▶ 执行</button>
-      </div>
-    </div>
+    </footer>
   </div>
 
   <script>
@@ -698,8 +680,49 @@
     let latestState = null;
     let isRunningChat = false;
 
+    const appShell = document.getElementById("appShell");
+    const mainScroll = document.getElementById("mainScroll");
     const chatLog = document.getElementById("chatLog");
     const chatInput = document.getElementById("chatInput");
+
+    // 1. VisualViewport adaptive lock: keeps bottom dock riding cleanly above mobile soft keyboard
+    let baseViewportHeight = window.innerHeight;
+    function syncViewportHeight() {
+      const vv = window.visualViewport;
+      const vh = vv ? vv.height : window.innerHeight;
+      if (vh > baseViewportHeight) baseViewportHeight = vh;
+      document.documentElement.style.setProperty("--app-height", `${Math.round(vh)}px`);
+      const keyboardLikelyOpen = (baseViewportHeight - vh) > 130;
+      const dockFocused = document.activeElement === chatInput;
+      appShell.classList.toggle("ime-open", keyboardLikelyOpen || dockFocused);
+      if (vv && vv.offsetTop > 0) {
+        window.scrollTo(0, 0);
+      }
+    }
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", syncViewportHeight);
+      window.visualViewport.addEventListener("scroll", syncViewportHeight);
+    }
+    window.addEventListener("resize", syncViewportHeight);
+    syncViewportHeight();
+
+    document.addEventListener("focusin", (e) => {
+      const target = e.target;
+      if (!(target instanceof HTMLElement)) return;
+      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT") {
+        setTimeout(() => {
+          syncViewportHeight();
+          if (target !== chatInput && mainScroll.contains(target)) {
+            target.scrollIntoView({ block: "center", behavior: "smooth" });
+          }
+        }, 220);
+      }
+    });
+
+    document.addEventListener("focusout", () => {
+      setTimeout(syncViewportHeight, 120);
+    });
 
     function showToast(msg, isErr = false) {
       const el = document.getElementById("toast");
@@ -717,6 +740,7 @@
       document.querySelectorAll(".view").forEach((v) => {
         v.classList.toggle("active", v.id === `view-${name}`);
       });
+      mainScroll.scrollTop = 0;
     }
 
     function appendLog(txt) {
@@ -816,7 +840,7 @@
 
       const box = document.getElementById("todoList");
       if (!filtered.length) {
-        box.innerHTML = `<div class="tag-mono" style="padding:14px 0;">当前筛选下暂无待办，可在上方添加或在底部聊天框直接口述需求。</div>`;
+        box.innerHTML = `<div class="tag-mono" style="padding:10px 0;">当前筛选下暂无待办，可在上方添加或在底部聊天框直接口述需求。</div>`;
         return;
       }
 
@@ -847,7 +871,7 @@
     function renderPlan(plan) {
       const box = document.getElementById("planSlots");
       if (!plan || !plan.slots.length) {
-        box.innerHTML = `<div class="tag-mono">今日尚未排期。添加未完成待办后点击「一键生成排期」。</div>`;
+        box.innerHTML = `<div class="tag-mono">今日尚未排期。添加未完成待办后点击「一键排期」。</div>`;
         return;
       }
       box.innerHTML = plan.slots.map((sl) => `
@@ -867,7 +891,7 @@
         document.getElementById("statusPills").innerHTML = [
           `<span class="led ${p.ok ? "on" : "off"}">Portal</span>`,
           `<span class="led ${p.accessibilityConnected ? "on" : "off"}">无障碍</span>`,
-          `<span class="led ${p.notificationListenerConnected ? "on" : "off"}">通知监听</span>`,
+          `<span class="led ${p.notificationListenerConnected ? "on" : "off"}">通知</span>`,
           `<span class="led ${p.shizukuReady ? "on" : ""}">Shizuku</span>`,
         ].join("");
 
@@ -888,7 +912,6 @@
           prefsEl.value = s.butler.preferences || "";
         }
 
-        // Models
         const sel = document.getElementById("modelSelect");
         const cur = `${s.models.routing.primaryProvider}::${s.models.routing.primaryModel}`;
         sel.innerHTML = "";
@@ -913,7 +936,6 @@
           promptBox.style.display = "none";
         }
 
-        // Safety & WeChat
         const wlEl = document.getElementById("wxWhitelist");
         if (document.activeElement !== wlEl && s.safety?.wechat?.replyWhitelist) {
           wlEl.value = s.safety.wechat.replyWhitelist.join(", ");
@@ -1079,7 +1101,7 @@
 
     function autoResizeInput() {
       chatInput.style.height = "auto";
-      chatInput.style.height = Math.min(110, chatInput.scrollHeight) + "px";
+      chatInput.style.height = Math.min(104, chatInput.scrollHeight) + "px";
     }
     chatInput.addEventListener("input", autoResizeInput);
     chatInput.addEventListener("keydown", (e) => {
